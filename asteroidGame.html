@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title>asteroidGame</title>
+
+		<script src='./array.js'></script>
+		<script src='./inherits.js'></script>
+		<script src='./store.js'></script>
+		<script src='./moving_object.js'></script>
+		<script src='./asteroid.js'></script>
+		<script src='./game.js'></script>
+	</head>
+	<body>
+
+		<script>
+			var canvas = document.createElement("canvas");
+			canvas.setAttribute("width", "500");
+      canvas.setAttribute("height", "500");
+
+      var body = document.getElementsByTagName("body")[0];
+      body.appendChild(canvas);
+      
+			var game = new window.Asteroids.Game(canvas);
+			game.start();
+		</script>
+	</body>
+</html>
