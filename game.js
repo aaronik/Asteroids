@@ -31,11 +31,11 @@ var Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	Game.prototype.step = function() {
-		// this.clearOOBAsteroids();
-		this.wrapMovingObjects();
-		this.draw();
-		this.move();
+	Game.prototype.explodeAsteroidsIfCollided = function() {
+		var game = this;
+		this.asteroidCollisions().forEach(function(asteroid){
+			game.explodeAsteroid(asteroid);
+		})
 	};
 
 	Game.prototype.clearOOBAsteroids = function() { // substituted for wrap around
@@ -102,9 +102,17 @@ var Asteroids = (this.Asteroids || {});
 		this.asteroids = this.asteroids.concat(asteroid.explode());
 	}
 
+	Game.prototype.step = function() {
+		// this.clearOOBAsteroids();
+		this.wrapMovingObjects();
+		// this.explodeAsteroidsIfCollided();
+		this.draw();
+		this.move();
+	};
+
 	Game.prototype.start = function() {
 		that = this;
-		this.addAsteroids(5);
+		this.addAsteroids(1);
 		window.setInterval(function () {
 			that.step();
 		}, that.FPS);

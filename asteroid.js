@@ -48,11 +48,16 @@ var Asteroids = (this.Asteroids || {});
 			return [];
 		}
 
-		var pos = this.pos;
+		// pos.push(this.pos[0])
+		// pos.push(this.pos[1])
+
 		var newAsteroids = [];
 
 		var vel;
 		for (var i = 0; i < 3; i++) {
+			var pos = [];
+			pos[0] = this.pos[0];
+			pos[1] = this.pos[1];
 			vel = Store.randomVel(rad);
 			newAsteroids.push(new Asteroid(pos, vel, rad));
 		}

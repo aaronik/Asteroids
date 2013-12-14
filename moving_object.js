@@ -47,6 +47,7 @@ var Asteroids = (Asteroids || {});
 		}
 	};
 
+	// a strange function.  Never gets called.
 	MovingObject.prototype.start = function (canvas) {
 		var game = this;
 		var ctx = canvasEl.getContext("2d");
