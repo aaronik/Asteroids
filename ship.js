@@ -5,7 +5,7 @@ var Asteroids = (Asteroids || {});
 	var Ship = global.Ship = function () {
 		var pos = [window.game.WIDTH / 2, window.game.HEIGHT / 2];
 		var vel = [0, 0];
-		var radius = 20;
+		var radius = 20 / 3;
 		this.orientation = [0,-1];
 		this.rotateSpeed = 0.25;
 		this.impulse = 0.4;
@@ -47,7 +47,7 @@ var Asteroids = (Asteroids || {});
 	}
 
 	Ship.prototype.draw = function (ctx) {
-		var height = this.radius;
+		var height = this.radius * 3;
 		var base = 0.3;
 		var or = this.orientation;
 

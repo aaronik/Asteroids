@@ -9,6 +9,7 @@ var Asteroids = (this.Asteroids || {});
 		this.asteroids = [];
 		this.bullets = [];
 		this.FPS = 30;
+		this.repopulationRate = 0.2;
 	};
 
 	Game.prototype.addAsteroids = function(numAsteroids) {
@@ -163,9 +164,24 @@ var Asteroids = (this.Asteroids || {});
 
 		this.asteroids.forEach(function(as){
 			if (game.ship.isCollidedWith(as)) {
-				console.log("boom!")
+				var body = document.getElementsByTagName('body')[0]
+				body.bgColor = 'red';
+				setTimeout(function(){
+					body.bgColor = 'white';
+				}, 300)
 			}
 		})
+	};
+
+	Game.prototype.repopulateAsteroids = function() {
+		if (typeof this._counter !== "number") {
+			this._counter = 0;
+		}
+
+		this._counter = (this._counter + 1) % Math.round(this.repopulationRate * this.FPS * 25);
+		if (this._counter == 0) {
+			this.addAsteroids(1);
+		}
 	};
 
 	Game.prototype.step = function() {
@@ -175,6 +191,7 @@ var Asteroids = (this.Asteroids || {});
 		// this.explodeAsteroidsIfCollided();
 		this.explodeAsteroidIfHit();
 		this.damageShipIfHit();
+		this.repopulateAsteroids();
 		this.draw();
 		this.move();
 	};

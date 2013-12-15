@@ -1,2 +1,4 @@
--Asteroids should move in negative directions also
--Asteroids shouldn't be starting only at the origin
+-ship to have inverse twitch sensitivity - if you press left or right really fast, it should dampen the rate, so you can still pan quick
+ but you can also have fine grained control
+
+-asteroid repopulation rate should be in asteroids per second.

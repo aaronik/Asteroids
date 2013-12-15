@@ -43,7 +43,6 @@ var Asteroids = this.Asteroids;
 
 	var listenDown = function () {
 		document.onkeydown = function (event) {
-			console.log(event.keyCode)
 			switch (event.keyCode) {
 				case 65:
 				case 37:
