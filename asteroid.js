@@ -5,16 +5,15 @@ var Asteroids = (this.Asteroids || {});
 	var Store = global.Store;
 
 	var Asteroid = global.Asteroid = function (pos, vel, rad, color) {
-		this.COLOR = color || Store.randomColor();
-		this.RADIUS = rad;
+		var color = color || Store.randomColor();
 
-		MovingObject.call(this, pos, vel, this.RADIUS, this.COLOR);
+		MovingObject.call(this, pos, vel, rad, color);
 	};
+
+	inherits(Asteroid, MovingObject);
 
 	Asteroid.MAX_SPEED_MULTIPLIER = 100;
 	Asteroid.RADII = [40, 25, 10];
-
-	inherits(Asteroid, MovingObject);
 
 	Asteroid.maxSpeed = function (radius) {
 		radius = radius || Asteroid.RADII[0];
@@ -42,14 +41,11 @@ var Asteroids = (this.Asteroids || {});
 	Asteroid.prototype.explode = function() {
 		// create three new asteroids of size one smaller at pos
 
-		var rad = Asteroid.RADII[Asteroid.RADII.indexOf(this.RADIUS) + 1];
+		var rad = Asteroid.RADII[Asteroid.RADII.indexOf(this.radius) + 1];
 
 		if (!rad) {
 			return [];
 		}
-
-		// pos.push(this.pos[0])
-		// pos.push(this.pos[1])
 
 		var newAsteroids = [];
 
@@ -58,6 +54,7 @@ var Asteroids = (this.Asteroids || {});
 			var pos = [];
 			pos[0] = this.pos[0];
 			pos[1] = this.pos[1];
+
 			vel = Store.randomVel(rad);
 			newAsteroids.push(new Asteroid(pos, vel, rad));
 		}

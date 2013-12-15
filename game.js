@@ -16,6 +16,10 @@ var Asteroids = (this.Asteroids || {});
 		}
 	};
 
+	Game.prototype.addShip = function() {
+		this.ship = new global.Ship();
+	};
+
 	Game.prototype.draw = function() {
 		var game = this;
 		this.ctx.clearRect(0,0,this.WIDTH, this.HEIGHT);
@@ -23,12 +27,16 @@ var Asteroids = (this.Asteroids || {});
 		this.asteroids.forEach(function(asteroid){
 			asteroid.draw(game.ctx);
 		})
+
+		this.ship.draw(this.ctx);
 	};
 
 	Game.prototype.move = function() {
 		this.asteroids.forEach(function(asteroid){
 			asteroid.move();
 		})
+
+		this.ship.move();
 	};
 
 	Game.prototype.explodeAsteroidsIfCollided = function() {
@@ -60,21 +68,26 @@ var Asteroids = (this.Asteroids || {});
 
 	Game.prototype.wrapMovingObjects = function() {
 		var game = this;
-		this.asteroids.forEach(function(asteroid){
-			if ( (asteroid.pos[0] + asteroid.RADIUS) < 0) {
-				asteroid.pos[0] += (game.WIDTH + 2 * asteroid.RADIUS);
+
+		var movingObjects = [];
+		movingObjects = movingObjects.concat(game.asteroids);
+		movingOBjects = movingObjects.push[game.ship];
+
+		movingObjects.forEach(function(object){
+			if ( (object.pos[0] + object.radius) < 0) {
+				object.pos[0] += (game.WIDTH + 2 * object.radius);
 			}
 
-			if ( (asteroid.pos[1] + asteroid.RADIUS) < 0) {
-				asteroid.pos[1] += (game.HEIGHT + 2 * asteroid.RADIUS);
+			if ( (object.pos[1] + object.radius) < 0) {
+				object.pos[1] += (game.HEIGHT + 2 * object.radius);
 			}
 
-			if ( (asteroid.pos[0] - asteroid.RADIUS) > game.WIDTH) {
-				asteroid.pos[0] -= (game.WIDTH + 2 * asteroid.RADIUS);
+			if ( (object.pos[0] - object.radius) > game.WIDTH) {
+				object.pos[0] -= (game.WIDTH + 2 * object.radius);
 			}
 
-			if ( (asteroid.pos[1] - asteroid.RADIUS) > game.HEIGHT) {
-				asteroid.pos[1] -= (game.HEIGHT + 2 * asteroid.RADIUS);
+			if ( (object.pos[1] - object.radius) > game.HEIGHT) {
+				object.pos[1] -= (game.HEIGHT + 2 * object.radius);
 			}
 
 			
@@ -112,7 +125,8 @@ var Asteroids = (this.Asteroids || {});
 
 	Game.prototype.start = function() {
 		that = this;
-		this.addAsteroids(1);
+		this.addAsteroids(5);
+		this.addShip();
 		window.setInterval(function () {
 			that.step();
 		}, that.FPS);

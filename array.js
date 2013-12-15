@@ -15,6 +15,40 @@
     }
   }
 
+  A.normalize = function() {
+    var squares = this.map(function(el){return el * el});
+    var sumOfSquares = squares.reduce(function(sum, el){return sum += el});
+    var mag = Math.sqrt(sumOfSquares);
+
+    return this.map(function(el){return el / mag});
+  };
+
+  A.rotate = function (rads) {
+    if (this.length != 2) {
+      return false
+    }
+
+    var rotatedArr = [];
+    rotatedArr.push(Math.cos(rads)*this[0] + Math.sin(rads)*this[1]);
+    rotatedArr.push(Math.cos(rads)*this[1] - Math.sin(rads)*this[0]);
+
+    return rotatedArr;
+  };
+
+  A.scale = function (mag) {
+    return this.map(function(el){return el * mag});
+  }
+
+  A.add = function (vector) {
+    var result = [];
+
+    for (i=0; i<this.length; i++) {
+      result.push(this[i] + vector[i])
+    }
+
+    return result;
+  }
+
   
 })(Array.prototype);
 
