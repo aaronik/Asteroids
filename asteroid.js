@@ -52,8 +52,8 @@ var Asteroids = (this.Asteroids || {});
 		var vel;
 		for (var i = 0; i < 3; i++) {
 			var pos = [];
-			pos[0] = this.pos[0];
-			pos[1] = this.pos[1];
+			pos[0] = this.pos[0] + [1,2,3].sample() * this.radius;
+			pos[1] = this.pos[1] + [1,2,3].sample() * this.radius;
 
 			vel = Store.randomVel(rad);
 			newAsteroids.push(new Asteroid(pos, vel, rad));

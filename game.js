@@ -39,13 +39,6 @@ var Asteroids = (this.Asteroids || {});
 		this.ship.move();
 	};
 
-	Game.prototype.explodeAsteroidsIfCollided = function() {
-		var game = this;
-		this.asteroidCollisions().forEach(function(asteroid){
-			game.explodeAsteroid(asteroid);
-		})
-	};
-
 	Game.prototype.clearOOBAsteroids = function() { // substituted for wrap around
 		var posX;
 		var posY;
@@ -71,7 +64,7 @@ var Asteroids = (this.Asteroids || {});
 
 		var movingObjects = [];
 		movingObjects = movingObjects.concat(game.asteroids);
-		movingOBjects = movingObjects.push[game.ship];
+		movingOBjects = movingObjects.push(game.ship);
 
 		movingObjects.forEach(function(object){
 			if ( (object.pos[0] + object.radius) < 0) {
@@ -88,9 +81,7 @@ var Asteroids = (this.Asteroids || {});
 
 			if ( (object.pos[1] - object.radius) > game.HEIGHT) {
 				object.pos[1] -= (game.HEIGHT + 2 * object.radius);
-			}
-
-			
+			}	
 		})
 	};
 
@@ -109,16 +100,34 @@ var Asteroids = (this.Asteroids || {});
 		return collisions
 	};
 
+	Game.prototype.explodeAsteroidsIfCollided = function() {
+		var game = this;
+		this.asteroidCollisions().forEach(function(asteroid){
+			game.explodeAsteroid(asteroid);
+		})
+	};
+
 	Game.prototype.explodeAsteroid = function(asteroid) {
 		var idx = this.asteroids.indexOf(asteroid);
 		this.asteroids.splice(idx, 1);
 		this.asteroids = this.asteroids.concat(asteroid.explode());
-	}
+	};
+
+	Game.prototype.damageShipIfHit = function() {
+		var game = this;
+
+		this.asteroids.forEach(function(as){
+			if (game.ship.isCollidedWith(as)) {
+				console.log("boom!")
+			}
+		})
+	};
 
 	Game.prototype.step = function() {
 		// this.clearOOBAsteroids();
 		this.wrapMovingObjects();
 		// this.explodeAsteroidsIfCollided();
+		this.damageShipIfHit();
 		this.draw();
 		this.move();
 	};
@@ -127,6 +136,7 @@ var Asteroids = (this.Asteroids || {});
 		that = this;
 		this.addAsteroids(5);
 		this.addShip();
+		global.keypressListeners();
 		window.setInterval(function () {
 			that.step();
 		}, that.FPS);

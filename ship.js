@@ -3,16 +3,17 @@ var Asteroids = (Asteroids || {});
 (function(global){
 
 	var Ship = global.Ship = function () {
-		this.pos = [window.game.WIDTH / 2, window.game.HEIGHT / 2];
-		this.vel = [0, 0];
-		this.radius = 20;
+		var pos = [window.game.WIDTH / 2, window.game.HEIGHT / 2];
+		var vel = [0, 0];
+		var radius = 20;
 		this.orientation = [0,-1];
-		this.rotateSpeed = 0.2;
-		this.impulse = 2;
-		// global.MovingObject.call(this, pos, vel, radius, 'black');
+		this.rotateSpeed = 0.3;
+		this.impulse = 0.4;
+		this.dampenRate = 0.95;
+		global.MovingObject.call(this, pos, vel, radius, 'black');
 	};
 
-	// inherits(Ship, MovingObject);
+	inherits(Ship, MovingObject);
 
 	Ship.prototype.power = function () {
 		this.vel = this.vel.add(this.orientation.scale(this.impulse));
@@ -20,18 +21,26 @@ var Asteroids = (Asteroids || {});
 
 	Ship.prototype.turn = function (direction) {
 		if (direction === 'left') {
-			var mod = -1;
-		} else {
 			var mod = 1;
+		} else {
+			var mod = -1;
 		}
 
 		this.orientation = this.orientation.rotate(mod * this.rotateSpeed); 
 	};
 
-	Ship.prototype.move = function () {
-		this.pos[0] += this.vel[0];
-		this.pos[1] += this.vel[1];
-	};
+	Ship.prototype.dampen = function () {
+		// this.vel = this.vel.scale(this.dampenRate);
+		var ship = this;
+
+		if (this.vel.mag() < 1) {
+			this.vel = [0, 0];
+		} else {
+			this.vel = this.vel.scale(this.dampenRate);
+		}
+
+		// this.vel = this.vel.pow(0.9)
+	}
 
 	Ship.prototype.draw = function (ctx) {
 		var height = this.radius;
@@ -39,9 +48,7 @@ var Asteroids = (Asteroids || {});
 		var or = this.orientation;
 
 		var start = this.pos;
-		// var pt1 = start.add(or.scale(height).rotate(base));
-		// var pt2 = start.add(or.scale(height).rotate(-base));
-		var pt1 = start.add(or.scale(height / 2));
+		var pt1 = start.add(or.scale(height / 1.5));
 		var pt2 = pt1.add(or.scale(-height).rotate(base));
 		var pt3 = pt1.add(or.scale(-height).rotate(-base));
 		var pt4 = pt1;

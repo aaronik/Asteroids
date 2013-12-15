@@ -1,0 +1,3 @@
+-asteroids overlapping eachother, not enough showing - solution: the asteroid.pos attribute was being reassigned to all of the asteroids created instead of being reassigned before each asteroid.  It was passing the reference instead of the data.
+
+-turn left wouldn't turn off - something with the keypressup or whatever.  solution: when you hold left it repeatedly presses left, then when you let up it only lets up once.  So many timers were being created.
