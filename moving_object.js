@@ -32,13 +32,7 @@ var Asteroids = (Asteroids || {});
 
 	MovingObject.prototype.isCollidedWith = function (otherObject) {
 		var otherRadius = otherObject.radius;
-		var otherPos = otherObject.pos;
-
-		var distX = this.pos[0] - otherPos[0];
-		var distY = this.pos[1] - otherPos[1];
-
-		//dist = sqrt(distX^2 + distY^2)
-		var dist = Math.sqrt((distX * distX) + (distY * distY));
+		var dist = this.pos.distance(otherObject.pos)
 
 		if((otherRadius + this.radius) > dist){
 			return true;

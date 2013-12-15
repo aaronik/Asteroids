@@ -7,7 +7,7 @@ var Asteroids = (Asteroids || {});
 		var vel = [0, 0];
 		var radius = 20;
 		this.orientation = [0,-1];
-		this.rotateSpeed = 0.3;
+		this.rotateSpeed = 0.25;
 		this.impulse = 0.4;
 		this.dampenRate = 0.95;
 		global.MovingObject.call(this, pos, vel, radius, 'black');
@@ -42,6 +42,10 @@ var Asteroids = (Asteroids || {});
 		// this.vel = this.vel.pow(0.9)
 	}
 
+	Ship.prototype.fire = function () {
+		return new global.Bullet(this);
+	}
+
 	Ship.prototype.draw = function (ctx) {
 		var height = this.radius;
 		var base = 0.3;
@@ -55,13 +59,12 @@ var Asteroids = (Asteroids || {});
 
 		ctx.fillStyle = 'black';
 		ctx.strokeStyle = 'red';
+		ctx.lineWidth = 3;
 		ctx.beginPath();
-		ctx.moveTo(start[0], start[1]);
-		ctx.lineTo(pt1[0], pt1[1]);
+		ctx.moveTo(pt1[0], pt1[1]);
 		ctx.lineTo(pt2[0], pt2[1]);
 		ctx.lineTo(pt3[0], pt3[1]);
 		ctx.lineTo(pt4[0], pt4[1]);
-		ctx.lineTo(start[0], start[1]);
 		ctx.closePath();
 		ctx.stroke();
 		ctx.fill();

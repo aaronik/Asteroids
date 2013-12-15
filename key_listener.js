@@ -3,6 +3,7 @@ var Asteroids = this.Asteroids;
 (function(global){
 	var timers = {};
 	var fps = 30;
+	var fireFrequency = 200;
 
 	var keypressListeners = global.keypressListeners = function() {
 		listenUp();
@@ -32,6 +33,10 @@ var Asteroids = this.Asteroids;
 					clearInterval(timers['dampen']);
 					delete timers['dampen'];
 					break;
+				case 32:
+					clearInterval(timers['fire']);
+					delete timers['fire'];
+					break;
 			}
 		}
 	}
@@ -40,8 +45,8 @@ var Asteroids = this.Asteroids;
 		document.onkeydown = function (event) {
 			console.log(event.keyCode)
 			switch (event.keyCode) {
-				case 37:
 				case 65:
+				case 37:
 					setTurnTimer('left');
 					break;
 				case 39:
@@ -55,6 +60,9 @@ var Asteroids = this.Asteroids;
 				case 40:
 				case 83:
 					setDampenTimer();
+					break;
+				case 32:
+					fire();
 					break;
 			}
 		}
@@ -89,4 +97,14 @@ var Asteroids = this.Asteroids;
 			window.game.ship.dampen();
 		}, fps)
 	}
-	})(Asteroids);
+
+	var fire = function() {
+		if (timers['fire']) {
+			return
+		}
+		window.game.fire();
+		timers['fire'] = setInterval(function(){
+			window.game.fire();
+		}, fireFrequency)
+	}
+})(Asteroids);

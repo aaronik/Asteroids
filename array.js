@@ -78,6 +78,29 @@
     var sumOfSquares = squares.reduce(function(sum, el){return sum += el});
     return Math.sqrt(sumOfSquares);
   }
+
+  A.distance = function (vector) {
+    if (this.length != vector.length) {
+      return false
+    }
+
+    var distX = this[0] - vector[0];
+    var distY = this[1] - vector[1];
+
+    //dist = sqrt(distX^2 + distY^2)
+    return Math.sqrt((distX * distX) + (distY * distY));
+  }
+
+  A.remove = function (el) {
+    for (var i = 0; i < this.length; i++) {
+      if (el === this[i]) {
+        this.splice(i, 1);
+        return this;
+      }
+    }
+
+    return false;
+  }
   
 })(Array.prototype);
 
