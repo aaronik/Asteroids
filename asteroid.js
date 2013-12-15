@@ -12,7 +12,7 @@ var Asteroids = (this.Asteroids || {});
 
 	inherits(Asteroid, MovingObject);
 
-	Asteroid.MAX_SPEED_MULTIPLIER = 100;
+	Asteroid.MAX_SPEED_MULTIPLIER = 10;
 	Asteroid.RADII = [40, 25, 10];
 
 	Asteroid.maxSpeed = function (radius) {
