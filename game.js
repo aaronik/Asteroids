@@ -10,6 +10,7 @@ var Asteroids = (this.Asteroids || {});
 		this.bullets = [];
 		this.FPS = 30;
 		this.repopulationRate = 0.2;
+		this.bgColor = 'brown';
 	};
 
 	Game.prototype.addAsteroids = function(numAsteroids) {
@@ -167,7 +168,7 @@ var Asteroids = (this.Asteroids || {});
 				var body = document.getElementsByTagName('body')[0]
 				body.bgColor = 'red';
 				setTimeout(function(){
-					body.bgColor = 'white';
+					body.bgColor = this.bgColor;
 				}, 300)
 			}
 		})
@@ -178,7 +179,7 @@ var Asteroids = (this.Asteroids || {});
 			this._counter = 0;
 		}
 
-		this._counter = (this._counter + 1) % Math.round(this.repopulationRate * this.FPS * 25);
+		this._counter = (this._counter + 1) % Math.round((this.FPS / this.repopulationRate) * 25);
 		if (this._counter == 0) {
 			this.addAsteroids(1);
 		}
@@ -192,23 +193,37 @@ var Asteroids = (this.Asteroids || {});
 		this.explodeAsteroidIfHit();
 		this.damageShipIfHit();
 		this.repopulateAsteroids();
+		this.accelerate();
 		this.draw();
 		this.move();
+	};
+
+	Game.prototype.pause = function() {
+		if (this['mainTimer']) {
+			this.stop();
+		} else {
+			this.start();
+		}
 	};
 
 	Game.prototype.stop = function() {
 		clearInterval(this['mainTimer']);
 		delete this['mainTimer'];
-	}
+	};
 
 	Game.prototype.start = function() {
-		that = this;
-		this.addAsteroids(5);
-		this.addShip();
-		global.keypressListeners();
+		var that = this;
 		this['mainTimer'] = window.setInterval(function () {
 			that.step();
 		}, that.FPS);
+	};
+
+	Game.prototype.initialize = function() {
+		this.addAsteroids(5);
+		this.addShip();
+		global.keypressListeners();
+		this.start();
+		document.getElementsByTagName('body')[0].bgColor = this.bgColor;
 	};
 
 })(Asteroids);
