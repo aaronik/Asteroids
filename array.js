@@ -1,6 +1,6 @@
 (function(A){
 
-  A.sample = function(count) {
+  A.sample = (A.sample || function(count) {
     sampleArray = [];
     count = count || 1;
 
@@ -13,15 +13,15 @@
     } else {
       return sampleArray;
     }
-  }
+  })
 
-  A.normalize = function() {
+  A.normalize = (A.normalize || function() {
     var mag = this.mag();
 
     return this.map(function(el){return el / mag});
-  };
+  });
 
-  A.rotate = function (rads) {
+  A.rotate = (A.rotate || function (rads) {
     if (this.length != 2) {
       return false
     }
@@ -31,13 +31,13 @@
     rotatedArr.push(Math.cos(rads)*this[1] - Math.sin(rads)*this[0]);
 
     return rotatedArr;
-  };
+  });
 
-  A.scale = function (mag) {
+  A.scale = (A.scale || function (mag) {
     return this.map(function(el){return el * mag});
-  }
+  });
 
-  A.add = function (vector) {
+  A.add = (A.add || function (vector) {
     var result = [];
 
     for (var i = 0; i < vector.length; i++) {
@@ -51,9 +51,9 @@
     return result;
 
     return result;
-  }
+  });
 
-  A.subtract = function (vector) {
+  A.subtract = (A.subtract || function (vector) {
     var result = [];
 
     for (var i = 0; i < vector.length; i++) {
@@ -65,21 +65,21 @@
     }
 
     return result;
-  }
+  });
 
-  A.pow = function (scalar) {
+  A.pow = (A.pow || function (scalar) {
     return this.map(function(el){
       return Math.pow(el, scalar);
     })
-  }
+  });
 
-  A.mag = function() {
+  A.mag = (A.mag || function() {
     var squares = this.map(function(el){return el * el});
     var sumOfSquares = squares.reduce(function(sum, el){return sum += el});
     return Math.sqrt(sumOfSquares);
-  }
+  });
 
-  A.distance = function (vector) {
+  A.distance = (A.distance || function (vector) {
     if (this.length != vector.length) {
       return false
     }
@@ -89,9 +89,9 @@
 
     //dist = sqrt(distX^2 + distY^2)
     return Math.sqrt((distX * distX) + (distY * distY));
-  }
+  });
 
-  A.remove = function (el) {
+  A.remove = (A.remove || function (el) {
     for (var i = 0; i < this.length; i++) {
       if (el === this[i]) {
         this.splice(i, 1);
@@ -100,7 +100,7 @@
     }
 
     return false;
-  }
+  });
   
 })(Array.prototype);
 

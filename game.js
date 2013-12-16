@@ -9,7 +9,8 @@ var Asteroids = (this.Asteroids || {});
 		this.asteroids = [];
 		this.bullets = [];
 		this.FPS = 30;
-		this.repopulationRate = 0.2;
+		this.REPOPULATIONRATE = 0.2;
+		// this._
 		this.bgColor = 'brown';
 	};
 
@@ -179,10 +180,14 @@ var Asteroids = (this.Asteroids || {});
 			this._counter = 0;
 		}
 
-		this._counter = (this._counter + 1) % Math.round((this.FPS / this.repopulationRate) * 25);
+		this._counter = (this._counter + 1) % Math.round((this.FPS / this.REPOPULATIONRATE) * 25);
 		if (this._counter == 0) {
 			this.addAsteroids(1);
 		}
+	};
+
+	Game.prototype.accelerate = function() {
+
 	};
 
 	Game.prototype.step = function() {
@@ -193,7 +198,7 @@ var Asteroids = (this.Asteroids || {});
 		this.explodeAsteroidIfHit();
 		this.damageShipIfHit();
 		this.repopulateAsteroids();
-		this.accelerate();
+		// this.accelerate();
 		this.draw();
 		this.move();
 	};
