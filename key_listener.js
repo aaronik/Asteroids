@@ -1,113 +1,129 @@
 var Asteroids = this.Asteroids;
 
 (function(global){
-	var timers = {};
-	var fps = 30;
-	var fireFrequency = 200;
 
-	var keypressListeners = global.keypressListeners = function() {
-		listenUp();
-		listenDown();
+	var Listener = global.Listener = function(game) {
+		this.timers = {};
+		this.game = game;
+
+		this.listen();
 	}
 
-	var listenUp = function() {
+	Listener.prototype.listen = function() {
+		this.listenUp();
+		this.listenDown();
+	}
+
+	Listener.prototype.listenUp = function() {
+		var that = this;
+
 		document.onkeyup = function (event) {
 			switch (event.keyCode) {
 				case 37:
 				case 65:
-					clearInterval(timers['left']);
-					delete timers['left'];
+					clearInterval(that.timers['left']);
+					delete that.timers['left'];
 					break;
 				case 39:
 				case 68:
-					clearInterval(timers['right']);
-					delete timers['right'];
+					clearInterval(that.timers['right']);
+					delete that.timers['right'];
 					break;
 				case 38:
 				case 87:
-					clearInterval(timers['move']);
-					delete timers['move'];
+					clearInterval(that.timers['move']);
+					delete that.timers['move'];
 					break;
 				case 40:
 				case 83:
-					clearInterval(timers['dampen']);
-					delete timers['dampen'];
+					clearInterval(that.timers['dampen']);
+					delete that.timers['dampen'];
 					break;
 				case 32:
-					clearInterval(timers['fire']);
-					delete timers['fire'];
+					clearInterval(that.timers['fire']);
+					delete that.timers['fire'];
 					break;
 			}
 		}
 	}
 
-	var listenDown = function () {
+	Listener.prototype.listenDown = function () {
+		var that = this;
+
 		document.onkeydown = function (event) {
 			// console.log(event.keyCode)
 			switch (event.keyCode) {
 				case 65:
 				case 37:
-					setTurnTimer('left');
+					that.setTurnTimer('left');
 					break;
 				case 39:
 				case 68:
-					setTurnTimer('right');
+					that.setTurnTimer('right');
 					break;
 				case 38:
 				case 87:
-					setMoveTimer();
+					that.setMoveTimer();
 					break;
 				case 40:
 				case 83:
-					setDampenTimer();
+					that.setDampenTimer();
 					break;
 				case 32:
-					fire();
+					that.fire();
 					break;
 				case 80:
-					window.game.pause();
+					that.game.pause();
 					break;
 			}
 		}
 	};
 
-	var setTurnTimer = function (dir) {
-		if (timers[dir]) {
+	Listener.prototype.setTurnTimer = function (dir) {
+		var that = this;
+		if (this.timers[dir]) {
 			return
 		}
 
-		timers[dir] = setInterval(function(){
-			window.game.ship.turn(dir)
-		}, fps)
+		var percentage = 0;
+		this.timers[dir] = setInterval(function(){
+			percentage += 0.2;
+			if (percentage > 1) { percentage = 1}
+			that.game.ship.turn(dir, percentage)
+		}, game.FPS)
 	};
 
-	var setMoveTimer = function() {
-		if (timers['move']) {
+	Listener.prototype.setMoveTimer = function() {
+		var that = this;
+		if (this.timers['move']) {
 			return
 		}
 
-		timers['move'] = setInterval(function(){
-			window.game.ship.power();
-		}, fps)
+		this.timers['move'] = setInterval(function(){
+			that.game.ship.power();
+		}, game.FPS)
 	}
 
-	var setDampenTimer = function() {
-		if (timers['dampen']) {
+	Listener.prototype.setDampenTimer = function() {
+		var that = this;
+		if (this.timers['dampen']) {
 			return
 		}
 
-		timers['dampen'] = setInterval(function(){
-			window.game.ship.dampen();
-		}, fps)
+		this.timers['dampen'] = setInterval(function(){
+			that.game.ship.dampen();
+		}, game.FPS)
 	}
 
-	var fire = function() {
-		if (timers['fire']) {
+	Listener.prototype.fire = function() {
+		var that = this;
+		if (this.timers['fire']) {
 			return
 		}
-		window.game.fire();
-		timers['fire'] = setInterval(function(){
-			window.game.fire();
-		}, fireFrequency)
+		this.game.fire();
+		this.timers['fire'] = setInterval(function(){
+			that.game.fire();
+		}, game.ship.fireFrequency)
 	}
+
 })(Asteroids);

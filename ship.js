@@ -10,6 +10,7 @@ var Asteroids = (Asteroids || {});
 		this.rotateSpeed = 0.25;
 		this.impulse = 0.4;
 		this.dampenRate = 0.95;
+		this.fireFrequency = 200;
 		global.MovingObject.call(this, pos, vel, radius, 'black');
 	};
 
@@ -19,14 +20,14 @@ var Asteroids = (Asteroids || {});
 		this.vel = this.vel.add(this.orientation.scale(this.impulse));
 	};
 
-	Ship.prototype.turn = function (direction) {
+	Ship.prototype.turn = function (direction, percentage) {
 		if (direction === 'left') {
 			var mod = 1;
 		} else {
 			var mod = -1;
 		}
 
-		this.orientation = this.orientation.rotate(mod * this.rotateSpeed); 
+		this.orientation = this.orientation.rotate(mod * this.rotateSpeed * percentage); 
 	};
 
 	Ship.prototype.dampen = function () {

@@ -9,9 +9,9 @@ var Asteroids = (this.Asteroids || {});
 		this.asteroids = [];
 		this.bullets = [];
 		this.FPS = 30;
-		this.REPOPULATIONRATE = 0.2;
-		// this._
-		this.bgColor = 'brown';
+		this.repopulationRate = 5;
+		this.difficultyRate = 0.3;
+		this.bgColor = 'white';
 	};
 
 	Game.prototype.addAsteroids = function(numAsteroids) {
@@ -169,25 +169,27 @@ var Asteroids = (this.Asteroids || {});
 				var body = document.getElementsByTagName('body')[0]
 				body.bgColor = 'red';
 				setTimeout(function(){
-					body.bgColor = this.bgColor;
+					body.bgColor = game.bgColor;
 				}, 300)
 			}
 		})
 	};
 
 	Game.prototype.repopulateAsteroids = function() {
-		if (typeof this._counter !== "number") {
-			this._counter = 0;
+		if (typeof this._repopulationCounter !== "number") {
+			this._repopulationCounter = 0;
 		}
 
-		this._counter = (this._counter + 1) % Math.round((this.FPS / this.REPOPULATIONRATE) * 25);
-		if (this._counter == 0) {
+		this._repopulationCounter = (this._repopulationCounter + 1) % (this.FPS * this.repopulationRate);
+		if (this._repopulationCounter == 0) {
 			this.addAsteroids(1);
+			this.changeAsteroidSpeed(this.difficultyRate);
+			console.log('harder!')
 		}
 	};
 
-	Game.prototype.accelerate = function() {
-
+	Game.prototype.changeAsteroidSpeed = function (amnt) {
+		Asteroids.Asteroid.MAX_SPEED_MULTIPLIER += amnt;
 	};
 
 	Game.prototype.step = function() {
@@ -198,7 +200,6 @@ var Asteroids = (this.Asteroids || {});
 		this.explodeAsteroidIfHit();
 		this.damageShipIfHit();
 		this.repopulateAsteroids();
-		// this.accelerate();
 		this.draw();
 		this.move();
 	};
@@ -226,7 +227,7 @@ var Asteroids = (this.Asteroids || {});
 	Game.prototype.initialize = function() {
 		this.addAsteroids(5);
 		this.addShip();
-		global.keypressListeners();
+		new global.Listener(this);
 		this.start();
 		document.getElementsByTagName('body')[0].bgColor = this.bgColor;
 	};

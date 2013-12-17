@@ -12,13 +12,13 @@ var Asteroids = (this.Asteroids || {});
 
 	inherits(Asteroid, MovingObject);
 
-	Asteroid.MAX_SPEED_MULTIPLIER = 10;
+	Asteroid.MAX_SPEED_MULTIPLIER = 1;
 	Asteroid.RADII = [40, 25, 10];
 
 	Asteroid.maxSpeed = function (radius) {
 		radius = radius || Asteroid.RADII[0];
 
-		return Asteroid.MAX_SPEED_MULTIPLIER / radius
+		return (Asteroid.MAX_SPEED_MULTIPLIER / 5) * Math.log(radius);
 	};
 
 	Asteroid.randomAsteroid = function(dimX, dimY) {
