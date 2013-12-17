@@ -3,6 +3,7 @@ var Asteroids = (this.Asteroids || {});
 (function(global){
 
 	Game = global.Game = function(canvasEl) {
+		this.canvas = canvasEl;
 		this.ctx = canvasEl.getContext("2d");
 		this.WIDTH = canvasEl.width;
 		this.HEIGHT = canvasEl.height;
@@ -10,8 +11,9 @@ var Asteroids = (this.Asteroids || {});
 		this.bullets = [];
 		this.FPS = 30;
 		this.repopulationRate = 5;
-		this.difficultyRate = 0.3;
+		this.difficultyRate = 0.2;
 		this.bgColor = 'white';
+		this.dropShadowColor = 'red';
 	};
 
 	Game.prototype.addAsteroids = function(numAsteroids) {
@@ -166,11 +168,10 @@ var Asteroids = (this.Asteroids || {});
 
 		this.asteroids.forEach(function(as){
 			if (game.ship.isCollidedWith(as)) {
-				var body = document.getElementsByTagName('body')[0]
-				body.bgColor = 'red';
+				game.canvas.setAttribute('style', 'transition: all 0.1s; box-shadow: inset 0 0 30px 30px red;')
 				setTimeout(function(){
-					body.bgColor = game.bgColor;
-				}, 300)
+					game.canvas.setAttribute('style', 'transition: all 0.1s')
+				}, 100)
 			}
 		})
 	};
@@ -184,7 +185,6 @@ var Asteroids = (this.Asteroids || {});
 		if (this._repopulationCounter == 0) {
 			this.addAsteroids(1);
 			this.changeAsteroidSpeed(this.difficultyRate);
-			console.log('harder!')
 		}
 	};
 
