@@ -1,3 +1,9 @@
 -asteroids overlapping eachother, not enough showing - solution: the asteroid.pos attribute was being reassigned to all of the asteroids created instead of being reassigned before each asteroid.  It was passing the reference instead of the data.
 
 -turn left wouldn't turn off - something with the keypressup or whatever.  solution: when you hold left it repeatedly presses left, then when you let up it only lets up once.  So many timers were being created.
+
+-I want the asteroids to collide and explode, but I can't check each time to see if they're collided.  Then once the initial explosion occurs, they'll all explode since they are then created on top of eachother.  And I'd prefer if they could be created on top of eachother.  
+
+Could have an array of asteroids that somehow know which asteroids not to collide with... that wouldn't too hard.  Each asteroid knows its brother / sister asteroids.  But they'd have to be able to hit eventually.  They could have a timeout, or watch to see when they're no longer collided.
+
+The game could add those three new asteroids to a list, take them out when they're no longer collided, something like if (collidedAsteroids().index(as) !== -1) { invulnAsteroids.remove(as) }

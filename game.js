@@ -8,12 +8,14 @@ var Asteroids = (this.Asteroids || {});
 		this.WIDTH = canvasEl.width;
 		this.HEIGHT = canvasEl.height;
 		this.asteroids = [];
+		this.noExplodeAsteroids = [];
 		this.bullets = [];
 		this.FPS = 30;
 		this.repopulationRate = 5;
 		this.difficultyRate = 0.2;
 		this.bgColor = 'white';
 		this.dropShadowColor = 'red';
+		this._counter = 0;
 	};
 
 	Game.prototype.addAsteroids = function(numAsteroids) {
@@ -126,7 +128,6 @@ var Asteroids = (this.Asteroids || {});
 			for(var j = i + 1; j < game.asteroids.length; j++){
 				if ( game.asteroids[i].isCollidedWith(game.asteroids[j]) ) {
 					collisions.push(game.asteroids[i]);
-					collisions.push(game.asteroids[j]);
 				}
 			}
 		}
@@ -137,14 +138,34 @@ var Asteroids = (this.Asteroids || {});
 	Game.prototype.explodeAsteroidsIfCollided = function() {
 		var game = this;
 		this.asteroidCollisions().forEach(function(asteroid){
+			if (game.noExplodeAsteroids.indexOf(asteroid) === -1)
 			game.explodeAsteroid(asteroid);
 		})
 	};
 
+	Game.prototype.depopulateNoExplodeAsteroids = function() { // needs testing
+		var game = this;
+
+		this.noExplodeAsteroids.forEach(function(as1){
+			var alone = game.noExplodeAsteroids.every(function(as2){
+				if (as1 === as2) {
+					return true
+				}
+
+				return !as1.isCollidedWith(as2);
+			})
+
+			if (alone) {
+				game.noExplodeAsteroids.remove(as1);
+			}
+		})
+	};
+
 	Game.prototype.explodeAsteroid = function(asteroid) {
-		var idx = this.asteroids.indexOf(asteroid);
-		this.asteroids.splice(idx, 1);
-		this.asteroids = this.asteroids.concat(asteroid.explode());
+		this.asteroids.remove(asteroid);
+		var newAsteroids = asteroid.explode();
+		this.noExplodeAsteroids = this.noExplodeAsteroids.concat(newAsteroids);
+		this.asteroids = this.asteroids.concat(newAsteroids);
 	};
 
 	Game.prototype.explodeAsteroidIfHit = function(asteroid) {
@@ -168,6 +189,7 @@ var Asteroids = (this.Asteroids || {});
 
 		this.asteroids.forEach(function(as){
 			if (game.ship.isCollidedWith(as)) {
+				game.explodeAsteroid(as);
 				game.canvas.setAttribute('style', 'transition: all 0.1s; box-shadow: inset 0 0 30px 30px red;')
 				setTimeout(function(){
 					game.canvas.setAttribute('style', 'transition: all 0.1s')
@@ -177,13 +199,23 @@ var Asteroids = (this.Asteroids || {});
 	};
 
 	Game.prototype.repopulateAsteroids = function() {
-		if (typeof this._repopulationCounter !== "number") {
-			this._repopulationCounter = 0;
-		}
+		// if (typeof this._repopulationCounter !== "number") {
+		// 	this._repopulationCounter = 0;
+		// }
 
-		this._repopulationCounter = (this._repopulationCounter + 1) % (this.FPS * this.repopulationRate);
-		if (this._repopulationCounter == 0) {
+		// this._repopulationCounter = (this._repopulationCounter + 1) % (this.FPS * this.repopulationRate);
+		// if (this._repopulationCounter == 0) {
+		// 	this.addAsteroids(1);
+		// 	this.changeAsteroidSpeed(this.difficultyRate);
+		// }
+
+		if (this._counter % (this.FPS * this.repopulationRate) == 0) {
 			this.addAsteroids(1);
+		}
+	};
+
+	Game.prototype.modifyDifficulty = function() {
+		if (this._counter % (this.FPS * this.repopulationRate) == 0) {
 			this.changeAsteroidSpeed(this.difficultyRate);
 		}
 	};
@@ -193,10 +225,13 @@ var Asteroids = (this.Asteroids || {});
 	};
 
 	Game.prototype.step = function() {
+		this._counter += 1;
 		// this.clearOOBAsteroids();
+		this.modifyDifficulty();
 		this.clearOOBBullets();
 		this.wrapMovingObjects();
-		// this.explodeAsteroidsIfCollided();
+		this.explodeAsteroidsIfCollided();
+		this.depopulateNoExplodeAsteroids();
 		this.explodeAsteroidIfHit();
 		this.damageShipIfHit();
 		this.repopulateAsteroids();
@@ -230,6 +265,16 @@ var Asteroids = (this.Asteroids || {});
 		new global.Listener(this);
 		this.start();
 		document.getElementsByTagName('body')[0].bgColor = this.bgColor;
+	};
+
+
+	Game.prototype.setUp = function() {
+		this.asteroids = [];
+		this.noExplodeAsteroids = [];
+		this.addAsteroids(1);
+		this.asteroids[0].vel = [0,0];
+		this.ship.pos = [100,100];
+		this.asteroids[0].pos = [250,250];
 	};
 
 })(Asteroids);

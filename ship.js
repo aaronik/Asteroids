@@ -11,6 +11,8 @@ var Asteroids = (Asteroids || {});
 		this.impulse = 0.4;
 		this.dampenRate = 0.95;
 		this.fireFrequency = 200;
+		this.health = 100;
+
 		global.MovingObject.call(this, pos, vel, radius, 'black');
 	};
 
@@ -31,7 +33,6 @@ var Asteroids = (Asteroids || {});
 	};
 
 	Ship.prototype.dampen = function () {
-		// this.vel = this.vel.scale(this.dampenRate);
 		var ship = this;
 
 		if (this.vel.mag() < 1) {
@@ -39,8 +40,6 @@ var Asteroids = (Asteroids || {});
 		} else {
 			this.vel = this.vel.scale(this.dampenRate);
 		}
-
-		// this.vel = this.vel.pow(0.9)
 	}
 
 	Ship.prototype.fire = function () {
@@ -70,7 +69,5 @@ var Asteroids = (Asteroids || {});
 		ctx.stroke();
 		ctx.fill();
 	};
-
-
 
 })(Asteroids);
