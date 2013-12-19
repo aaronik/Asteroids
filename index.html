@@ -13,6 +13,7 @@
 		<script src='./ship.js'></script>
 		<script src='./key_listener.js'></script>
 		<script src='./bullet.js'></script>
+		<script src='./visuals.js'></script>
 	</head>
 	<body>
 
@@ -20,6 +21,7 @@
 			var canvas = document.createElement("canvas");
 			canvas.setAttribute("width", "500");
       canvas.setAttribute("height", "500");
+      canvas.setAttribute("background", 'black');
 
       var body = document.getElementsByTagName("body")[0];
       body.appendChild(canvas);

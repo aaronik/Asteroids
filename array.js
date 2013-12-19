@@ -101,5 +101,19 @@
 
     return false;
   });
+
+  A.uniq = (A.uniq || function() {
+    var uniqHash = {};
+    var returnArray = [];
+
+    for (var i = 0; i < this.length; i++) {
+      if (!uniqHash[this[i]]) {
+        uniqHash[this[i]] = true;
+        returnArray.push(this[i]);
+      }
+    }
+
+    return returnArray
+  })
   
 })(Array.prototype);

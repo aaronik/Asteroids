@@ -8,6 +8,8 @@ var Asteroids = (this.Asteroids || {});
 		var color = color || Store.randomColor();
 
 		MovingObject.call(this, pos, vel, rad, color);
+
+		this.health = this.radius;
 	};
 
 	inherits(Asteroid, MovingObject);

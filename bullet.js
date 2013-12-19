@@ -6,7 +6,7 @@ var Asteroids = this.Asteroids;
 		this.orientation = ship.orientation.slice(0);
 		var vel = ship.vel.add(ship.orientation.scale(10));
 		var pos = ship.pos.slice(0)
-		var color = 'black';
+		var color = 'red';
 
 		MovingObject.call(this, pos, vel, null, color)
 	}
