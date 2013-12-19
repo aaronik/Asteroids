@@ -25,7 +25,7 @@ var Asteroids = (this.Asteroids || {});
 	};
 
 	Game.prototype.addShip = function() {
-		this.ship = new global.Ship();
+		this.ship = new global.Ship([this.WIDTH / 2, this.HEIGHT / 2]);
 	};
 
 	Game.prototype.fire = function() {
@@ -124,10 +124,10 @@ var Asteroids = (this.Asteroids || {});
 	Game.prototype.asteroidCollisionPairs = function() {
 		var collisions = [];
 
-		for (var i = 0; i < game.asteroids.length; i++) {
-			for (var j = i + 1; j < game.asteroids.length; j++) {
-				if ( game.asteroids[i].isCollidedWith(game.asteroids[j]) ) {
-					collisions.push([game.asteroids[i], game.asteroids[j]]);
+		for (var i = 0; i < this.asteroids.length; i++) {
+			for (var j = i + 1; j < this.asteroids.length; j++) {
+				if ( this.asteroids[i].isCollidedWith(this.asteroids[j]) ) {
+					collisions.push([this.asteroids[i], this.asteroids[j]]);
 				}
 			}
 		}
@@ -297,6 +297,8 @@ var Asteroids = (this.Asteroids || {});
 	};
 
 	Game.prototype.handleCollidedBullets = function() {
+		var game = this;
+
 		this.collidedBullets().forEach(function(bullet){
 			game.removeBullet(bullet);
 		})

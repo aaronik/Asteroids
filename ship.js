@@ -2,8 +2,8 @@ var Asteroids = (Asteroids || {});
 
 (function(global){
 
-	var Ship = global.Ship = function () {
-		var pos = [window.game.WIDTH / 2, window.game.HEIGHT / 2];
+	var Ship = global.Ship = function (pos) {
+		var pos = pos;
 		var vel = [0, 0];
 		var radius = 20 / 3;
 		this.orientation = [0,-1];

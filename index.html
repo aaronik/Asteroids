@@ -14,20 +14,11 @@
 		<script src='./key_listener.js'></script>
 		<script src='./bullet.js'></script>
 		<script src='./visuals.js'></script>
+		<script src='./init.js'></script>
 	</head>
 	<body>
-
-		<script>
-			var canvas = document.createElement("canvas");
-			canvas.setAttribute("width", "500");
-      canvas.setAttribute("height", "500");
-      canvas.setAttribute("background", 'black');
-
-      var body = document.getElementsByTagName("body")[0];
-      body.appendChild(canvas);
-      
-			var game = new window.Asteroids.Game(canvas);
-			game.initialize();
-		</script>
+	<div id='canvas-wrapper'>
+		
+	</div>
 	</body>
 </html>

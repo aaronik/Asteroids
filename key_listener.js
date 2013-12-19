@@ -90,7 +90,7 @@ var Asteroids = this.Asteroids;
 			percentage += 0.2;
 			if (percentage > 1) { percentage = 1}
 			that.game.ship.turn(dir, percentage)
-		}, game.FPS)
+		}, that.game.FPS)
 	};
 
 	Listener.prototype.setMoveTimer = function() {
@@ -101,7 +101,7 @@ var Asteroids = this.Asteroids;
 
 		this.timers['move'] = setInterval(function(){
 			that.game.ship.power();
-		}, game.FPS)
+		}, that.game.FPS)
 	}
 
 	Listener.prototype.setDampenTimer = function() {
@@ -112,7 +112,7 @@ var Asteroids = this.Asteroids;
 
 		this.timers['dampen'] = setInterval(function(){
 			that.game.ship.dampen();
-		}, game.FPS)
+		}, that.game.FPS)
 	}
 
 	Listener.prototype.fire = function() {
@@ -123,7 +123,7 @@ var Asteroids = this.Asteroids;
 		this.game.fire();
 		this.timers['fire'] = setInterval(function(){
 			that.game.fire();
-		}, game.ship.fireFrequency)
+		}, that.game.ship.fireFrequency)
 	}
 
 })(Asteroids);
