@@ -35,8 +35,8 @@ var inFile = ['array.js', 'inherits.js', 'store.js', 'moving_object.js', 'astero
 // console.log(inFile)
 
 var minOptions = {
-	fileIn: "public/javascripts/application.js",
-	fileOut: outFile,
+	fileIn: inFile,
+	fileOut: "public/javascripts/application.js",
 	callback: function(err, min){
 		console.log(err);
 		console.log(min);
@@ -50,9 +50,9 @@ var productionMinOptions = Object.create(minOptions, {type: {value: 'uglifyjs'}}
 // development only
 if ('development' == app.get('env')) {
 	app.use(express.errorHandler());
-} else {
-	// new compressor.minify(productionMinOptions);
 	new compressor.minify(developmentMinOptions);
+} else {
+	new compressor.minify(productionMinOptions);
 }
 
 app.get('/', routes.index);
