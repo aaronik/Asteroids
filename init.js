@@ -9,4 +9,6 @@ window.onload = function() {
 
 	var game = new window.Asteroids.Game(canvas);
 	game.initialize();
+
+	window.game = game;
 }

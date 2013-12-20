@@ -1,0 +1,13 @@
+{
+	"author": "Aaron Sullivan <AaSullivan1618@gmail.com> (github.com/aaronik)",
+	"name": "Asteroids",
+	"description": "clone of one of the most classic of all games",
+	"version": "0.0.1",
+	"homepage": "github.com/aaronik/asteroids",
+	"dependencies": {
+		"node-sass": "0.7.x",
+		"pg": "2.x",
+	  "express": "3.x"
+	}
+
+}

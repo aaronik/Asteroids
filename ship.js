@@ -11,7 +11,7 @@ var Asteroids = (Asteroids || {});
 		this.impulse = 0.4;
 		this.dampenRate = 0.95;
 		this.fireFrequency = 200;
-		this.health = 100;
+		this.health = 40;
 		this.damage = 15;
 
 		global.MovingObject.call(this, pos, vel, radius, 'black');
