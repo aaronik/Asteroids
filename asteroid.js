@@ -65,3 +65,5 @@ var Asteroids = (this.Asteroids || {});
 	};
 
 })(Asteroids);
+
+module.exports = Asteroids.Asteroid;

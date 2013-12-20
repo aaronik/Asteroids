@@ -1,4 +1,4 @@
-var Asteroids = (Asteroids || {});
+var Asteroids = (this.Asteroids || {});
 
 (function(global){
 
