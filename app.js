@@ -40,6 +40,7 @@ var minOptions = {
 	callback: function(err, min){
 		console.log(err);
 		console.log(min);
+		console.log('finished minifying.')
 	}
 };
 
