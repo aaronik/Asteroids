@@ -50,9 +50,9 @@ var productionMinOptions = Object.create(minOptions, {type: {value: 'uglifyjs'}}
 // development only
 if ('development' == app.get('env')) {
 	app.use(express.errorHandler());
-	new compressor.minify(developmentMinOptions);
 } else {
-	new compressor.minify(productionMinOptions);
+	// new compressor.minify(productionMinOptions);
+	new compressor.minify(developmentMinOptions);
 }
 
 app.get('/', routes.index);
