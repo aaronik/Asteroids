@@ -35,7 +35,7 @@ var inFile = ['array.js', 'inherits.js', 'store.js', 'moving_object.js', 'astero
 // console.log(inFile)
 
 var minOptions = {
-	fileIn: inFile,
+	fileIn: "public/javascripts/application.js",
 	fileOut: outFile,
 	callback: function(err, min){
 		console.log(err);
