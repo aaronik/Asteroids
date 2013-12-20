@@ -1,4 +1,1 @@
--ship to have inverse twitch sensitivity - if you press left or right really fast, it should dampen the rate, so you can still pan quick
- but you can also have fine grained control
-
--asteroid repopulation rate should be in asteroids per second.
+-change minified javascript output to be <datestring>filename format

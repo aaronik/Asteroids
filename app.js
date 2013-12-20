@@ -6,6 +6,7 @@ var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 var compressor = require('node-minify');
+var sass = require('node-sass');
 
 var app = express();
 
@@ -30,30 +31,49 @@ var dateString = String(d.getFullYear()) + d.getMonth() + d.getDay() + d.getHour
 
 // important vars
 var outFile = "public/javascripts/" + dateString + "application.js";
-// console.log(typeof outFile)
 var inFile = ['array.js', 'inherits.js', 'store.js', 'moving_object.js', 'asteroid.js', 'game.js', 'ship.js', 'key_listener.js', 'bullet.js', 'visuals.js', 'init.js'];
-// console.log(inFile)
+inFile = inFile.map(function(name){return 'lib/javascripts/' + name});
 
 var minOptions = {
+	type: 'uglifyjs',
 	fileIn: inFile,
 	fileOut: "public/javascripts/application.js",
+	tempPath: '/tmp/',
 	callback: function(err, min){
-		console.log(err);
-		console.log(min);
-		console.log('finished minifying.')
+		if (err) console.log(err);
+		// console.log(min);
+		if (!err) console.log('Minification Successful.');
 	}
 };
 
 var developmentMinOptions = Object.create(minOptions, {type: {value: 'no-compress'}});
-var productionMinOptions = Object.create(minOptions, {type: {value: 'uglifyjs'}});
+var productionMinOptions = Object.create(minOptions, {fileIn: {value: 'public/javascripts/application.js'}});
 
-// development only
+// Minify, use error handler
 if ('development' == app.get('env')) {
 	app.use(express.errorHandler());
 	new compressor.minify(developmentMinOptions);
 } else {
+	new compressor.minify(developmentMinOptions);
 	new compressor.minify(productionMinOptions);
 }
+
+// Compile Sass
+// sass.render({
+// 	file: 'lib/stylesheets/style.scss',
+// 	success: function(css) {
+// 		console.log('Sass rendered successfully.');
+// 	},
+// 	error: function(err){
+// 		console.log(err);
+// 	}
+// });
+
+app.use(sass.middleware({
+	src: 'lib/stylesheets/',
+	dest: path.join(__dirname, ''),
+	debug: true
+}))
 
 app.get('/', routes.index);
 app.get('/users', user.list);
