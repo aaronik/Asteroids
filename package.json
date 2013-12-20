@@ -1,14 +1,29 @@
 {
-	"author": "Aaron Sullivan <AaSullivan1618@gmail.com> (github.com/aaronik)",
-	"name": "Asteroids",
-	"description": "clone of one of the most classic of all games",
-	"version": "0.0.1",
-	"homepage": "github.com/aaronik/asteroids",
-	"dependencies": {
-		"node-sass": "0.7.x",
-		"pg": "2.x",
-	  "express": "3.x",
+  "author": "Aaron Sullivan <AaSullivan1618@gmail.com> (github.com/aaronik)",
+  "name": "Asteroids",
+  "description": "clone of one of the most classic of all games",
+  "version": "0.0.1",
+  "homepage": "github.com/aaronik/asteroids",
+  "dependencies": {
+    "node-sass": "0.7.x",
+    "pg": "2.x",
+    "express": "3.x",
     "node-minify": "0.8.x"
-	}
-
+  },
+  "readmeFilename": "README.md",
+  "gitHead": "92037fec3b5b51c870428dac0f570a15f798eeb4",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Aaronik/Asteroids.git"
+  },
+  "keywords": [
+    "Asteroids",
+    "Game"
+  ],
+  "license": "BSD"
 }
