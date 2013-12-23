@@ -7,7 +7,8 @@
   "dependencies": {
     "node-sass": "0.7.x",
     "express": "3.x",
-    "node-minify": "0.8.x"
+    "node-minify": "0.8.x",
+    "ejs": "*"
   },
   "readmeFilename": "README.md",
   "gitHead": "92037fec3b5b51c870428dac0f570a15f798eeb4",
