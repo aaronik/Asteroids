@@ -3,12 +3,13 @@
   "name": "Asteroids",
   "description": "clone of one of the most classic of all games",
   "version": "0.0.1",
-  "homepage": "github.com/aaronik/asteroids",
+  "homepage": "git://github.com/aaronik/asteroids",
   "dependencies": {
     "node-sass": "0.7.x",
-    "pg": "2.x",
     "express": "3.x",
-    "node-minify": "0.8.x"
+    "node-minify": "0.8.x",
+    "sails": "~0.9.8",
+    "sails-mongo": "~0.9.6"
   },
   "readmeFilename": "README.md",
   "gitHead": "92037fec3b5b51c870428dac0f570a15f798eeb4",
@@ -26,7 +27,7 @@
     "Game"
   ],
   "license": "BSD",
-   "engines": {
-     "node": "0.10.x"
+  "engines": {
+    "node": "0.10.x"
   }
 }

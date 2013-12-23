@@ -1,0 +1,225 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/home/aaron/.nvm/v0.10.24/bin/node',
+1 verbose cli   '/home/aaron/.nvm/v0.10.24/bin/npm',
+1 verbose cli   'install' ]
+2 info using npm@1.3.21
+3 info using node@v0.10.24
+4 verbose readDependencies using package.json deps
+5 verbose install where, deps [ '/home/aaron/Desktop/Codez/Projects/Asteroids',
+5 verbose install   [ 'node-sass', 'express', 'node-minify', 'sails', 'sails-mongo' ] ]
+6 info preinstall Asteroids@0.0.1
+7 verbose readDependencies using package.json deps
+8 verbose already installed skipping sails-mongo@~0.9.6 /home/aaron/Desktop/Codez/Projects/Asteroids
+9 verbose cache add [ 'sails@~0.9.8', null ]
+10 verbose cache add name=undefined spec="sails@~0.9.8" args=["sails@~0.9.8",null]
+11 verbose parsed url { protocol: null,
+11 verbose parsed url   slashes: null,
+11 verbose parsed url   auth: null,
+11 verbose parsed url   host: null,
+11 verbose parsed url   port: null,
+11 verbose parsed url   hostname: null,
+11 verbose parsed url   hash: null,
+11 verbose parsed url   search: null,
+11 verbose parsed url   query: null,
+11 verbose parsed url   pathname: 'sails@~0.9.8',
+11 verbose parsed url   path: 'sails@~0.9.8',
+11 verbose parsed url   href: 'sails@~0.9.8' }
+12 verbose cache add name="sails" spec="~0.9.8" args=["sails","~0.9.8"]
+13 verbose parsed url { protocol: null,
+13 verbose parsed url   slashes: null,
+13 verbose parsed url   auth: null,
+13 verbose parsed url   host: null,
+13 verbose parsed url   port: null,
+13 verbose parsed url   hostname: null,
+13 verbose parsed url   hash: null,
+13 verbose parsed url   search: null,
+13 verbose parsed url   query: null,
+13 verbose parsed url   pathname: '~0.9.8',
+13 verbose parsed url   path: '~0.9.8',
+13 verbose parsed url   href: '~0.9.8' }
+14 verbose addNamed [ 'sails', '~0.9.8' ]
+15 verbose addNamed [ null, '>=0.9.8-0 <0.10.0-0' ]
+16 verbose already installed skipping node-sass@0.7.x /home/aaron/Desktop/Codez/Projects/Asteroids
+17 verbose already installed skipping express@3.x /home/aaron/Desktop/Codez/Projects/Asteroids
+18 silly lockFile cb5a37d0-sails-0-9-8 sails@~0.9.8
+19 verbose lock sails@~0.9.8 /home/aaron/.npm/cb5a37d0-sails-0-9-8.lock
+20 verbose already installed skipping node-minify@0.8.x /home/aaron/Desktop/Codez/Projects/Asteroids
+21 silly addNameRange { name: 'sails', range: '>=0.9.8-0 <0.10.0-0', hasData: false }
+22 verbose url raw sails
+23 verbose url resolving [ 'https://registry.npmjs.org/', './sails' ]
+24 verbose url resolved https://registry.npmjs.org/sails
+25 info trying registry request attempt 1 at 21:40:07
+26 verbose etag "3PQSEHU1A4HQHTK7U4O55R41I"
+27 http GET https://registry.npmjs.org/sails
+28 http 304 https://registry.npmjs.org/sails
+29 silly registry.get cb [ 304,
+29 silly registry.get   { server: 'CouchDB/1.5.0 (Erlang OTP/R15B03)',
+29 silly registry.get     etag: '"3PQSEHU1A4HQHTK7U4O55R41I"',
+29 silly registry.get     date: 'Mon, 23 Dec 2013 02:40:08 GMT',
+29 silly registry.get     'content-length': '0' } ]
+30 verbose etag sails from cache
+31 silly addNameRange number 2 { name: 'sails', range: '>=0.9.8-0 <0.10.0-0', hasData: true }
+32 silly addNameRange versions [ 'sails',
+32 silly addNameRange   [ '0.0.0',
+32 silly addNameRange     '0.0.0-2',
+32 silly addNameRange     '0.7.0',
+32 silly addNameRange     '0.7.0-2',
+32 silly addNameRange     '0.7.0-3',
+32 silly addNameRange     '0.7.0-4',
+32 silly addNameRange     '0.7.0-5',
+32 silly addNameRange     '0.0.0-1',
+32 silly addNameRange     '0.7.0-6',
+32 silly addNameRange     '0.7.0-7',
+32 silly addNameRange     '0.7.0-8',
+32 silly addNameRange     '0.7.1',
+32 silly addNameRange     '0.7.2',
+32 silly addNameRange     '0.7.3',
+32 silly addNameRange     '0.7.4',
+32 silly addNameRange     '0.7.4-1',
+32 silly addNameRange     '0.7.5-0',
+32 silly addNameRange     '0.7.6-0',
+32 silly addNameRange     '0.7.7',
+32 silly addNameRange     '0.7.8',
+32 silly addNameRange     '0.7.9',
+32 silly addNameRange     '0.8.0',
+32 silly addNameRange     '0.8.1',
+32 silly addNameRange     '0.8.2',
+32 silly addNameRange     '0.8.3',
+32 silly addNameRange     '0.8.4',
+32 silly addNameRange     '0.8.5',
+32 silly addNameRange     '0.8.6',
+32 silly addNameRange     '0.8.7',
+32 silly addNameRange     '0.8.71',
+32 silly addNameRange     '0.8.72',
+32 silly addNameRange     '0.8.73',
+32 silly addNameRange     '0.8.74',
+32 silly addNameRange     '0.8.75',
+32 silly addNameRange     '0.8.76',
+32 silly addNameRange     '0.8.77',
+32 silly addNameRange     '0.8.78',
+32 silly addNameRange     '0.8.79',
+32 silly addNameRange     '0.8.80',
+32 silly addNameRange     '0.8.81',
+32 silly addNameRange     '0.8.82',
+32 silly addNameRange     '0.8.83',
+32 silly addNameRange     '0.8.84',
+32 silly addNameRange     '0.8.85',
+32 silly addNameRange     '0.8.86',
+32 silly addNameRange     '0.8.87',
+32 silly addNameRange     '0.8.88',
+32 silly addNameRange     '0.8.89',
+32 silly addNameRange     '0.8.89-1',
+32 silly addNameRange     '0.8.892',
+32 silly addNameRange     '0.8.894',
+32 silly addNameRange     '0.8.895',
+32 silly addNameRange     '0.8.9',
+32 silly addNameRange     '0.8.91',
+32 silly addNameRange     '0.8.92',
+32 silly addNameRange     '0.8.93',
+32 silly addNameRange     '0.8.94',
+32 silly addNameRange     '0.9.0',
+32 silly addNameRange     '0.9.1',
+32 silly addNameRange     '0.9.2',
+32 silly addNameRange     '0.9.3',
+32 silly addNameRange     '0.9.4',
+32 silly addNameRange     '0.9.5',
+32 silly addNameRange     '0.9.7',
+32 silly addNameRange     '0.9.8' ] ]
+33 verbose addNamed [ 'sails', '0.9.8' ]
+34 verbose addNamed [ '0.9.8', '0.9.8' ]
+35 silly lockFile 11377fcd-sails-0-9-8 sails@0.9.8
+36 verbose lock sails@0.9.8 /home/aaron/.npm/11377fcd-sails-0-9-8.lock
+37 silly lockFile 11377fcd-sails-0-9-8 sails@0.9.8
+38 silly lockFile 11377fcd-sails-0-9-8 sails@0.9.8
+39 silly lockFile cb5a37d0-sails-0-9-8 sails@~0.9.8
+40 silly lockFile cb5a37d0-sails-0-9-8 sails@~0.9.8
+41 silly resolved [ { name: 'sails',
+41 silly resolved     author: { name: 'Mike McNeil', email: 'mike@balderdash.co' },
+41 silly resolved     version: '0.9.8',
+41 silly resolved     description: 'API-driven framework for building realtime apps, using MVC conventions (based on Express and Socket.io)',
+41 silly resolved     homepage: 'http://sailsjs.com',
+41 silly resolved     keywords:
+41 silly resolved      [ 'mvc',
+41 silly resolved        'web-framework',
+41 silly resolved        'express',
+41 silly resolved        'sails',
+41 silly resolved        'sailsjs',
+41 silly resolved        'sails.js',
+41 silly resolved        'REST',
+41 silly resolved        'API',
+41 silly resolved        'orm',
+41 silly resolved        'socket.io' ],
+41 silly resolved     main: './lib/index',
+41 silly resolved     bin: { sails: './bin/sails.js' },
+41 silly resolved     scripts: { test: 'mocha' },
+41 silly resolved     directories: { lib: 'lib' },
+41 silly resolved     dependencies:
+41 silly resolved      { waterline: '~0.9.4',
+41 silly resolved        'sails-disk': '~0.9.0',
+41 silly resolved        express: '3.4.0',
+41 silly resolved        'socket.io': '0.9.14',
+41 silly resolved        'connect-redis': '1.4.5',
+41 silly resolved        'connect-mongo': '0.3.2',
+41 silly resolved        async: '0.2.9',
+41 silly resolved        winston: '0.7.1',
+41 silly resolved        i18n: '0.4.1',
+41 silly resolved        optimist: '0.3.4',
+41 silly resolved        'fs-extra': '0.5.0',
+41 silly resolved        lodash: '2.4.1',
+41 silly resolved        glob: '3.1.14',
+41 silly resolved        'underscore.string': '2.3.0',
+41 silly resolved        'include-all': '0.1.2',
+41 silly resolved        inflection: '1.2.5',
+41 silly resolved        'node-uuid': '1.4.0',
+41 silly resolved        grunt: '0.4.1',
+41 silly resolved        'grunt-cli': '0.1.9',
+41 silly resolved        'grunt-contrib-copy': '0.4.1',
+41 silly resolved        'grunt-contrib-clean': '0.4.1',
+41 silly resolved        'grunt-contrib-concat': '0.3.0',
+41 silly resolved        'grunt-sails-linker': '0.9.5',
+41 silly resolved        'grunt-contrib-jst': '0.5.0',
+41 silly resolved        'grunt-contrib-watch': '0.4.4',
+41 silly resolved        'grunt-contrib-uglify': '0.2.2',
+41 silly resolved        'grunt-contrib-cssmin': '0.6.1',
+41 silly resolved        'grunt-contrib-less': '0.5.2',
+41 silly resolved        'grunt-contrib-coffee': '~0.7.0',
+41 silly resolved        ejs: '0.8.4',
+41 silly resolved        'ejs-locals': '1.0.2',
+41 silly resolved        'connect-flash': '0.1.1',
+41 silly resolved        pluralize: '0.0.5',
+41 silly resolved        'coffee-script': '1.6.2' },
+41 silly resolved     devDependencies: { mocha: '*', request: '*', wrench: '~1.5.1' },
+41 silly resolved     optionalDependencies: { 'coffee-script': '1.6.2' },
+41 silly resolved     repository: { type: 'git', url: 'git://github.com/balderdashy/sails.git' },
+41 silly resolved     licenses: [ [Object] ],
+41 silly resolved     bugs: { url: 'http://github.com/balderdashy/sails/issues' },
+41 silly resolved     engines: { node: '>= 0.10.0' },
+41 silly resolved     readme: '# Sails.js [![Build Status](https://travis-ci.org/balderdashy/sails.png?branch=master)](https://travis-ci.org/balderdashy/sails) [![NPM version](https://badge.fury.io/js/sails.png)](http://badge.fury.io/js/sails)\n\n![image_squidhome@2x.png](http://i.imgur.com/RIvu9.png)\n\nSails.js makes it easy to build custom, enterprise-grade Node.js apps. It is designed to resemble the MVC architecture from frameworks like Ruby on Rails, but with support for the more modern, data-oriented style of web app development.  It\'s especially good for building realtime features like chat.\n\n\n\n## Installation\n\nTo install the latest stable release with the command-line tool:\n```sh\nsudo npm -g install sails\n```\n\n\n## Creating a New Sails Project\n\nCreate a new app\n```sh\n# Create the app\nsails new testProject\n```\n\nLift Sails\n```sh\n# cd into the new folder\ncd testProject\n\n# Fire up the server  \nsails lift\n```\n\nThe default port for Sails is 1337, so at this point, if you visit <a href="http://localhost:1337/">http://localhost:1337/</a>, you\'ll see the default home page.\n\nNow, let\'s get Sails to do cool stuff.\n\n\n## Creating a RESTful JSON API\n\nSails.js API blueprints are nothing like scaffolds. Generated forms just don\'t make sense for modern web apps (no one uses them!)\nInstead, Sails allows you to generate a powerful RESTful JSON API using the command line tool.\nThis is exactly what you need for [AJAX web pages](http://irlnathan.github.io/sailscasts/blog/2013/10/10/building-a-sails-application-ep22-manipulating-the-dom-based-upon-changes-via-real-time-model-events/), [realtime apps](http://lanyrd.com/2013/nodepdx/video/), [SPAs](https://www.youtube.com/watch?v=Di50_eHqI7I), [Backbone apps](http://net.tutsplus.com/tutorials/javascript-ajax/working-with-data-in-sails-js/), [Angular apps](https://github.com/rdroro/tulipe-personal-todolist), [Cordova/PhoneGap apps](https://groups.google.com/forum/#!topic/sailsjs/o7HaB0rvSKU), [native mobile apps](https://github.com/aug2uag/SampleAppiOS), [refrigerators](https://www.youtube.com/watch?v=tisWSKMPIg8), [lamps](https://www.youtube.com/watch?v=OmcQZD_LIAE), etc.\n\nWithout writing any code, Sails supports:\n  + filtering (`where`)\n  + search (`or`, `and`, `in`, `startsWith`, `endsWith`, `contains`, `greaterThan`, `lessThan`, `not`)\n  + sorting (`sort`)\n  + pagination (`limit`, `skip`, `sort`)\n  + JSONP\n  + CORS\n  + csrf protection\n\nBest of all, all of these things work with both HTTP _and_ WebSockets, and work across any of the supported database adapters, including PostgreSQL, MongoDB, and MySQL.  Authentication and access control are implemented using [policies](https://github.com/balderdashy/sails-docs/blob/0.9/policies.md).  More on all that stuff here:\n\n[![Creating a REST API with Sails.js](http://i.imgur.com/drtMlWH.png)](//www.youtube.com/embed/xlOolpwwGQg?feature=player_embedded) [![Original Sails.js Screencast from March 2013](http://balderdashy.github.com/sails/images/screenshot.png)](http://youtu.be/GK-tFvpIR7c)\n\n---------------------------------------------------------------------------------\n\n###### Enough talk!  Let\'s generate a User API.\n\n\nWe\'ll need an empty model and controller:\n```\nsails generate user\n```\n\nIf you check out your app, you\'ll notice that this created a file at **/api/models/User.js** and **/api/controllers/UserController.js**.  \n\nNow, if you send a POST request to `http://localhost:1337/user` or visit `http://localhost:1337/user/create`, you\'ll see:\n```json\n{\n  "createdAt": "2013-01-10T01:33:19.105Z",\n  "updatedAt": "2013-01-10T01:33:19.105Z",\n  "id": 1\n}\n```\n\nThat\'s it!  You just created a model in the database!  You can also `find`, `update`, and `destroy` users:\n\n```bash\n# List of all users\nhttp://localhost:1337/user\n\n# Find the user with id 1\nhttp://localhost:1337/user/1\n\n# Create a new user\nhttp://localhost:1337/user/create?name=Fisslewick\n(or send an HTTP POST to http://localhost:1337/user)\n\n# Update the name of the user with id 1\nhttp://localhost:1337/user/update/1?name=Gordo\n(or send an HTTP PUT to http://localhost:1337/user/1)\n\n# Destroy the user with id 1\nhttp://localhost:1337/user/destroy/1\n(or send an HTTP DELETE to http://localhost:1337/user/1)\n```\n\n\n> #### JSONP, CORS, CSRF?\n> This built-in API bundles optional support for JSONP-- and in general, Sails has built-in support for CORS, and CSRF protection.\n> See your project\'s `config/cors.js`, `config/csrf.js`, and `config/controllers.js` files for more options.\n\n\n## Custom Controllers\n\nThese automatically generated URL routes are called "blueprints".  Blueprints may be disabled, pluralized, or prefixed globally or on a per-controller basis.\n\nBut what if you need more customized logic?  \n\nSay, your `UserController.create` needs to also send a confirmation email-- no problem.\nJust write a custom `create` method in your `UserController` and it will be available using the same blueprint routes (e.g. `POST /user`)\n\n\nCustom controllers are just Express middleware, the de facto standard for writing server code in Node.js. \n\ne.g.\n```javascript\n// api/controllers/UserController\nmodule.exports = {\n  /**\n   * @param {String} email\n   * @param {String} name\n   */\n  create: function (req, res) {\n    User.create({\n      name: req.param(\'name\'),\n      email: req.param(\'email\')\n    })\n    .exec(function userCreated(err, newUser) {\n    \n      // Bail out if there\'s an error!\n      // (this will use the app-global logic in config/500.js)\n      if (err) return res.serverError(err);\n      \n      // Send some email\n      require(\'my-favorite-email-module\').send({\n        html: \'Well that\\\'s neat.\',\n        to: newUser.email\n      });\n      \n      sails.log(\'New user created successfully!\');\n      sails.log.verbose(\'Confirmation email sent to\', newUser.email);\n      \n      // Send JSON response\n      return res.json(newUser);\n    })\n  }\n};\n```\n\n\n\n> Worth noting is that the custom controller above still supports WebSockets out of the box, since Sails will actually simulate `req` and `res` objects when it receives properly-formatted messages from Socket.io.\n> Check out `assets/js/app.js` in your project for an example of how to use Socket.io to talk to your Sails backend.\n\n\n\n\n\n## Custom Routes\n\nYou can also define custom routes, controllers, and controller methods (aka "actions").\n\n```sh\nsails generate controller hello index\n```\n\nThis will generate a file called `HelloController.js` in your app\'s `api/controllers` directory with one action, `index()`.\n\nNow let\'s edit that action to send back the string `\'Hello World!\'`.\n\n```javascript\n// api/controllers/HelloController.js\nmodule.exports = {\n\n  index: function(req, res) {\n    // Here, you can do all the Express/Connect things!\n    res.send(\'Hello World!\');\n  }\n};\n```\n\n\nLet\'s say we want the application to display this hello response specifically when a request comes in for `http://localhost:1337/hi`. \nGo into the **/config/routes.js** file and add a route like this:\n\n```javascript\n// config/routes.js\nmodule.exports = {\n\t\'/hi\': \'HelloController.index\'\n};\n```\n\nFinally, restart the server by going to your node terminal and pressing control+c. Then enter the following.\n\n```sh\nsails lift\n```\n\nNow when you visit <a href="http://localhost:1337/hi">http://localhost:1337/hi</a>, or send a Sails-formatted Socket.io message to `/hi`:\n```\n// Try this from the Chrome/Firebug javascript console on your app\'s home page:\nsocket.get(\'/hi\', function (response) { console.log(response); });\n```\n\nYou\'ll see:\n\n```\nHello World!\n```\n\n\n\n## Documentation & Resources\n\n#### Official Documentation\n[Docs](http://github.com/balderdashy/sails-docs)\n\n#### FAQ\nhttps://github.com/balderdashy/sails/wiki\n\n#### SailsCasts\nShort screencasts that take you through the basics of building traditional websites, single-page/mobile apps, and APIs using Sails.  Perfect for both novice and tenured developers, but does assume some background on MVC:\n[SailsCasts](http://irlnathan.github.io/sailscasts/)\n\n#### Google Group\nIf you have questions, ideas, or run into a problem, post it to our google group-- someone there might be able to help you.\n[Sails.js Google Group](https://groups.google.com/forum/?fromgroups#!forum/sailsjs)\n\n#### IRC\nWe\'re [#sailsjs on freenode](http://webchat.freenode.net/)\n\n\n\n\n\n## Version, Dependencies and Compatibility\n\n#### Latest stable release\n[![NPM](https://nodei.co/npm/sails.png?downloads=true&stars=true)](https://nodei.co/npm/sails/)\n\n\n#### Dependencies\nSails is tested with [node](http://nodejs.org/) versions 0.8.22 and 0.10.x, and built on the rock-solid foundations of [Express](http://expressjs.com/) and [Socket.io](http://socket.io/).\n\n[![NPM](https://nodei.co/npm/express.png?compact=true)](https://nodei.co/npm/express/)  [![NPM](https://nodei.co/npm/socket.io.png?compact=true)](https://nodei.co/npm/socket.io/)\n<!-- <img src="http://nodejs.org/images/logos/nodejs.png"/> -->\n\n#### What\'s Next?\n+ [Roadmap](https://github.com/balderdashy/sails-wiki/blob/0.9/roadmap.md)\n\n#### What\'s Changed?\n+ [Changelog](https://github.com/balderdashy/sails-wiki/blob/0.9/changelog.md)\n\n<br/>\n<br/>\n\n\n<!-- ![icon_circleheart@2x.png](http://i.imgur.com/liHPV.png) -->\n\n## Who Built This?\n\nThe Sails framework was developed by Mike McNeil ([@mikermcneil](http://twitter.com/mikermcneil)) and is maintained by [Balderdash](http://balderdash.co) ([@balderdashy](http://twitter.com/balderdashy)), a realtime web & mobile studio I started with Heather White (@hdesignsit) in Austin, TX a few years ago.  We design/build scalable Node.js apps for startups and enterprise customers.\n\nAfter building a few realtime JavaScript apps and taking them into production, we realized that the Node.js development landscape was very much still the Wild West.  Over time, after trying lots of different methodologies, we decided to crystallize all of our best practices into this framework.  I hope it saves you some time :)\n\n\n\n\n<!-- ![icon_circlelightbulb@2x.png](http://i.imgur.com/eOFXn.png)  -->\n\nLicense\n--\n\nSails is built around so many great open-source technologies that it would never have crossed our minds to keep it proprietary.  We owe huge gratitude and props to TJ Holowaychuk ([@visionmedia](https://github.com/visionmedia)) and Guillermo Rauch ([@guille](https://github.com/guille)) for the work they did, as well as the stewards of all the other open-source modules we use.  Sails could never have been developed without your tremendous contributions to the node community.\n\n\nThe MIT License (MIT)\n--\n\nCopyright © 2012-2013 Mike McNeil\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/8acf2fc2ca0aca8a3018e355ad776ed7 "githalytics.com")](http://githalytics.com/balderdashy/sails)\n',
+41 silly resolved     readmeFilename: 'README.md',
+41 silly resolved     _id: 'sails@0.9.8',
+41 silly resolved     _from: 'sails@~0.9.8' } ]
+42 info install sails@0.9.8 into /home/aaron/Desktop/Codez/Projects/Asteroids
+43 info installOne sails@0.9.8
+44 info /home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails unbuild
+45 info /home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails unbuild
+46 error error rolling back Error: EACCES, unlink '/home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails/node_modules/.bin/cake'
+46 error error rolling back  sails@0.9.8 { [Error: EACCES, unlink '/home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails/node_modules/.bin/cake']
+46 error error rolling back   errno: 3,
+46 error error rolling back   code: 'EACCES',
+46 error error rolling back   path: '/home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails/node_modules/.bin/cake' }
+47 error Error: EACCES, unlink '/home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails/node_modules/.bin/cake'
+47 error  { [Error: EACCES, unlink '/home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails/node_modules/.bin/cake']
+47 error   errno: 3,
+47 error   code: 'EACCES',
+47 error   path: '/home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails/node_modules/.bin/cake' }
+48 error Please try running this command again as root/Administrator.
+49 error System Linux 3.11.0-14-generic
+50 error command "/home/aaron/.nvm/v0.10.24/bin/node" "/home/aaron/.nvm/v0.10.24/bin/npm" "install"
+51 error cwd /home/aaron/Desktop/Codez/Projects/Asteroids
+52 error node -v v0.10.24
+53 error npm -v 1.3.21
+54 error path /home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails/node_modules/.bin/cake
+55 error code EACCES
+56 error errno 3
+57 error stack Error: EACCES, unlink '/home/aaron/Desktop/Codez/Projects/Asteroids/node_modules/sails/node_modules/.bin/cake'
+58 verbose exit [ 3, true ]
