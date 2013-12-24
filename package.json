@@ -8,14 +8,24 @@
     "node-sass": "0.7.x",
     "express": "3.x",
     "node-minify": "0.8.x",
-    "ejs": "*"
+    "ejs": "*",
+    "grunt-cli": "~0.1.11",
+    "grunt": "~0.4.2"
   },
   "readmeFilename": "README.md",
   "gitHead": "92037fec3b5b51c870428dac0f570a15f798eeb4",
   "main": "app.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-contrib-cssmin": "~0.7.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grun": "~0.2.0",
+    "grunt": "~0.4.2",
+    "grunt-contrib-concat": "~0.3.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "grunt build"
   },
   "repository": {
     "type": "git",
