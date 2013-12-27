@@ -60,8 +60,8 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
       }
     },
     watch: {
-      files: ['<%=jsDir%>*.js', '<%=cssDir%>*.css'],
-      tasks: ['concat', 'uglify', 'cssmin']
+      files: ['<%=jsDir%>*.js', '<%=cssDir%>*.scss'],
+      tasks: ['sass','concat', 'uglify', 'cssmin']
     },
     nodemon: {
       dev: {}
