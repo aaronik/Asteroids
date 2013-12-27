@@ -86,6 +86,7 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
   // grunt.loadNpmTasks('grunt-contrib-sass');
+
   grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-concurrent');
@@ -103,6 +104,10 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
     'concat',
     'uglify',
     'cssmin'
+  ]);
+
+  grunt.registerTask('heroku:production', [
+    'build'
   ]);
   
 };
