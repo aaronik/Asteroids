@@ -19,12 +19,17 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
     cssDir: 'lib/stylesheets/',
     cssDistDir: 'public/stylesheets/',
     pkg: grunt.file.readJSON('package.json'),
+    // sass: {
+    //   dist: {
+    //     files: {
+    //       '<%= cssDir %><%= pkg.name %>.css': '<%= cssDir %>*.scss'
+    //     }
+    //   }
+    // },
     sass: {
-      dist: {
         files: {
-          '<%= cssDir %><%= pkg.name %>.css': '<%= cssDir %>*.scss'
+            '<%= cssDistDir %>style.css': '<%= cssDir %>style.scss'
         }
-      }
     },
     concat: {
       js: {
@@ -80,7 +85,8 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-sass');
+  // grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-concurrent');
 
