@@ -10,7 +10,8 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
                       'lib/javascripts/key_listener.js',
                       'lib/javascripts/bullet.js',
                       'lib/javascripts/visuals.js',
-                      'lib/javascripts/init.js' ];
+                      'lib/javascripts/init.js',
+                      'lib/javascripts/text.js' ];
 
 
   grunt.initConfig({
@@ -19,13 +20,6 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
     cssDir: 'lib/stylesheets/',
     cssDistDir: 'public/stylesheets/',
     pkg: grunt.file.readJSON('package.json'),
-    // sass: {
-    //   dist: {
-    //     files: {
-    //       '<%= cssDir %><%= pkg.name %>.css': '<%= cssDir %>*.scss'
-    //     }
-    //   }
-    // },
     sass: {
         files: {
             '<%= cssDistDir %>style.css': '<%= cssDir %>style.scss'
@@ -34,7 +28,7 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
     concat: {
       js: {
         options: {
-          // separator: ';'
+          separator: ';'
         },
         src: jsSourceFiles,
         dest: '<%=jsDistDir%><%= pkg.name %>.js'
