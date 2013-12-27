@@ -8,14 +8,14 @@
     "node-sass": "0.7.x",
     "express": "3.x",
     "node-minify": "0.8.x",
-    "ejs": "*"
+    "ejs": "*",
+    "grunt": "~0.4.2",
+    "grunt-cli": "~0.1.11"
   },
   "readmeFilename": "README.md",
   "gitHead": "92037fec3b5b51c870428dac0f570a15f798eeb4",
   "main": "app.js",
   "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-cli": "~0.1.11",
     "grunt-contrib-uglify": "~0.2.7",
     "grunt-contrib-cssmin": "~0.7.0",
     "grunt-contrib-watch": "~0.5.3",
