@@ -4,5 +4,7 @@
  */
 
 exports.index = function(req, res){
-  res.render('index', { title: "Aaronik's Asteroids" });
+	var min = (req.app.get('env') == 'production') ? ".min" : "";
+
+  res.render('index', { title: "Aaronik's Asteroids", min: min });
 };

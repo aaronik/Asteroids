@@ -1,17 +1,37 @@
 module.exports = function(grunt) {
 
+var jsSourceFiles = [ 'lib/javascripts/array.js',
+                      'lib/javascripts/inherits.js',
+                      'lib/javascripts/store.js',
+                      'lib/javascripts/moving_object.js',
+                      'lib/javascripts/asteroid.js',
+                      'lib/javascripts/game.js',
+                      'lib/javascripts/ship.js',
+                      'lib/javascripts/key_listener.js',
+                      'lib/javascripts/bullet.js',
+                      'lib/javascripts/visuals.js',
+                      'lib/javascripts/init.js' ];
+
+
   grunt.initConfig({
     jsDir: 'lib/javascripts/',
-    jsDistDir: 'public/javascripts/',    
+    jsDistDir: 'public/javascripts/',
     cssDir: 'lib/stylesheets/',
     cssDistDir: 'public/stylesheets/',
     pkg: grunt.file.readJSON('package.json'),
+    sass: {
+      dist: {
+        files: {
+          '<%= cssDir %><%= pkg.name %>.css': '<%= cssDir %>*.scss'
+        }
+      }
+    },
     concat: {
       js: {
         options: {
-          separator: ';'
+          // separator: ';'
         },
-        src: ['<%=jsDir%>*.js'],
+        src: jsSourceFiles,
         dest: '<%=jsDistDir%><%= pkg.name %>.js'
       },
       css: {
@@ -40,8 +60,19 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-    files: ['<%=jsDir%>*.js', '<%=cssDir%>*.css'],
-    tasks: ['concat', 'uglify', 'cssmin']
+      files: ['<%=jsDir%>*.js', '<%=cssDir%>*.css'],
+      tasks: ['concat', 'uglify', 'cssmin']
+    },
+    nodemon: {
+      dev: {}
+    },
+    concurrent: {
+      dev: {
+        tasks: ['nodemon', 'watch'],
+        options: {
+          logConcurrentOutput: true
+        }
+      }
     }
   });
 
@@ -49,15 +80,20 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-nodemon');
+  grunt.loadNpmTasks('grunt-concurrent');
 
   grunt.registerTask('default', [
+    'sass',
     'concat',
     'uglify',
     'cssmin',
-    'watch'
+    'concurrent'
   ]);
 
   grunt.registerTask('build', [
+    'sass',
     'concat',
     'uglify',
     'cssmin'

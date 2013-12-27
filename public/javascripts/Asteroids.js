@@ -117,14 +117,12 @@
   })
   
 })(Array.prototype);
-(function (global){
-inherits = global.inherits = ( global.inherits || function(obj1, obj2) {
-	// obj1 should inherit from obj2
-
-	function Surrogate() {	};
-	Surrogate.prototype = obj2.prototype;
-	obj1.prototype = new Surrogate();
-});
+(function(global){
+	var inherits = global.inherits = (global.inherits || function (child, parent) {
+		function Surrogate(){};
+		Surrogate.prototype = parent.prototype;
+		child.prototype = new Surrogate();
+	})
 })(this);
 var Asteroids = (this.Asteroids || {});
 
@@ -148,8 +146,7 @@ var Asteroids = (this.Asteroids || {});
 		return colorString;
 	};
 })(Asteroids)
-// require('./inherits')
-var Asteroids = (Asteroids || {});
+var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function (global){
 
@@ -205,7 +202,7 @@ var Asteroids = (Asteroids || {});
 
 
 })(Asteroids);
-var Asteroids = (this.Asteroids || {});
+var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function (global){
 
@@ -892,7 +889,6 @@ window.onload = function() {
 	var canvas = document.createElement("canvas");
 	canvas.setAttribute("width", "500");
 	canvas.setAttribute("height", "500");
-	canvas.setAttribute("background", 'black');
 
 	var canvasWrapper = document.getElementById("canvas-wrapper");
 	canvasWrapper.appendChild(canvas);

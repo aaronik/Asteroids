@@ -1,2 +1,2 @@
-echo "testing haha hi hi" >> test.tmp
+grunt build
 web: node app.js
