@@ -5,3 +5,4 @@
 -enemy mothership
 -sound FX
 -cool things encountered - when all stars move in one direction but with a nudge, the effect is sweet.  When explodingtext is called but the screen is not cleared, it's sweet.
+- ctx.fillRect() and ctx.createRadialGradient do some cool stuff when creating many on top of eachtoerh in the same place.  Like a beacon.  

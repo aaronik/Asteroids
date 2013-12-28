@@ -117,7 +117,7 @@
   });
 
   A.nudge = (A.nudge || function() {
-    return this.rotate((Math.random() / 4) * [-1, 1].sample());
+    return this.rotate((Math.random() / 8) * [-1, 1].sample());
   });
   
 })(Array.prototype);;(function(global){
@@ -333,7 +333,7 @@
 
 	Game.prototype.powerShip = function (ship) {
 		ship.power();
-		this.exhaustParticles.push(ship.releaseExhaust());
+		this.exhaustParticles = this.exhaustParticles.concat(ship.releaseExhaust(2));
 	};
 
 	Game.prototype.turnShip = function (ship, dir, percentage) {
@@ -353,6 +353,11 @@
 		// background
 		this.background.draw(this.ctx);
 
+		// ship exhaust particles
+		this.exhaustParticles.forEach(function(ep){
+			ep.draw(game.ctx);
+		})
+
 		// asteroids
 		this.asteroids.forEach(function(asteroid){
 			asteroid.draw(game.ctx);
@@ -361,11 +366,6 @@
 		// bullets
 		this.bullets.forEach(function(bullet){
 			bullet.draw(game.ctx);
-		})
-
-		// ship exhaust particles
-		this.exhaustParticles.forEach(function(ep){
-			ep.draw(game.ctx);
 		})
 
 		// ship
@@ -707,7 +707,7 @@
 			this.announce('Pause', true);
 		} else {
 			this.start();
-			this.announce('Pause')
+			this.announce('Resume')
 		}
 	};
 
@@ -771,12 +771,19 @@
 		this.vel = this.vel.add(this.orientation.scale(this.impulse));
 	};
 
-	Ship.prototype.releaseExhaust = function () {
+	Ship.prototype.releaseExhaust = function (count) {
 		var exhaustParticleOptions = {
 			'ship': this
 		}
 
-		return new global.ExhaustParticle(exhaustParticleOptions);
+		var particles = [];
+		if (!count) { var count = 1 }
+
+		for (var i = 0; i < count; i++) {
+			particles.push(new global.ExhaustParticle(exhaustParticleOptions));
+		}
+
+		return particles;
 	};
 
 	Ship.prototype.turn = function (direction, percentage) {
@@ -1057,7 +1064,7 @@
 		this.size = options.size || 10;
 		this.growRate = options.growRate || 10;
 		this.alpha = options.alpha || 1;
-		this.alphaChangeRate = options.alphaChangeRate || 0.05;
+		this.alphaChangeRate = options.alphaChangeRate || 0.03;
 
 		this.initialize();
 	};
@@ -1067,10 +1074,11 @@
 
 		if (this.independentTimer) {
 			var timer = setInterval(function(){
-				if (that.alpha == 0) {
+				if (that.alpha <= 0) {
 					clearTimer(timer);
 				} else {
-					that.draw(that.game.ctx);
+					// that.draw(that.game.ctx);
+					that.game.draw();
 				}
 			}, this.game.FPS)
 		}
@@ -1094,44 +1102,44 @@
 })(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
-	var ExhaustFeed = global.ExhaustFeed = function () {
-		this.exhaustParticles = [];
-	};
-
-	ExhaustFeed.prototype.draw = function (ctx) {
-		this.exhaustParticles.forEach(function(particle){
-			particle.draw(ctx);
-		})
-	};
-	
-})(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
-
-(function(global){
 	var Store = global.Store;
 
 	var ExhaustParticle = global.ExhaustParticle = function (options) {
 		this.ship = options.ship;
 		this.pos = this.ship.pos.slice(0);
 		this.radius = options.radius || 1;
-		this.vel = this.ship.vel.add(this.ship.orientation.scale(-10).nudge());
-		this.color = ['orange', 'red', 'yellow', 'orange', 'orage'].sample()
+		this.vel = this.ship.vel.add(this.ship.orientation.scale(-15).nudge());
+		// this.color = ['orange', 'red', 'yellow', 'orange', 'orage'].sample();
+		this.RGB = ['226,72,0','204,24,0','134,2,0','255,119,1'].sample();
 	};
 
 	inherits(ExhaustParticle, MovingObject);
 
 	ExhaustParticle.prototype.draw = function (ctx) {
-		ctx.fillStyle = this.color;
-		ctx.beginPath();
-		ctx.arc(
-      this.pos[0],
-      this.pos[1],
-      this.radius,
-      0,
-      2 * Math.PI,
-      false
-    );
+		var x = this.pos[0];
+		var y = this.pos[1];
 
-		ctx.fill();
+		var radgrad = ctx.createRadialGradient(x,y,0,x,y,10);
+
+	  radgrad.addColorStop(0, 'rgba(' + this.RGB + ',0.4)');
+	  radgrad.addColorStop(0.1, 'rgba(' + this.RGB + ',.2)');
+	  radgrad.addColorStop(1, 'rgba(' + this.RGB + ',0)');
+	  
+	  // draw shape
+	  ctx.fillStyle = radgrad;
+
+		// ctx.fillStyle = this.color;
+		// ctx.beginPath();
+		// ctx.arc(
+  //     this.pos[0],
+  //     this.pos[1],
+  //     this.radius,
+  //     0,
+  //     2 * Math.PI,
+  //     false
+  //   );
+
+		ctx.fillRect(0, 0, 1000, 500);
 	};
 
 })(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
@@ -1177,7 +1185,7 @@
 		this.height = height = options.height;
 		this.width = width = options.width;
 		this.radius = options.radius || 1;
-		this.vel = options.vel || Store.randomVel().scale(0.05);
+		this.vel = options.vel || Store.randomVel().scale(0.02);
 		this.pos = options.pos || [(Math.random() * width), (Math.random() * height)];
 		this.color = ['#8A2C1F', 'blue', 'grey', 'grey', 'grey', 'grey', 'grey'].sample();
 	};

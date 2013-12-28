@@ -12,7 +12,6 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
                       'lib/javascripts/visuals.js',
                       'lib/javascripts/init.js',
                       'lib/javascripts/text.js',
-                      'lib/javascripts/exhaust_feed.js',
                       'lib/javascripts/exhaust_particle.js',
                       'lib/javascripts/background.js',
                       'lib/javascripts/star.js' ];
