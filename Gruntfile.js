@@ -11,7 +11,11 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
                       'lib/javascripts/bullet.js',
                       'lib/javascripts/visuals.js',
                       'lib/javascripts/init.js',
-                      'lib/javascripts/text.js' ];
+                      'lib/javascripts/text.js',
+                      'lib/javascripts/exhaust_feed.js',
+                      'lib/javascripts/exhaust_particle.js',
+                      'lib/javascripts/background.js',
+                      'lib/javascripts/star.js' ];
 
 
   grunt.initConfig({
@@ -20,11 +24,6 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
     cssDir: 'lib/stylesheets/',
     cssDistDir: 'public/stylesheets/',
     pkg: grunt.file.readJSON('package.json'),
-    sass: {
-        files: {
-            '<%= cssDistDir %>style.css': '<%= cssDir %>style.scss'
-        }
-    },
     concat: {
       js: {
         options: {
@@ -32,10 +31,13 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
         },
         src: jsSourceFiles,
         dest: '<%=jsDistDir%><%= pkg.name %>.js'
-      },
-      css: {
-        src: ['<%=cssDir%>*.css'],
-        dest: '<%=cssDistDir%><%= pkg.name %>.css'
+      }
+    },
+    sass: {
+      dist: {
+        files: {
+            '<%= cssDistDir %><%= pkg.name %>.css': '<%= cssDir %>main.scss'
+        }
       }
     },
     uglify: {
@@ -54,7 +56,7 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
           banner: '/*! <%= pkg.name %> <%=grunt.template.today("dd-mm-yyyy") %> */\n'
         },
         files: {
-          '<%=cssDistDir%><%= pkg.name %>.min.css': ['<%= concat.css.dest %>']
+          '<%=cssDistDir%><%= pkg.name %>.min.css': ['<%= cssDir %>main.scss']
         }
       }
     },
@@ -86,16 +88,16 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
   grunt.loadNpmTasks('grunt-concurrent');
 
   grunt.registerTask('default', [
-    'sass',
     'concat',
+    'sass',
     'uglify',
     'cssmin',
     'concurrent'
   ]);
 
   grunt.registerTask('build', [
-    'sass',
     'concat',
+    'sass',
     'uglify',
     'cssmin'
   ]);

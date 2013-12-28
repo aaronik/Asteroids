@@ -1,1 +1,6 @@
--change minified javascript output to be <datestring>filename format
+-powerups (cone shoot, powerful shots, faster engine, better inertial dampeners
+-multiplayer (pvp, coop)
+-gameover
+-points
+-enemy mothership
+-sound FX
