@@ -325,7 +325,6 @@
 
 	Game.prototype.addBackground = function() {
 		this.background = new global.Background(this);
-		this.background.initialize();
 	};
 
 	Game.prototype.fireShip = function (ship) {
@@ -399,15 +398,21 @@
 		this.background.move();
 	};
 
-	Game.prototype.levelUp = function() {
-		this.level += 1;
+	Game.prototype.announce = function (txt, independentTimer) {
+		var independentTimer = independentTimer || false;
 
 		var explodingTextOptions = {
 			'game': this,
-			'txt': 'level ' + this.level
+			'txt': txt,
+			'independentTimer': independentTimer
 		}
 
 		this.explodingTexts.push(new global.ExplodingText(explodingTextOptions))
+	}
+
+	Game.prototype.levelUp = function() {
+		this.level += 1;
+		this.announce('Level ' + this.level);
 
 		this.repopulateAsteroids();
 		this.modifyDifficulty();
@@ -699,8 +704,10 @@
 	Game.prototype.pause = function() {
 		if (this['mainTimer']) {
 			this.stop();
+			this.announce('Pause', true);
 		} else {
 			this.start();
+			this.announce('Pause')
 		}
 	};
 
@@ -1045,11 +1052,28 @@
 	// expanding text from the middle of the screen for level changes, announcesments, etc.
 	var ExplodingText = global.ExplodingText = function (options) {
 		this.game = options.game;
+		this.independentTimer = options.independentTimer;
 		this.txt = options.txt || 'default text';
 		this.size = options.size || 10;
 		this.growRate = options.growRate || 10;
 		this.alpha = options.alpha || 1;
 		this.alphaChangeRate = options.alphaChangeRate || 0.05;
+
+		this.initialize();
+	};
+
+	ExplodingText.prototype.initialize = function() {
+		var that = this;
+
+		if (this.independentTimer) {
+			var timer = setInterval(function(){
+				if (that.alpha == 0) {
+					clearTimer(timer);
+				} else {
+					that.draw(that.game.ctx);
+				}
+			}, this.game.FPS)
+		}
 	};
 
 	ExplodingText.prototype.draw = function(ctx) {
@@ -1117,7 +1141,7 @@
 		this.game = game;
 		this.numStars = 100;
 		this.stars = [];
-
+		this.initialize();
 	}
 
 	Background.prototype.initialize = function () {
