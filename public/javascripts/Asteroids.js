@@ -752,6 +752,9 @@
 		this.health = 40;
 		this.damage = 15;
 
+		this.kineticBullets = true;
+		this.bulletWeight = 0.5;
+
 		global.MovingObject.call(this, pos, vel, radius);
 	};
 
@@ -792,8 +795,15 @@
 		}
 	}
 
-	Ship.prototype.fire = function () {
+	Ship.prototype.fire = function() {
+		this.recoil();
 		return new global.Bullet(this);
+	}
+
+	Ship.prototype.recoil = function() {
+		if (this.kineticBullets) {
+			this.vel = this.vel.subtract(this.orientation.scale(this.bulletWeight))
+		}
 	}
 
 	Ship.prototype.draw = function (ctx) {
