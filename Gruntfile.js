@@ -100,9 +100,5 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
     'uglify',
     'cssmin'
   ]);
-
-  grunt.registerTask('heroku:production', [
-    'build'
-  ]);
   
 };
