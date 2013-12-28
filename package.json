@@ -5,9 +5,7 @@
   "version": "0.0.1",
   "homepage": "git://github.com/aaronik/asteroids",
   "dependencies": {
-    "node-sass": "0.7.x",
     "express": "3.x",
-    "node-minify": "0.8.x",
     "ejs": "*"
   },
   "readmeFilename": "README.md",
@@ -27,7 +25,6 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "grunt build"
   },
   "repository": {
     "type": "git",
