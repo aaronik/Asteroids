@@ -290,6 +290,7 @@
 		this.ctx = canvasEl.getContext("2d");
 		this.WIDTH = canvasEl.width;
 		this.HEIGHT = canvasEl.height;
+		this.ships = [];
 		this.asteroids = [];
 		this.noExplodeAsteroids = [];
 		this.bullets = [];
@@ -1089,7 +1090,7 @@
 		ctx.textAlign = 'center';
 		ctx.font = 'bold ' + this.size + 'pt normal';
 		var x = this.game.WIDTH / 2;
-		var y = (this.game.HEIGHT / 2) + (this.game.HEIGHT / 20);
+		var y = (this.game.HEIGHT / 2) + (this.game.HEIGHT / 15);
 
 		ctx.fillText(this.txt, x, y);
 		ctx.textAlign = 'left';

@@ -1,8 +1,15 @@
 -powerups (cone shoot, powerful shots, faster engine, better inertial dampeners
 -multiplayer (pvp, coop)
 -gameover
--points
+-points - steady increase w/ timer, maybe not points but cash - use cash to buy powerups?
 -enemy mothership
 -sound FX
 -cool things encountered - when all stars move in one direction but with a nudge, the effect is sweet.  When explodingtext is called but the screen is not cleared, it's sweet.
 - ctx.fillRect() and ctx.createRadialGradient do some cool stuff when creating many on top of eachtoerh in the same place.  Like a beacon.  
+
+
+--- multiplayer ---
+-game must be deterministic.  So every respawning of asteroids must be predetermined by server so it's the same on both clients
+-should have 1p or 2p games.  1p is all client side.  maybe single player or multiplayer.
+-app starts out with a SP or MP screen, with Asteroids as the title or something.
+-would be awesome to not have separate JS for each.  Just a flag for single or multiplayer.
