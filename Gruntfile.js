@@ -1,20 +1,24 @@
 module.exports = function(grunt) {
 
-var jsSourceFiles = [ 'lib/javascripts/array.js',
-                      'lib/javascripts/inherits.js',
-                      'lib/javascripts/store.js',
-                      'lib/javascripts/moving_object.js',
-                      'lib/javascripts/asteroid.js',
-                      'lib/javascripts/game.js',
-                      'lib/javascripts/ship.js',
-                      'lib/javascripts/key_listener.js',
-                      'lib/javascripts/bullet.js',
-                      'lib/javascripts/visuals.js',
-                      'lib/javascripts/init.js',
-                      'lib/javascripts/text.js',
-                      'lib/javascripts/exhaust_particle.js',
-                      'lib/javascripts/background.js',
-                      'lib/javascripts/star.js' ];
+var jsSourceFiles = [ 
+  'lib/javascripts/array.js',
+  'lib/javascripts/inherits.js',
+  'lib/javascripts/store.js',
+  'lib/javascripts/moving_object.js',
+  'lib/javascripts/asteroid.js',
+  'lib/javascripts/game.js',
+  'lib/javascripts/game_mp.js',
+  'lib/javascripts/ship.js',
+  'lib/javascripts/key_listener.js',
+  'lib/javascripts/bullet.js',
+  'lib/javascripts/visuals.js',
+  'lib/javascripts/init.js',
+  'lib/javascripts/text.js',
+  'lib/javascripts/exhaust_particle.js',
+  'lib/javascripts/background.js',
+  'lib/javascripts/star.js',
+  'lib/javascripts/socket.js'
+];
 
 
   grunt.initConfig({
@@ -86,19 +90,16 @@ var jsSourceFiles = [ 'lib/javascripts/array.js',
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-concurrent');
 
-  grunt.registerTask('default', [
-    'concat',
-    'sass',
-    'uglify',
-    'cssmin',
-    'concurrent'
-  ]);
-
   grunt.registerTask('build', [
     'concat',
     'sass',
     'uglify',
     'cssmin'
+  ]);
+
+  grunt.registerTask('default', [
+    'build',
+    'concurrent'
   ]);
   
 };
