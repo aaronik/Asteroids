@@ -1,8 +1,7 @@
 module.exports = function(grunt) {
 
-var jsSourceFiles = [ 
+var jsClientSourceFiles = [ 
   'lib/javascripts/array.js',
-  'lib/javascripts/inherits.js',
   'lib/javascripts/store.js',
   'lib/javascripts/moving_object.js',
   'lib/javascripts/asteroid.js',
@@ -20,6 +19,25 @@ var jsSourceFiles = [
   'lib/javascripts/socket.js'
 ];
 
+var jsServerSourceFiles = [ 
+  'lib/javascripts/array.js',
+  'lib/javascripts/store.js',
+  'lib/javascripts/moving_object.js',
+  'lib/javascripts/asteroid.js',
+  // 'lib/javascripts/game.js',
+  // 'lib/javascripts/game_mp.js',
+  'lib/javascripts/ship.js',
+  // 'lib/javascripts/key_listener.js',
+  // 'lib/javascripts/bullet.js',
+  // 'lib/javascripts/visuals.js',
+  // 'lib/javascripts/init.js',
+  // 'lib/javascripts/text.js',
+  // 'lib/javascripts/exhaust_particle.js',
+  // 'lib/javascripts/background.js',
+  // 'lib/javascripts/star.js',
+  // 'lib/javascripts/socket.js'
+];
+
 
   grunt.initConfig({
     jsDir: 'lib/javascripts/',
@@ -28,12 +46,16 @@ var jsSourceFiles = [
     cssDistDir: 'public/stylesheets/',
     pkg: grunt.file.readJSON('package.json'),
     concat: {
-      js: {
-        options: {
-          separator: ';'
-        },
-        src: jsSourceFiles,
+      clientJS: {
+        src: jsClientSourceFiles,
         dest: '<%=jsDistDir%><%= pkg.name %>.js'
+      },
+      serverJS: {
+        options: {
+          footer: 'module.exports = Asteroids;'
+        },
+        src: jsServerSourceFiles,
+        dest: '<%= pkg.name %>.js'
       }
     },
     sass: {
@@ -49,7 +71,7 @@ var jsSourceFiles = [
       },
       dist: {
         files: {
-          '<%=jsDistDir%><%= pkg.name %>.min.js': ['<%= concat.js.dest %>']
+          '<%=jsDistDir%><%= pkg.name %>.min.js': ['<%= concat.clientJS.dest %>']
         }
       }
     },

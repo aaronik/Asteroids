@@ -3,7 +3,6 @@ var express = require('express');
 var routes = require('./routes');
 var http = require('http');
 var path = require('path');
-var io 
 
 var app = express();
 
@@ -28,6 +27,7 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 });
 
 var io = require('socket.io').listen(server);
+var Asteroids = require('./Asteroids.js');
 
 // per heroku's stupid dumb smelly rules
 io.configure(function () {

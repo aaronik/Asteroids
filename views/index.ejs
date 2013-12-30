@@ -3,10 +3,46 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href="/stylesheets/Asteroids<%= min %>.css" />
+    <link href='http://fonts.googleapis.com/css?family=Exo+2:800' rel='stylesheet' type='text/css'>
     <script src="/javascripts/Asteroids<%= min %>.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
   </head>
   <body>
-    <div id='canvas-wrapper'></div>
+  	<div id='main-wrapper'>
+
+	    <h1> Welcome to Asteroids</h1>
+
+		    <div id='T-top-divider-div' class='divider-div'>
+		    	<img src='images/horizontal_page_divider.png'>
+		    </div>
+
+	    <div id='lower-pane-wrapper'>
+
+		    <div id='index-left-pane' class='index-pane'>
+		    	<div id='sp' class='button left-button'>Single Player</div>
+		    </div>
+
+		    <div id='T-center-divider-div' class='divider-div'>
+		    	<img src='images/vertical_page_divider.png'>
+		    </div>
+
+		    <div id='index-right-pane' class='index-pane'>
+		    	<div id='hmpg' class='button right-button'>
+		    		Host Multi Player Game
+		    	</div>
+		    	<div id='jmpg' class='button right-button'>
+		    		Join Multi Player Game
+		    	</div>
+		    	<div id='jrmpg' class='button right-button'>
+		    		Join Random Multi Player Game
+		    	</div>
+		    </div>
+
+	    </div>
+
+
+	    <footer>Copyright © Aaronik 2013</footer>
+	  </div>
+
   </body>
 </html>
