@@ -3,6 +3,7 @@
   font-weight: 800;
   color: #cccccc; }
 
+/* Landing Page */
 body {
   background-color: black; }
 
@@ -55,6 +56,7 @@ footer {
   text-align: center;
   color: #555555; }
 
+/* Game Page */
 #canvas-wrapper {
   text-align: center;
   margin-top: 100px; }
