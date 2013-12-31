@@ -324,6 +324,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.bgColor = 'white';
 		this.dropShadowColor = 'red';
 		this.level = 1;
+		this.initialize();
 	};
 
 	Game.prototype.addAsteroids = function(numAsteroids) {
@@ -743,6 +744,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.addBackground();
 		new global.Listener(this);
 		this.start();
+		this.announce('Welcome!');
 		document.getElementsByTagName('body')[0].bgColor = this.bgColor;
 	};
 
@@ -1548,7 +1550,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	GameStarter.prototype.startSinglePlayerGame = function() {
 		var canvas = this.createCanvas();
 		var game = new window.Asteroids.Game(canvas);
-		game.initialize();
+		// game.initialize();
 
 		window.game = game;
 	};
