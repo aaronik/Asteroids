@@ -4,6 +4,7 @@
 	color: #CCC;
 }
 
+// Landing Page
 body {
 	background-color: #000;
 }
@@ -72,4 +73,10 @@ footer {
 	display: block;
 	text-align: center;
 	color: #555;
+}
+
+// Game Page
+#canvas-wrapper {
+	text-align: center;
+	margin-top: 100px;
 }
