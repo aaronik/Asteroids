@@ -149,12 +149,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return colorString;
 	};
 
-	Store.uid = function() {
+	Store.uid = function(num) {
+		num = num || 32;
+
 		var arr = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 
 		var uid = '';
 
-		for (var i = 0; i < 32; i++) {
+		for (var i = 0; i < num; i++) {
 			uid += arr.sample();
 		}
 
@@ -324,6 +326,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.bgColor = 'white';
 		this.dropShadowColor = 'red';
 		this.level = 1;
+		this.initialize();
 	};
 
 	Game.prototype.addAsteroids = function(numAsteroids) {
@@ -761,7 +764,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
 
-	var Game = global.GameMP = function(canvasEl) {
+	var GameMP = global.GameMP = function(canvasEl) {
 		this.canvas = canvasEl;
 		this.ctx = canvasEl.getContext("2d");
 		this.WIDTH = canvasEl.width;
@@ -777,21 +780,21 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.difficultyRate = 0.6;
 		this.bgColor = 'white';
 		this.dropShadowColor = 'red';
-		this._counter = 0;
 		this.level = 1;
+		this.initialize();
 	};
 
-	Game.prototype.addAsteroids = function(numAsteroids) {
+	GameMP.prototype.addAsteroids = function(numAsteroids) {
 		for (var i = 0; i < numAsteroids; i++) {
 		  this.asteroids.push(global.Asteroid.randomAsteroid(this.WIDTH, this.HEIGHT));
 		}
 	};
 
-	Game.prototype.addShip = function() {
+	GameMP.prototype.addShip = function() {
 		this.ship = new global.Ship([this.WIDTH / 2, this.HEIGHT / 2]);
 	};
 
-	Game.prototype.addReadout = function() {
+	GameMP.prototype.addReadout = function() {
 		var options = {
 			'ship': this.ship,
 			'game': this
@@ -800,28 +803,28 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.readout = new global.Readout(options)
 	};
 
-	Game.prototype.addBackground = function() {
+	GameMP.prototype.addBackground = function() {
 		this.background = new global.Background(this);
 	};
 
-	Game.prototype.fireShip = function (ship) {
+	GameMP.prototype.fireShip = function (ship) {
 		this.bullets.push(ship.fire());
 	};
 
-	Game.prototype.powerShip = function (ship) {
+	GameMP.prototype.powerShip = function (ship) {
 		ship.power();
 		this.exhaustParticles = this.exhaustParticles.concat(ship.releaseExhaust(2));
 	};
 
-	Game.prototype.turnShip = function (ship, dir, percentage) {
+	GameMP.prototype.turnShip = function (ship, dir, percentage) {
 		ship.turn(dir, percentage);
 	};
 
-	Game.prototype.dampenShip = function (ship) {
+	GameMP.prototype.dampenShip = function (ship) {
 		ship.dampen();
 	}
 
-	Game.prototype.draw = function() {
+	GameMP.prototype.draw = function() {
 		var game = this;
 
 		// clear the canvas
@@ -857,7 +860,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	Game.prototype.move = function() {
+	GameMP.prototype.move = function() {
 		this.asteroids.forEach(function(asteroid){
 			asteroid.move();
 		});
@@ -875,7 +878,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.background.move();
 	};
 
-	Game.prototype.announce = function (txt, independentTimer) {
+	GameMP.prototype.announce = function (txt, independentTimer) {
 		var independentTimer = independentTimer || false;
 
 		var explodingTextOptions = {
@@ -887,7 +890,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.explodingTexts.push(new global.ExplodingText(explodingTextOptions))
 	}
 
-	Game.prototype.levelUp = function() {
+	GameMP.prototype.levelUp = function() {
 		this.level += 1;
 		this.announce('Level ' + this.level);
 
@@ -895,13 +898,13 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.modifyDifficulty();
 	};
 
-	Game.prototype.clearOOBObjects = function() {
+	GameMP.prototype.clearOOBObjects = function() {
 		// this.clearOOBAsteroids();
 		this.clearOOBBullets();
 		this.clearOOBExhaustParticles();
 	}
 
-	Game.prototype.clearOOBAsteroids = function() { // substituted for wrap around
+	GameMP.prototype.clearOOBAsteroids = function() { // substituted for wrap around
 		var posX;
 		var posY;
 		var as;
@@ -921,7 +924,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 	};
 
-	Game.prototype.clearOOBBullets = function() {
+	GameMP.prototype.clearOOBBullets = function() {
 		var bullet;
 		var posX;
 		var posY;
@@ -937,7 +940,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 	};
 
-	Game.prototype.clearOOBExhaustParticles = function() {
+	GameMP.prototype.clearOOBExhaustParticles = function() {
 		var ep;
 		var posX;
 		var posY;
@@ -953,7 +956,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 	};
 
-	Game.prototype.wrapMovingObjects = function() {
+	GameMP.prototype.wrapMovingObjects = function() {
 		var game = this;
 
 		var movingObjects = [];
@@ -979,7 +982,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	Game.prototype.asteroidCollisionPairs = function() {
+	GameMP.prototype.asteroidCollisionPairs = function() {
 		var collisions = [];
 
 		for (var i = 0; i < this.asteroids.length; i++) {
@@ -993,11 +996,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return collisions
 	};
 
-	Game.prototype.asteroidCollisions = function() {
+	GameMP.prototype.asteroidCollisions = function() {
 		return this.asteroidCollisionPairs().uniq
 	};
 
-	Game.prototype.hitAsteroids = function() {
+	GameMP.prototype.hitAsteroids = function() {
 		var game = this;
 		var asteroids = [];
 
@@ -1012,7 +1015,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return asteroids;
 	};
 
-	Game.prototype.collidedBullets = function() {
+	GameMP.prototype.collidedBullets = function() {
 		var game = this;
 		var bullets = [];
 
@@ -1027,7 +1030,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return bullets;
 	};
 
-	Game.prototype.depopulateNoExplodeAsteroids = function() {
+	GameMP.prototype.depopulateNoExplodeAsteroids = function() {
 		var game = this;
 
 		this.noExplodeAsteroids.forEach(function(as1){
@@ -1045,57 +1048,57 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	Game.prototype.explodeAsteroid = function(asteroid) {
+	GameMP.prototype.explodeAsteroid = function(asteroid) {
 		this.asteroids.remove(asteroid);
 		var newAsteroids = asteroid.explode();
 		this.noExplodeAsteroids = this.noExplodeAsteroids.concat(newAsteroids);
 		this.asteroids = this.asteroids.concat(newAsteroids);
 	};
 
-	Game.prototype.damageAsteroid = function(asteroid, damage) {
+	GameMP.prototype.damageAsteroid = function(asteroid, damage) {
 		asteroid.health -= damage;
 	};
 
-	Game.prototype.removeBullet = function (bullet) {
+	GameMP.prototype.removeBullet = function (bullet) {
 		this.bullets.remove(bullet);
 	};
 
-	Game.prototype.repopulateAsteroids = function() {
+	GameMP.prototype.repopulateAsteroids = function() {
 			this.addAsteroids(5);
 	};
 
-	Game.prototype.modifyDifficulty = function() {
+	GameMP.prototype.modifyDifficulty = function() {
 			this.changeAsteroidSpeed(this.difficultyRate);
 	};
 
-	Game.prototype.changeAsteroidSpeed = function (amnt) {
+	GameMP.prototype.changeAsteroidSpeed = function (amnt) {
 		Asteroids.Asteroid.MAX_SPEED_MULTIPLIER += amnt;
 	};
 
-	Game.prototype.handleCollidingAsteroids = function (as1, as2) {
+	GameMP.prototype.handleCollidingAsteroids = function (as1, as2) {
 		this.damageAsteroid(as1, as2.radius);
 		this.damageAsteroid(as2, as1.radius);
 	};
 
-	Game.prototype.handleCollidedShip = function (asteroid) {
+	GameMP.prototype.handleCollidedShip = function (asteroid) {
 		game.explodeAsteroid(asteroid);
 		global.Visuals.hit(game.canvas);
 		game.ship.health -= asteroid.radius;
 	};
 
-	Game.prototype.handleBulletHits = function (bullet) {
+	GameMP.prototype.handleBulletHits = function (bullet) {
 		this.removeBullet(bullet);
 	};
 
-	Game.prototype.handleHitAsteroid = function (asteroid) {
+	GameMP.prototype.handleHitAsteroid = function (asteroid) {
 		this.damageAsteroid(asteroid, this.ship.damage);
 	};
 
-	Game.prototype.handleExplodedText = function (txt) {
+	GameMP.prototype.handleExplodedText = function (txt) {
 		this.explodingTexts.remove(txt);
 	};
 
-	Game.prototype.detectCollidingAsteroids = function() {
+	GameMP.prototype.detectCollidingAsteroids = function() {
 		var game = this;
 
 		this.asteroidCollisionPairs().forEach(function(asteroidPair){
@@ -1105,7 +1108,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	Game.prototype.detectHitAsteroids = function() {
+	GameMP.prototype.detectHitAsteroids = function() {
 		var game = this;
 
 		this.hitAsteroids().forEach(function(asteroid){
@@ -1113,7 +1116,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	Game.prototype.detectHitShip = function() {
+	GameMP.prototype.detectHitShip = function() {
 		var game = this;
 
 		this.asteroids.forEach(function(as){
@@ -1123,7 +1126,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	Game.prototype.detectBulletHits = function() {
+	GameMP.prototype.detectBulletHits = function() {
 		var game = this;
 
 		this.collidedBullets().forEach(function(bullet){
@@ -1132,7 +1135,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	Game.prototype.detectDestroyedObjects = function() {
+	GameMP.prototype.detectDestroyedObjects = function() {
 		var game = this;
 
 		this.asteroids.forEach(function(asteroid){
@@ -1142,7 +1145,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		});
 	};
 
-	Game.prototype.detectExplodedTexts = function() {
+	GameMP.prototype.detectExplodedTexts = function() {
 		var game = this;
 
 		this.explodingTexts.forEach(function(txt){
@@ -1152,13 +1155,13 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	Game.prototype.detectLevelChangeReady = function() {
+	GameMP.prototype.detectLevelChangeReady = function() {
 		if (this.asteroids.length == 0) {
 			this.levelUp();
 		}
 	};
 
-	Game.prototype.detect = function() {
+	GameMP.prototype.detect = function() {
 		this.detectCollidingAsteroids();
 		this.detectHitAsteroids();
 		this.detectHitShip();
@@ -1168,7 +1171,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detectLevelChangeReady();
 	};
 
-	Game.prototype.step = function() {
+	GameMP.prototype.step = function() {
 		// this.clearOOBAsteroids();
 		this.clearOOBObjects();
 		this.depopulateNoExplodeAsteroids();
@@ -1178,7 +1181,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.move();
 	};
 
-	Game.prototype.pause = function() {
+	GameMP.prototype.pause = function() {
 		if (this['mainTimer']) {
 			this.stop();
 			this.announce('Pause', true);
@@ -1188,19 +1191,19 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 	};
 
-	Game.prototype.stop = function() {
+	GameMP.prototype.stop = function() {
 		clearInterval(this['mainTimer']);
 		delete this['mainTimer'];
 	};
 
-	Game.prototype.start = function() {
+	GameMP.prototype.start = function() {
 		var that = this;
 		this['mainTimer'] = window.setInterval(function () {
 			that.step();
 		}, that.FPS);
 	};
 
-	Game.prototype.initialize = function() {
+	GameMP.prototype.initialize = function() {
 		this.addAsteroids(5);
 		this.addShip();
 		this.addReadout();
@@ -1534,38 +1537,43 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 				this.startSinglePlayerGame();
 				break;
 			case 'hmpg':
-				this.hostMultiPlayerGame();
+				// this.hostMultiPlayerGame();
+				this.notAvailable();
 				break;
 			case 'jmpg':
-				this.joinMultiPlayerGame();
+				// this.joinMultiPlayerGame();
+				this.notAvailable();
 				break;
 			case 'jrmpg':
-				this.joinRandomMultiPlayerGame();
+				// this.joinRandomMultiPlayerGame();
+				this.notAvailable();
 				break;
 		}
 	};
 
 	GameStarter.prototype.startSinglePlayerGame = function() {
 		var canvas = this.createCanvas();
-		var game = new window.Asteroids.Game(canvas);
-		game.initialize();
+		var game = new global.Game(canvas);
 
 		window.game = game;
 	};
 
-	GameStarter.prototype.hostMultiPlayerGame = function() {
+	GameStarter.prototype.notAvailable = function() {
 		alert('sorry, not available yet!')
 		window.location = document.URL;
+	};
+
+	GameStarter.prototype.hostMultiPlayerGame = function() {
+		var canvas = this.createCanvas();
+		var game = new global.GameMP(canvas);
 	};
 
 	GameStarter.prototype.joinMultiPlayerGame = function() {
-		alert('sorry, not available yet!')
-		window.location = document.URL;
+
 	};
 
 	GameStarter.prototype.joinRandomMultiPlayerGame = function() {
-		alert('sorry, not available yet!')
-		window.location = document.URL;
+
 	};
 
 	GameStarter.prototype.createCanvas = function() {
