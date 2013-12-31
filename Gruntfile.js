@@ -81,7 +81,7 @@ var jsServerSourceFiles = [
           banner: '/*! <%= pkg.name %> <%=grunt.template.today("dd-mm-yyyy") %> -- Visit github.com/aaronik/asteroids for the unminified javascript.*/\n'
         },
         files: {
-          '<%=cssDistDir%><%= pkg.name %>.min.css': ['<%= cssDir %>main.scss']
+          '<%=cssDistDir%><%= pkg.name %>.min.css': ['<%= cssDistDir %><%= pkg.name %>.css']
         }
       }
     },

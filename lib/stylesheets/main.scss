@@ -4,7 +4,7 @@
 	color: #CCC;
 }
 
-/* Landing Page */
+// Landing Page
 body {
 	background-color: #000;
 }
@@ -54,15 +54,17 @@ $background-hover-color: #616161 - 50;
 }
 
 .button:hover { 
+	// background: $background-hover-color;
 	box-shadow: inset 0px 0px 20px 10px $background-hover-color;
 	color: #FFF;
 }
 
 #right-button {
-
+	// float: left;
 }
 
 #left-button {
+	// float: right;
 	margin-right: -50px;
 }
 
@@ -73,7 +75,7 @@ footer {
 	color: #555;
 }
 
-/* Game Page */
+// Game Page
 #canvas-wrapper {
 	text-align: center;
 	margin-top: 100px;
