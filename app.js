@@ -29,6 +29,8 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 var io = require('socket.io').listen(server);
 var Asteroids = require('./Asteroids.js');
 
+var sessions = new Asteroids.Sessions(); // this guy will aid us in requestSessionsStatus
+
 // per heroku's stupid dumb smelly rules
 io.configure(function () {
 	io.set("transports", ["xhr-polling"]);
@@ -37,10 +39,27 @@ io.configure(function () {
 
 io.sockets.on('connection', function (socket) {
 	socket.emit('connectionSuccessful');
+
 	socket.on('test', function() {
 		console.log('test received, emitting response');
-		socket.emit('testSuccess');
 	});
+
+	socket.on('requestSessionsStatus', function() {
+		socket.emit('sessionsStatus', sessions.keys());
+	})
+
+	// Initialize a new game
+	socket.on('createSession', function (data) {
+		var gameID = data.gameID;
+		var width = data.width;
+		var height = data.height;
+
+		if (!sessions[gameID]) {
+			sessions['serverListener' + gameID] = sl = new Asteroids.ServerListener(socket, gameID);
+			sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket, gameID);
+			sessions[gameID] = new Asteroids.ServerGame(sl, sr, width, height);
+		}
+	})
 });
 
 // io.sockets.on('connection', function (socket) {
