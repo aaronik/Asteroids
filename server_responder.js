@@ -8,5 +8,18 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	var ServerResponder = global.ServerResponder = function (socket, gameID) {
 		this.socket = socket;
 		this.gameID = gameID;
+		global.gameID = gameID;
+		// this.game assigned in server_game.js;
+	}
+
+	ServerResponder.prototype.sendAsteroid = function (asteroidOpts) {
+		console.log('sending asteroids down')
+		console.log('called with ' + st('addAsteroid'))
+		console.log('gameID is ' + this.gameID)
+		this.socket.emit(st('addAsteroid'), asteroidOpts);
+	}
+
+	var st = function (str) {
+		return str + global.gameID;
 	}
 })(Asteroids)

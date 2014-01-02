@@ -1,11 +1,14 @@
+-harden MP from hacking.
+ -socket.emit('createSession') w/o correct object and the server shuts down
+
 -powerups (cone shoot, powerful shots, faster engine, better inertial dampeners
--multiplayer (pvp, coop)
 -gameover
 -points - steady increase w/ timer, maybe not points but cash - use cash to buy powerups?
 -enemy mothership
 -sound FX
 -cool things encountered - when all stars move in one direction but with a nudge, the effect is sweet.  When explodingtext is called but the screen is not cleared, it's sweet.
 - ctx.fillRect() and ctx.createRadialGradient do some cool stuff when creating many on top of eachtoerh in the same place.  Like a beacon.  
+-add dev_options to readout - will have asteroids array, noExplodeAsteroids array, bullets, what else?
 
 
 --- multiplayer ---

@@ -42,6 +42,7 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('test', function() {
 		console.log('test received, emitting response');
+		socket.emit('testSuccess');
 	});
 
 	socket.on('requestSessionsStatus', function() {
@@ -59,6 +60,8 @@ io.sockets.on('connection', function (socket) {
 			sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket, gameID);
 			sessions[gameID] = new Asteroids.ServerGame(sl, sr, width, height);
 		}
+
+		socket.emit('sessionCreated' + gameID)
 	})
 });
 
