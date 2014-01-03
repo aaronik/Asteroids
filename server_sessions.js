@@ -16,5 +16,17 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 
 		return keys;
-	}
+	};
+
+	Sessions.prototype.randomSession = function() {
+		var sessions = [];
+
+		for (i in this) {
+			if (this[i] === true) {
+				sessions.push(i);
+			}
+		}
+
+		return sessions.sample();
+	};
 })(Asteroids)

@@ -138,7 +138,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerGame.prototype.levelUp = function() {
 		this.level += 1;
-		this.announce('Level ' + this.level);
+		// this.announce('Level ' + this.level);
 
 		this.repopulateAsteroids();
 		this.modifyDifficulty();

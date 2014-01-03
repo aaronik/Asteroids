@@ -1,9 +1,8 @@
 // Module Dependencies
 var express = require('express');
-// var routes = require('./routes');
+var routes = require('./routes');
 var http = require('http');
 var path = require('path');
-var url = require('url');
 
 var app = express();
 
@@ -21,32 +20,7 @@ app.use(express.session());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.get('/', routes.index);
-// app.get('/new', routes.new);
-
-////////////// routes ///////////////
-app.get('/', function (req, res) {
-	var min = (req.app.get('env') == 'production') ? ".min" : "";
-
-  res.render('index', { title: "Aaronik's Asteroids", min: min });
-})
-
-app.post('/new/', function (req, res) {
-	var params = url.parse(req.url, true);
-	var width = params.width;
-	var height = params.height;
-
-	var gameID = Asteroids.Store.uid(5);
-	var socket = createSocket(gameID);
-
-	sessions['serverListener' + gameID] = sl = new Asteroids.ServerListener(socket);
-	sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket);
-	sessions['serverGame' + gameID] = new Asteroids.ServerGame(sl, sr, width, height);
-	sessions[gameID] = true;
-
-	res.send({gameID: gameID})
-})
-//////////////////////////////////////
+app.get('/', routes.index);
 
 var server = http.createServer(app).listen(app.get('port'), function(){
 	console.log('Express server listening on port ' + app.get('port'));
@@ -55,7 +29,7 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 var io = require('socket.io').listen(server);
 var Asteroids = require('./Asteroids.js');
 
-var sessions = Asteroids.sessions = new Asteroids.Sessions(); // this guy will aid us in requestSessionsStatus
+var sessions = new Asteroids.Sessions(); // this guy will aid us in requestSessionsStatus
 
 // per heroku's stupid dumb smelly rules
 io.configure(function () {
@@ -63,8 +37,34 @@ io.configure(function () {
 	io.set("polling duration", 10);
 });
 
-var createSocket = function (gameID) {
-	var ioString = '/' + gameID
+io.sockets.on('connection', function (socket) {
+	socket.emit('connectionSuccessful');
 
-	return io.of(ioString);
-};
+	socket.on('requestSessionsStatus', function() {
+		socket.emit('sessionsStatus', sessions.keys());
+	})
+
+	// Initialize a new game
+	socket.on('hmpg', function (data) {
+		var gameID = Asteroids.Store.uid(5);
+		var width = data.width;
+		var height = data.height;
+
+		sessions['serverListener' + gameID] = sl = new Asteroids.ServerListener(socket);
+		sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket);
+		sessions['serverGame' + gameID] = new Asteroids.ServerGame(sl, sr, width, height);
+
+		socket.join(gameID);
+		socket.emit('hmpgResponse', { gameID: gameID })
+	})
+
+	socket.on('jrmpg', function (data) {
+		var gameID = sessions.randomSession();
+		var width = data.width;
+		var height = data.height;
+
+		socket.join(gameID);
+		socket.emit('jrmpgResponse', { gameID: gameID })
+	})
+});
+

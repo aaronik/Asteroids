@@ -564,7 +564,7 @@
 
 	ServerGame.prototype.levelUp = function() {
 		this.level += 1;
-		this.announce('Level ' + this.level);
+		// this.announce('Level ' + this.level);
 
 		this.repopulateAsteroids();
 		this.modifyDifficulty();
@@ -897,23 +897,18 @@
 })(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
-	var ServerListener = global.ServerListener = function (nsSocket) {
-		this.nsSocket = nsSocket;
+	var ServerListener = global.ServerListener = function (socket) {
+		this.socket = socket;
 		//this.game is assigned in server_game.js
 		this.initialize();
 	};
 
 	ServerListener.prototype.initialize = function() {
-		var nsSocket = this.nsSocket;
+		var socket = this.socket;
 
-		nsSocket.on('connection', function(socket) {
-			console.log('connected from server_listener')
-			socket.emit('connectionSuccessful')
-
-			socket.on('test', function (data) {
-				console.log('test call received')
-				nsSocket.emit('testSuccess');
-			})
+		socket.on('test', function (data) {
+			console.log('test call received');
+			socket.broadcast.emit('testSuccess');
 		})
 
 	};
@@ -958,6 +953,18 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 
 		return keys;
-	}
+	};
+
+	Sessions.prototype.randomSession = function() {
+		var sessions = [];
+
+		for (i in this) {
+			if (this[i] === true) {
+				sessions.push(i);
+			}
+		}
+
+		return sessions.sample();
+	};
 })(Asteroids)
 module.exports = Asteroids;

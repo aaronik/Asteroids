@@ -1577,6 +1577,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	var Store = global.Store;
 
 	var GameStarter = global.GameStarter = function (gameType) {
+		this.started = false;
 		this.initialize(gameType);
 	};
 
@@ -1594,8 +1595,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 				this.notAvailable();
 				break;
 			case 'jrmpg':
-				// this.joinRandomMultiPlayerGame();
-				this.notAvailable();
+				this.joinRandomMultiPlayerGame();
+				// this.notAvailable();
 				break;
 		}
 	};
@@ -1612,65 +1613,77 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		window.location = document.URL;
 	};
 
-	GameStarter.prototype.hostMultiPlayerGame = function() {
-		var canvas = this.createCanvas();
-		var game = this.createGame(canvas);
+	// GameStarter.prototype.hostMultiPlayerGame = function() {
+	// 	var canvas = this.createCanvas();
+	// 	var gameID = Store.uid(5);
+	// 	var createGame = function(socket){ // tested
+	// 		var game = new global.GameMP(canvas, gameID);
+	// 		socket.emit('createSession', { gameID: gameID, width: game.WIDTH, height: game.HEIGHT })
+	// 		game.socket = socket;
+	// 		window.game = game;
+	// 	};
 
-		// this.createSocket(this.createGame, canvas);
-		var socket = io.connect('/');
-
-		var nsSocket;
-		socket.emit('createSession', { width: game.WIDTH, height: game.HEIGHT })
-		socket.on('sessionCreated', function (data) {
-			var socketLocation = '/' + data.socketLocation;
-			console.log('init.js#hostMultiPlayerGame - received new socket loc')
-			console.log(socketLocation)
-			// socket.disconnect();
-			window.sock = socket;
-			// nsSocket = io.connect(socketLocation);
-
-			// game.socket = nsSocket;
-			// global.SocketListener.startListening(nsSocket, game);
-			// game.initialize();
-			// window.socket = nsSocket;
-			// global.socket = nsSocket;
-		})
-	};
+	// 	this.createSocket(createGame);
+	// };
 
 	GameStarter.prototype.hostMultiPlayerGame = function() {
 		var canvas = this.createCanvas();
-		var game = this.createGame(canvas);
+		var game = new global.GameMP(canvas);
 		window.game = game;
+		var socket = io.connect('/');
+		window.socket = socket;
 
-		var req = new XMLHttpRequest();
-		req.addEventListener('load', function(event){
-			var gameID = JSON.parse(event.target.response).gameID;
-			
-			var socket = io.connect('/' + gameID)
-			game.socket = socket;
-			global.SocketListener.startListening(socket, game);
-			game.initialize();
-			window.socket = socket;
-		}, false)
+		socket.on('connect', function(){
+			if (!this.started) {
+				socket.emit('hmpg', { width: game.WIDTH, height: game.HEIGHT });
+				Asteroids.SocketListener.startListening(socket, game);
+				this.started = true;
+				game.initialize();
+			}
+		})
 
-		var url = '/new/?width=' + game.WIDTH + '&height=' + game.HEIGHT;
-		req.open('POST', url, true);
-		req.send();
-	};
+		socket.on('hmpgResponse', function (data) {
+			console.log('successfully joined room: ' + data.gameID);
+		})
+	}
 
 	GameStarter.prototype.joinMultiPlayerGame = function() {
-		
+
 	};
 
 	GameStarter.prototype.joinRandomMultiPlayerGame = function() {
-
-	};
-
-	GameStarter.prototype.createGame = function (canvas) {
+		var canvas = this.createCanvas();
 		var game = new global.GameMP(canvas);
 		window.game = game;
-		return game;
-	}
+		var socket = io.connect('/');
+		window.socket = socket;
+
+		socket.on('connect', function(){
+			if (!this.started) {
+				socket.emit('jrmpg', { width: game.WIDTH, height: game.HEIGHT });
+				Asteroids.SocketListener.startListening(socket, game);
+				this.started = true;
+				game.initialize();
+			}
+		})
+
+		socket.on('jrmpgResponse', function (data) {
+			console.log('successfully joined room: ' + data.gameID);
+		})
+	};
+
+	GameStarter.prototype.createSocket = function (callback) {
+		var socket = io.connect('/');
+		socket.on('connect', function(){
+			if (!this.started) {
+				this.started = true;
+				Asteroids.SocketListener.startListening(socket);
+				callback(socket);
+			}
+		});
+		
+		window.socket = socket;
+	};
 
 	GameStarter.prototype.createCanvas = function() {
 		var canvasWrapper = document.createElement('div')
@@ -1686,9 +1699,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return canvas;
 	};
 
-	GameStarter.prototype.createSocket = function (callback, canvas) {
-
-	};
+	GameStarter.prototype.createGame = function (canvas) {
+		var game = new global.GameMP(canvas);
+		window.game = game;
+	}
 
 })(Asteroids)
 
@@ -1889,7 +1903,7 @@ var SocketListener = Asteroids.SocketListener = {};
 (function(global, SocketListener){
 
 	var startListening = SocketListener.startListening = function (socket, game) {
-		
+
 		// init / general stuff
 		socket.on('connectionSuccessful', function() {
 			console.log('socket connected to server ')
@@ -1897,6 +1911,7 @@ var SocketListener = Asteroids.SocketListener = {};
 
 		socket.on('testSuccess', function() {
 			console.log('test received successfully!')
+			alert('tested')
 		});
 
 		socket.on('test', function() {
@@ -1913,7 +1928,7 @@ var SocketListener = Asteroids.SocketListener = {};
 
 		// game stuff
 		socket.on('addAsteroid', function (asteroidOpts) {
-			game.addAsteroid(asteroidOpts)
+			game.addAsteroid(asteroidOpts);
 		})
 	};
 
