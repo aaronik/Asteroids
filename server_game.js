@@ -7,6 +7,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.serverResponder = serverResponder;
 		serverListener.game = this;
 		serverResponder.game = this;
+		serverListener.initialize();
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		this.ships = [];
@@ -17,6 +18,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.repopulationRate = 30;
 		this.difficultyRate = 0.6;
 		this.level = 1;
+		this._counter = 0;
 		this.initialize();
 	};
 
@@ -30,11 +32,16 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 	};
 
-	ServerGame.prototype.addShip = function() {
-		// this.ship = new global.Ship([this.WIDTH / 2, this.HEIGHT / 2]);
-
-		// will be on a per client joining basis, the ship added will be the client's
+	ServerGame.prototype.addShip = function (shipOpts) {
+		this.ships.push(new global.Ship(shipOpts));
 	};
+
+	ServerGame.prototype.updateShip = function (shipOpts) {
+		var ship = this.get(shipOpts.id);
+
+		this.ships.remove(ship);
+		this.ships.push(new global.Ship(shipOpts))
+	}
 
 	// ServerGame.prototype.addReadout = function() {
 	// 	var options = {
@@ -49,16 +56,26 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	// 	this.background = new global.Background(this);
 	// };
 
-	ServerGame.prototype.fireShip = function (ship) {
-		// this.bullets.push(ship.fire());
-
-		// add bullets that are created by the clients
+	ServerGame.prototype.fireShip = function (ship, opts) {
+		console.log(ship) // null
+		var ship = ship || this.get(opts.shipID);
+		console.log(ship) // undefined
+		ship.fire();
+		var bullet = new global.Bullet(ship, opts);
+		this.bullets.push(bullet);
 	};
 
-	// ServerGame.prototype.powerShip = function (ship) {
-	// 	ship.power();
-	// 	this.exhaustParticles = this.exhaustParticles.concat(ship.releaseExhaust(2));
-	// };
+	ServerGame.prototype.powerShip = function (ship) {
+		ship.power();
+	};
+
+	ServerGame.prototype.turnShip = function (turnOpts) {
+		var ship = this.get(turnOpts.shipID);
+		var dir = turnOpts.dir;
+		var percentage = turnOpts.percentage;
+		
+		ship.power(dir, percentage);
+	};
 
 	// ServerGame.prototype.turnShip = function (ship, dir, percentage) {
 	// 	ship.turn(dir, percentage);
@@ -306,7 +323,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			id: bullet.id
 		}
 
-		this.serverResponder.sendRemoveBullet(opts)
+		this.serverResponder.removeBullet(opts);
 	};
 
 	ServerGame.prototype.repopulateAsteroids = function() {
@@ -418,14 +435,27 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 	};
 
+	ServerGame.prototype.detectSendFullState = function() {
+		if (this._counter % 10 == 0) this.sendFullState();
+	}
+
 	ServerGame.prototype.detect = function() {
-		this.detectCollidingAsteroids();
-		this.detectAsteroidBulletCollisions();
-		this.detectHitShip();
-		this.detectDestroyedObjects();
-		// this.detectExplodedTexts();
-		this.detectLevelChangeReady();
+		// this.detectCollidingAsteroids();
+		// this.detectAsteroidBulletCollisions();
+		// this.detectHitShip();
+		// this.detectDestroyedObjects();
+		// // this.detectExplodedTexts();
+		// this.detectLevelChangeReady();
+		this.detectSendFullState();
 	};
+
+	ServerGame.prototype.sendFullState = function() {
+		this.serverResponder.sendFullState();
+	}
+
+	ServerGame.prototype.tic = function() {
+		this._counter += 1;
+	}
 
 	ServerGame.prototype.step = function() {
 		// this.clearOOBAsteroids();
@@ -435,6 +465,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detect();
 		// this.draw();
 		this.move();
+		this.tic();
 	};
 
 	ServerGame.prototype.pause = function() {
@@ -461,11 +492,39 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerGame.prototype.initialize = function() {
 		this.addAsteroids(5);
-		this.addShip();
+		// this.addShip();
 		// this.addReadout();
 		// this.addBackground();
 		// new global.Listener(this);
 		this.start();
 	};
+
+	ServerGame.prototype.get = function (objID) {
+		console.log(objID)
+		var objects = this.asteroids.concat(this.bullets).concat(this.ships);
+		console.log(objects.length)
+		var matchingObj;
+
+		objects.forEach(function (obj) {
+			console.log(obj.id)
+			if (obj.id === objID) {
+				console.log('found a match')
+				matchingObj = obj;
+				return
+			}
+		})
+
+		return matchingObj;
+	}
+
+	ServerGame.prototype.getFullState = function() {
+		var objs = this.asteroids.concat(this.bullets).concat(this.ships)
+		var states = objs.map(function (obj) {
+			return obj.getState();
+		})
+
+		console.log(states)
+		return states;
+	}
 
 })(Asteroids);

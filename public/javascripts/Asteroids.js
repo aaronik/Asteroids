@@ -192,7 +192,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.radius = radius;
 		this.pos = pos;
 		this.vel = vel;
-		this.id = Store.uid();
+		this.id = this.id || Store.uid();
 	};
 
 	MovingObject.prototype.move = function() {
@@ -232,11 +232,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	var Store = global.Store;
 
 	var Asteroid = global.Asteroid = function (opts) {
-		this.radius = opts.radius;
 		this.color = opts.color || Store.randomColor();
-		this.pos = opts.pos;
-		this.vel = opts.vel;
-		this.health = this.radius;
+		this.health = opts.radius;
+		this.id = opts.id || null;
+
+		MovingObject.call(this, opts.pos, opts.vel, opts.radius)
 	};
 
 	Store.inherits(Asteroid, MovingObject);
@@ -271,8 +271,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var vel = Store.randomVel(radius);
 		var pos = [posX, posY];
 		var color = Store.randomColor();
+		var id = Store.uid();
 
-		return {pos: pos, vel: vel, radius: radius, color: color};
+		return {pos: pos, vel: vel, radius: radius, color: color, id: id};
 	};
 
 	Asteroid.prototype.draw = function (ctx) {
@@ -318,6 +319,20 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return newAsteroidOpts;
 	};
 
+	Asteroid.prototype.getState = function() {
+		var state = {
+			type: 'asteroid',
+			radius: this.radius,
+			pos: this.pos,
+			vel: this.vel,
+			id: this.id,
+			health: this.health,
+			color: this.color
+		}
+
+		return state;
+	}
+
 })(Asteroids);
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
@@ -349,7 +364,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 
 	Game.prototype.addShip = function() {
-		this.ships.push(new global.Ship([this.WIDTH / 2, this.HEIGHT / 2]));
+		this.ships.push(new global.Ship({pos: [this.WIDTH / 2, this.HEIGHT / 2]}));
 	};
 
 	Game.prototype.addReadout = function() {
@@ -806,8 +821,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.bgColor = 'white';
 		this.dropShadowColor = 'red';
 		this.level = 1;
+		this._counter = 0;
 		//this.socket assigned in init.js;
-		// this.initialize();
+		//this.shipID assigned in addShip;
 	};
 
 	// The game will never request asteroids, just get them from the server.
@@ -815,8 +831,34 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.asteroids.push(new global.Asteroid(asteroidOpts));
 	};
 
+	// Add ship, send info to server
 	GameMP.prototype.addShip = function() {
-		this.ships.push(new global.Ship([this.WIDTH / 2, this.HEIGHT / 2]));
+		var ship = new global.Ship({pos: [this.WIDTH / 2, this.HEIGHT / 2]});
+		this.shipID = ship.id;
+		this.ships.push(ship);
+
+		var opts = {
+			id: ship.id,
+			pos: ship.pos,
+			vel: ship.vel,
+			orientation: ship.orientation,
+			rotateSpeed: ship.rotateSpeed,
+			impulse: ship.impulse,
+			dampenRate: ship.dampenRate,
+			fireFrequency: ship.fireFrequency,
+			health: ship.health,
+			damage: ship.damage,
+			kineticBullets: ship.kineticBullets,
+			bulletWeight: ship.bulletWeight
+		}
+
+		this.socket.emit('addShip', opts);
+	};
+
+	GameMP.prototype.addForeignShip = function (shipOpts) {
+		this.ships.push(new global.Ship(shipOpts));
+
+		this.addReadout();
 	};
 
 	GameMP.prototype.addReadout = function() {
@@ -832,25 +874,58 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.background = new global.Background(this);
 	};
 
-	GameMP.prototype.fireShip = function (ship) {
-		this.bullets.push(ship.fire());
-
-		// also send these bullets to server
-		// like socket.emit('createBullet', {bulletpos, vel, or})
+	GameMP.prototype.fireForeignShip = function (shipID) {
+		var ship = this.get(shipID);
+		var bullet = ship.fire();
+		this.bullets.push(bullet);
 	};
+
+	GameMP.prototype.fireShip = function (ship) {
+		var bullet = ship.fire();
+		this.bullets.push(bullet);
+
+		var opts = {
+			pos: bullet.pos,
+			vel: bullet.vel,
+			orientation: bullet.orientation,
+			shipID: ship.id
+		}
+
+		this.socket.emit('createBullet', opts)
+	}
 
 	GameMP.prototype.powerShip = function (ship) {
 		ship.power();
 		this.exhaustParticles = this.exhaustParticles.concat(ship.releaseExhaust(2));
 
-		// send this info to server
+		this.socket.emit('powerShip', { shipID: ship.id })
 	};
+
+	GameMP.prototype.powerForeignShip = function (shipID) {
+		var ship = this.get(shipID);
+		ship.power();
+		this.exhaustParticles = this.exhaustParticles.concat(ship.releaseExhaust(2));
+	}
 
 	GameMP.prototype.turnShip = function (ship, dir, percentage) {
 		ship.turn(dir, percentage);
 
-		// don't need to send, will send constant ship updates
+		var opts = {
+			shipID: ship.id,
+			dir: dir,
+			percentage: percentage
+		}
+
+		this.socket.emit('turnShip', opts);
 	};
+
+	GameMP.prototype.turnForeignShip = function (turnOpts) {
+		var ship = this.get(turnOpts.shipID);
+		var dir = turnOpts.dir;
+		var percentage = turnOpts.percentage;
+
+		ship.turn(dir, percentage);
+	}
 
 	GameMP.prototype.dampenShip = function (ship) {
 		ship.dampen();
@@ -1100,6 +1175,12 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.bullets.remove(bullet);
 	};
 
+	GameMP.prototype.foreignRemoveBullet = function (bulletOpts) {
+		var id = bulletOpts.id;
+		var bullet = this.get(id);
+		this.bullets.remove(bullet);
+	}
+
 	// GameMP.prototype.repopulateAsteroids = function() {
 	// 		this.addAsteroids(5);
 	// };
@@ -1203,6 +1284,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	// 	}
 	// };
 
+	GameMP.prototype.detectSendState = function() {
+		if (this._counter % 3 == 0) this.sendState();
+	}
+
 	GameMP.prototype.detect = function() {
 		// this.detectCollidingAsteroids();
 		// this.detectHitAsteroids();
@@ -1210,8 +1295,74 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		// this.detectBulletHits();
 		// this.detectDestroyedObjects();
 		this.detectExplodedTexts();
+		this.detectSendState();
 		// this.detectLevelChangeReady();
 	};
+
+	GameMP.prototype.sendState = function() {
+		var shipState = this.ships[0].getState();
+
+		this.socket.emit('shipState', shipState);
+	}
+
+	GameMP.prototype.get = function (objID) {
+		var objects = this.asteroids.concat(this.bullets).concat(this.ships);
+		var matchingObj;
+
+		objects.forEach(function (obj) {
+			if (obj.id === objID) {
+				matchingObj = obj;
+				return
+			}
+		})
+
+		return matchingObj;
+	}
+
+	GameMP.prototype.clearState = function() {
+		this.asteroids = [];
+		this.bullets = [];
+		this.ships = [this.ships[0]];
+	}
+
+	GameMP.prototype.handleFullState = function (fullStateObject) {
+		var game = this;
+		var fullStateArray = fullStateObject.fullStateArray;
+
+		this.clearState();
+
+		fullStateArray.forEach(function (stateObj) {
+			switch (stateObj.type) {
+				case 'asteroid':
+					game.handleFullStateAsteroid(stateObj);
+					break;
+				case 'bullet':
+					game.handleFullStateBullet(stateObj);
+					break;
+				case 'ship':
+					game.handleFullStateShip(stateObj);
+					break;
+			}
+		})
+	}
+
+	GameMP.prototype.handleFullStateAsteroid = function (stateObj) {
+		this.asteroids.push(new global.Asteroid(stateObj))
+	}
+
+	GameMP.prototype.handleFullStateBullet = function (stateObj) {
+		this.bullets.push(new global.Bullet(null, stateObj))
+	}
+
+	GameMP.prototype.handleFullStateShip = function (stateObj) {
+		if (stateObj.id != this.shipID) {
+			this.ships.push(new global.Ship(stateObj))
+		}
+	}
+
+	GameMP.prototype.tic = function() {
+		this._counter += 1;
+	}
 
 	GameMP.prototype.step = function() {
 		// this.clearOOBAsteroids();
@@ -1221,6 +1372,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detect();
 		this.draw();
 		this.move();
+		this.tic();
 	};
 
 	GameMP.prototype.pause = function() {
@@ -1266,17 +1418,21 @@ var Asteroids = (this.Asteroids || {});
 
 	var Store = global.Store;
 
-	var Ship = global.Ship = function (pos) {
-		var pos = pos;
-		var vel = [0, 0];
-		var radius = 20 / 3;
-		this.orientation = [0,-1];
-		this.rotateSpeed = 0.25;
-		this.impulse = 0.4;
-		this.dampenRate = 0.95;
-		this.fireFrequency = 200;
-		this.health = 40;
-		this.damage = 15;
+	var Ship = global.Ship = function (opts) {
+		if (!opts) var opts = {};
+		var pos = opts.pos || [100, 100];
+		var vel = opts.vel || [0, 0];
+		var radius = opts.radius || 20 / 3;
+		this.orientation = opts.orientation || [0,-1];
+		this.rotateSpeed = opts.rotateSpeed || 0.25;
+		this.impulse = opts.impulse || 0.4;
+		this.dampenRate = opts.dampenRate || 0.95;
+		this.fireFrequency = opts.fireFrequency || 200;
+		this.health = opts.health || 40;
+		this.damage = opts.damage || 15;
+		this.id = opts.id || null;
+		this.borderColor = opts.borderColor || Store.randomColor();
+		this.fillColor = opts.fillColor || Store.randomColor();
 
 		this.kineticBullets = true;
 		this.bulletWeight = 0.5;
@@ -1350,8 +1506,8 @@ var Asteroids = (this.Asteroids || {});
 		var pt3 = pt1.add(or.scale(-height).rotate(-base));
 		var pt4 = pt1;
 
-		ctx.fillStyle = 'black';
-		ctx.strokeStyle = 'red';
+		ctx.fillStyle = this.fillColor;
+		ctx.strokeStyle = this.borderColor;
 		ctx.lineWidth = 3;
 		ctx.beginPath();
 		ctx.moveTo(pt1[0], pt1[1]);
@@ -1363,11 +1519,28 @@ var Asteroids = (this.Asteroids || {});
 		ctx.fill();
 	};
 
-	// Ship.prototype.drawExhaustParticles = function (ctx) {
-	// 	this.exhaustParticles.forEach(function(particle){
-	// 		particle.draw(ctx);
-	// 	})
-	// };
+	Ship.prototype.getState = function() {
+		var state = {
+			type: 'ship',
+			radius: this.radius,
+			pos: this.pos,
+			vel: this.vel,
+			id: this.id,
+			orientation: this.orientation,
+			rotateSpeed: this.rotateSpeed,
+			impulse: this.impulse,
+			dampenRate: this.dampenRate,
+			fireFrequency: this.fireFrequency,
+			health: this.health,
+			damage: this.damage,
+			kineticBullets: this.kineticBullets,
+			bulletWeight: this.bulletWeight,
+			borderColor: this.borderColor,
+			fillColor: this.fillColor
+		}
+
+		return state;
+	}
 
 })(Asteroids);
 var Asteroids = this.Asteroids = (this.Asteroids || {});
@@ -1505,13 +1678,15 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	var Store = global.Store;
 
-	var Bullet = global.Bullet = function (ship) {
+	var Bullet = global.Bullet = function (ship, opts) {
+		var opts = opts || {};
 		this.ship = ship;
-		this.orientation = ship.orientation.slice(0);
-		var vel = ship.vel.add(ship.orientation.scale(10));
-		var pos = ship.pos.slice(0)
-		var color = 'red';
-		this.damage = ship.damage;
+		this.orientation = opts.orientation || ship.orientation.slice(0);
+		var vel = opts.vel || ship.vel.add(ship.orientation.scale(10));
+		var pos = opts.pos || ship.pos.slice(0);
+		var color = opts.color || 'red';
+		this.damage = opts.damage || ship.damage;
+		this.id = opts.id || null;
 
 		MovingObject.call(this, pos, vel, null, color)
 	}
@@ -1536,6 +1711,21 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		} else {
 			return false;
 		}
+	}
+
+	Bullet.prototype.getState = function() {
+		var state = {
+			type: 'bullet',
+			radius: this.radius,
+			pos: this.pos,
+			vel: this.vel,
+			id: this.id,
+			orientation: this.orientation,
+			damage: this.damage,
+			color: this.color
+		}
+
+		return state;
 	}
 
 })(Asteroids);
@@ -1613,25 +1803,13 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		window.location = document.URL;
 	};
 
-	// GameStarter.prototype.hostMultiPlayerGame = function() {
-	// 	var canvas = this.createCanvas();
-	// 	var gameID = Store.uid(5);
-	// 	var createGame = function(socket){ // tested
-	// 		var game = new global.GameMP(canvas, gameID);
-	// 		socket.emit('createSession', { gameID: gameID, width: game.WIDTH, height: game.HEIGHT })
-	// 		game.socket = socket;
-	// 		window.game = game;
-	// 	};
-
-	// 	this.createSocket(createGame);
-	// };
-
 	GameStarter.prototype.hostMultiPlayerGame = function() {
 		var canvas = this.createCanvas();
 		var game = new global.GameMP(canvas);
 		window.game = game;
 		var socket = io.connect('/');
 		window.socket = socket;
+		game.socket = socket;
 
 		socket.on('connect', function(){
 			if (!this.started) {
@@ -1657,6 +1835,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		window.game = game;
 		var socket = io.connect('/');
 		window.socket = socket;
+		game.socket = socket;
 
 		socket.on('connect', function(){
 			if (!this.started) {
@@ -1669,6 +1848,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		socket.on('jrmpgResponse', function (data) {
 			console.log('successfully joined room: ' + data.gameID);
+		})
+
+		socket.on('couldntFindGames', function() {
+			console.log('Whoops!  The server couldn\'t find any games!')
 		})
 	};
 
@@ -1836,7 +2019,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 (function(global){
 	var Background = global.Background = function (game) {
 		this.game = game;
-		this.numStars = 100;
+		this.numStars = 200;
 		this.stars = [];
 		this.initialize();
 	}
@@ -1903,6 +2086,11 @@ var SocketListener = Asteroids.SocketListener = {};
 (function(global, SocketListener){
 
 	var startListening = SocketListener.startListening = function (socket, game) {
+		var debugFlag = true;
+
+		function debug (log) {
+			if (debugFlag) console.log(log)
+		}
 
 		// init / general stuff
 		socket.on('connectionSuccessful', function() {
@@ -1911,7 +2099,6 @@ var SocketListener = Asteroids.SocketListener = {};
 
 		socket.on('testSuccess', function() {
 			console.log('test received successfully!')
-			alert('tested')
 		});
 
 		socket.on('test', function() {
@@ -1926,9 +2113,42 @@ var SocketListener = Asteroids.SocketListener = {};
 			console.log('session successfully created');
 		})
 
+		socket.on('foreignJoin', function() {
+			console.log('Another user has joined the room');
+		})
+
 		// game stuff
 		socket.on('addAsteroid', function (asteroidOpts) {
+			debug('received asteroid')
+			debug(asteroidOpts)
 			game.addAsteroid(asteroidOpts);
+		})
+
+		socket.on('fireShip', function (data) {
+			debug('firing foreign ship')
+			game.fireForeignShip(data.shipID);
+		})
+
+		socket.on('addShip', function (shipOpts) {
+			debug('add foreign ship')
+			game.addForeignShip(shipOpts);
+		})
+
+		socket.on('removeBullet', function (bulletOpts) {
+			debug('remove bullet')
+			game.foreignRemoveBullet(bulletOpts);
+		})
+
+		socket.on('powerForeignShip', function (shipOpts) {
+			game.powerForeignShip(shipOpts.shipID);
+		})
+
+		socket.on('turnForeignShip', function (turnOpts) {
+			game.turnForeignShip(turnOpts);
+		})
+
+		socket.on('fullState', function (fullStateObject) {
+			game.handleFullState(fullStateObject);
 		})
 	};
 

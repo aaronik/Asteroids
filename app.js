@@ -44,14 +44,14 @@ io.sockets.on('connection', function (socket) {
 		socket.emit('sessionsStatus', sessions.keys());
 	})
 
-	// Initialize a new game
+	// Host a Multiplayer Game
 	socket.on('hmpg', function (data) {
 		var gameID = Asteroids.Store.uid(5);
 		var width = data.width;
 		var height = data.height;
 
-		sessions['serverListener' + gameID] = sl = new Asteroids.ServerListener(socket, gameID);
-		sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket, gameID);
+		sessions['serverListener' + gameID] = sl = new Asteroids.ServerListener(socket, io, gameID);
+		sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket, io, gameID);
 		sessions['serverGame' + gameID] = new Asteroids.ServerGame(sl, sr, width, height);
 		sessions[gameID] = true;
 
@@ -59,15 +59,23 @@ io.sockets.on('connection', function (socket) {
 		socket.emit('hmpgResponse', { gameID: gameID })
 	})
 
+	// Join a Multiplayer Game
 	socket.on('jrmpg', function (data) {
 		var gameID = sessions.randomSession();
+		if (!gameID) {
+			socket.emit('couldntFindGames');
+			return
+		}
 		console.log('jrmpg called, gameID retrieved was ' + gameID)
 		var width = data.width;
 		var height = data.height;
 
 		socket.join(gameID);
+		sessions['serverListener' + gameID].addSocket(socket);
+
+		// socket.set('gameID', gameID); // works?
 		socket.emit('jrmpgResponse', { gameID: gameID })
-		socket.broadcast.to(gameID).emit('nutha folks has arrived.')
+		socket.broadcast.to(gameID).emit('foreignJoin')
 	})
 });
 

@@ -5,18 +5,56 @@
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
-	var ServerResponder = global.ServerResponder = function (socket) {
-		this.socket = socket;
+
+	var Store = global.Store
+
+	var ServerResponder = global.ServerResponder = function (socket, io, gameID) {
+		// global.ServerSocket.call(this, socket, gameID)
+		this.sockets = [socket];
+		this.gameID = gameID;
+		this.io = io;
 		// this.game assigned in server_game.js;
 	}
 
+	// Store.inherits(ServerResponder, global.ServerSocket);
+
 	ServerResponder.prototype.sendAsteroid = function (asteroidOpts) {
-		this.socket.emit('addAsteroid', asteroidOpts);
+		this.broadcast('addAsteroid', asteroidOpts);
 	}
 
-	ServerResponder.prototype.sendRemoveBullet = function (opts) {
-		var id = opts.id;
+	ServerResponder.prototype.fireShip = function (socket, data) {
+		this.relay(socket, 'fireShip', data);
+	}
 
-		this.socket.emit('');
+	ServerResponder.prototype.addShip = function (socket, shipOpts) {
+		// this.relay(socket, 'addShip', shipOpts);
+	}
+
+	ServerResponder.prototype.removeBullet = function (bulletOpts) {
+		this.broadcast('removeBullet', bulletOpts);
+	}
+
+	ServerResponder.prototype.powerShip = function (socket, shipOpts) {
+		this.relay(socket, 'powerForeignShip', shipOpts);
+	}
+
+	ServerResponder.prototype.turnShip = function (socket, turnOpts) {
+		this.relay(socket, 'turnForeignShip', turnOpts);
+	}
+
+	ServerResponder.prototype.sendFullState = function() {
+		var fullStateArray = this.game.getFullState();
+		var fullStateObject = { fullStateArray: fullStateArray }
+		this.broadcast('fullState', fullStateObject);
+	}
+
+
+	// private (esque)
+	ServerResponder.prototype.broadcast = function (event, object) {
+		this.io.sockets.in(this.gameID).emit(event, object);
+	}
+
+	ServerResponder.prototype.relay = function (socket, event, object) {
+		socket.broadcast.to(this.gameID).emit(event, object);
 	}
 })(Asteroids)

@@ -27,12 +27,12 @@ var jsServerSourceFiles = [
   // 'lib/javascripts/game.js',
   // 'lib/javascripts/game_mp.js',
   'lib/javascripts/ship.js',
+  'lib/javascripts/bullet.js',
   'server_game.js',
   'server_listener.js',
   'server_responder.js',
   'server_sessions.js'
   // 'lib/javascripts/key_listener.js',
-  // 'lib/javascripts/bullet.js',
   // 'lib/javascripts/visuals.js',
   // 'lib/javascripts/init.js',
   // 'lib/javascripts/text.js',

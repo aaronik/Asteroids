@@ -28,7 +28,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			}
 		}
 
-		console.log(sessions)
 		return sessions.sample();
 	};
 })(Asteroids)
