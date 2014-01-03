@@ -50,9 +50,10 @@ io.sockets.on('connection', function (socket) {
 		var width = data.width;
 		var height = data.height;
 
-		sessions['serverListener' + gameID] = sl = new Asteroids.ServerListener(socket);
-		sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket);
+		sessions['serverListener' + gameID] = sl = new Asteroids.ServerListener(socket, gameID);
+		sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket, gameID);
 		sessions['serverGame' + gameID] = new Asteroids.ServerGame(sl, sr, width, height);
+		sessions[gameID] = true;
 
 		socket.join(gameID);
 		socket.emit('hmpgResponse', { gameID: gameID })
@@ -60,11 +61,13 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('jrmpg', function (data) {
 		var gameID = sessions.randomSession();
+		console.log('jrmpg called, gameID retrieved was ' + gameID)
 		var width = data.width;
 		var height = data.height;
 
 		socket.join(gameID);
 		socket.emit('jrmpgResponse', { gameID: gameID })
+		socket.broadcast.to(gameID).emit('nutha folks has arrived.')
 	})
 });
 

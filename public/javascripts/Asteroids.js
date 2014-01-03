@@ -1643,7 +1643,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 
 		socket.on('hmpgResponse', function (data) {
-			console.log('successfully joined room: ' + data.gameID);
+			console.log('successfully created room: ' + data.gameID);
 		})
 	}
 
