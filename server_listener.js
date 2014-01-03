@@ -1,22 +1,23 @@
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
-	var ServerListener = global.ServerListener = function (socket, gameID) {
+	var ServerListener = global.ServerListener = function (socket) {
 		this.socket = socket;
-		this.gameID = gameID;
 		//this.game is assigned in server_game.js
+		this.initialize();
 	};
 
-	ServerListener.prototype.eventString = function (event) {
-		return event + this.gameID;
-	}
-
 	ServerListener.prototype.initialize = function() {
-		var eventString;
+		var socket = this.socket;
 
-		eventString = this.eventString('')
-		this.socket.on(eventString, function (data) {
-			
+		socket.on('connection', function(s) {
+			console.log('connected from server_listener')
+			socket.emit('connectionSuccessful')
+		})
+
+		socket.on('test', function (data) {
+			console.log('test call received')
+			socket.emit('testSuccess');
 		})
 
 	};

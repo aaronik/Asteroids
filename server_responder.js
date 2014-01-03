@@ -5,21 +5,18 @@
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
-	var ServerResponder = global.ServerResponder = function (socket, gameID) {
+	var ServerResponder = global.ServerResponder = function (socket) {
 		this.socket = socket;
-		this.gameID = gameID;
-		global.gameID = gameID;
 		// this.game assigned in server_game.js;
 	}
 
 	ServerResponder.prototype.sendAsteroid = function (asteroidOpts) {
-		console.log('sending asteroids down')
-		console.log('called with ' + st('addAsteroid'))
-		console.log('gameID is ' + this.gameID)
-		this.socket.emit(st('addAsteroid'), asteroidOpts);
+		this.socket.emit('addAsteroid', asteroidOpts);
 	}
 
-	var st = function (str) {
-		return str + global.gameID;
+	ServerResponder.prototype.sendRemoveBullet = function (opts) {
+		var id = opts.id;
+
+		this.socket.emit('');
 	}
 })(Asteroids)

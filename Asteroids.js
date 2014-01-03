@@ -184,10 +184,13 @@
 
 (function (global){
 
+	var Store = global.Store;
+
 	MovingObject = global.MovingObject = function (pos, vel, radius) {
 		this.radius = radius;
 		this.pos = pos;
 		this.vel = vel;
+		this.id = Store.uid();
 	};
 
 	MovingObject.prototype.move = function() {
@@ -425,11 +428,11 @@
 
 (function(global){
 
-	var ServerGame = global.ServerGame = function(ServerListener, ServerResponder, width, height) {
-		this.ServerListener = ServerListener;
-		this.ServerResponder = ServerResponder;
-		ServerListener.game = this;
-		ServerResponder.game = this;
+	var ServerGame = global.ServerGame = function(serverListener, serverResponder, width, height) {
+		this.serverListener = serverListener;
+		this.serverResponder = serverResponder;
+		serverListener.game = this;
+		serverResponder.game = this;
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		this.ships = [];
@@ -449,7 +452,7 @@
 		for (var i = 0; i < numAsteroids; i++) {
 			asteroidOpts = global.Asteroid.randomAsteroidValues(this.WIDTH, this.HEIGHT);
 			this.asteroids.push(new global.Asteroid(asteroidOpts));
-			this.ServerResponder.sendAsteroid(asteroidOpts);
+			this.serverResponder.sendAsteroid(asteroidOpts);
 		}
 	};
 
@@ -714,7 +717,7 @@
 		this.asteroids = this.asteroids.concat(newAsteroids);
 
 		newAsteroidOpts.forEach(function(opts){
-			game.ServerResponder.sendAsteroid(opts);
+			game.serverResponder.sendAsteroid(opts);
 		})
 	};
 
@@ -724,6 +727,12 @@
 
 	ServerGame.prototype.removeBullet = function (bullet) {
 		this.bullets.remove(bullet);
+
+		var opts = {
+			id: bullet.id
+		}
+
+		this.serverResponder.sendRemoveBullet(opts)
 	};
 
 	ServerGame.prototype.repopulateAsteroids = function() {
@@ -888,22 +897,23 @@
 })(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
-	var ServerListener = global.ServerListener = function (socket, gameID) {
+	var ServerListener = global.ServerListener = function (socket) {
 		this.socket = socket;
-		this.gameID = gameID;
 		//this.game is assigned in server_game.js
+		this.initialize();
 	};
 
-	ServerListener.prototype.eventString = function (event) {
-		return event + this.gameID;
-	}
-
 	ServerListener.prototype.initialize = function() {
-		var eventString;
+		var socket = this.socket;
 
-		eventString = this.eventString('')
-		this.socket.on(eventString, function (data) {
-			
+		socket.on('connection', function(s) {
+			console.log('connected from server_listener')
+			socket.emit('connectionSuccessful')
+		})
+
+		socket.on('test', function (data) {
+			console.log('test call received')
+			socket.emit('testSuccess');
 		})
 
 	};
@@ -916,22 +926,19 @@
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
-	var ServerResponder = global.ServerResponder = function (socket, gameID) {
+	var ServerResponder = global.ServerResponder = function (socket) {
 		this.socket = socket;
-		this.gameID = gameID;
-		global.gameID = gameID;
 		// this.game assigned in server_game.js;
 	}
 
 	ServerResponder.prototype.sendAsteroid = function (asteroidOpts) {
-		console.log('sending asteroids down')
-		console.log('called with ' + st('addAsteroid'))
-		console.log('gameID is ' + this.gameID)
-		this.socket.emit(st('addAsteroid'), asteroidOpts);
+		this.socket.emit('addAsteroid', asteroidOpts);
 	}
 
-	var st = function (str) {
-		return str + global.gameID;
+	ServerResponder.prototype.sendRemoveBullet = function (opts) {
+		var id = opts.id;
+
+		this.socket.emit('');
 	}
 })(Asteroids);var Asteroids = this.Asteroids = (this.Asteroids || {});
 

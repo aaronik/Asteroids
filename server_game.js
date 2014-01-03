@@ -2,11 +2,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
 
-	var ServerGame = global.ServerGame = function(ServerListener, ServerResponder, width, height) {
-		this.ServerListener = ServerListener;
-		this.ServerResponder = ServerResponder;
-		ServerListener.game = this;
-		ServerResponder.game = this;
+	var ServerGame = global.ServerGame = function(serverListener, serverResponder, width, height) {
+		this.serverListener = serverListener;
+		this.serverResponder = serverResponder;
+		serverListener.game = this;
+		serverResponder.game = this;
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		this.ships = [];
@@ -26,7 +26,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		for (var i = 0; i < numAsteroids; i++) {
 			asteroidOpts = global.Asteroid.randomAsteroidValues(this.WIDTH, this.HEIGHT);
 			this.asteroids.push(new global.Asteroid(asteroidOpts));
-			this.ServerResponder.sendAsteroid(asteroidOpts);
+			this.serverResponder.sendAsteroid(asteroidOpts);
 		}
 	};
 
@@ -291,7 +291,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.asteroids = this.asteroids.concat(newAsteroids);
 
 		newAsteroidOpts.forEach(function(opts){
-			game.ServerResponder.sendAsteroid(opts);
+			game.serverResponder.sendAsteroid(opts);
 		})
 	};
 
@@ -301,6 +301,12 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerGame.prototype.removeBullet = function (bullet) {
 		this.bullets.remove(bullet);
+
+		var opts = {
+			id: bullet.id
+		}
+
+		this.serverResponder.sendRemoveBullet(opts)
 	};
 
 	ServerGame.prototype.repopulateAsteroids = function() {
