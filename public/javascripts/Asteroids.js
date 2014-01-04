@@ -787,11 +787,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.addBackground();
 		new global.KeyListener(this);
 		this.start();
-<<<<<<< HEAD
 		this.announce('Welcome!');
-		document.getElementsByTagName('body')[0].bgColor = this.bgColor;
-=======
->>>>>>> multiplayer
 	};
 
 	// for development
@@ -1805,13 +1801,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	GameStarter.prototype.startSinglePlayerGame = function() {
 		var canvas = this.createCanvas();
-<<<<<<< HEAD
-		var game = new window.Asteroids.Game(canvas);
-		// game.initialize();
-=======
 		var game = new global.Game(canvas);
->>>>>>> multiplayer
-
 		window.game = game;
 	};
 
