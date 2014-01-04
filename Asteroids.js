@@ -120,8 +120,7 @@
     return this.rotate((Math.random() / 8) * [-1, 1].sample());
   });
   
-})(Array.prototype);
-var Asteroids = this.Asteroids = (this.Asteroids || {});
+})(Array.prototype);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
 	var Store = global.Store = (global.Store || {});
@@ -149,12 +148,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return colorString;
 	};
 
-	Store.uid = function() {
+	Store.uid = function(num) {
+		num = num || 32;
+
 		var arr = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 
 		var uid = '';
 
-		for (var i = 0; i < 32; i++) {
+		for (var i = 0; i < num; i++) {
 			uid += arr.sample();
 		}
 
@@ -179,15 +180,17 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	// 	return string;
 	// }
-})(Asteroids)
-var Asteroids = this.Asteroids = (this.Asteroids || {});
+})(Asteroids);var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function (global){
+
+	var Store = global.Store;
 
 	MovingObject = global.MovingObject = function (pos, vel, radius) {
 		this.radius = radius;
 		this.pos = pos;
 		this.vel = vel;
+		this.id = this.id || Store.uid();
 	};
 
 	MovingObject.prototype.move = function() {
@@ -219,20 +222,18 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 
 
-})(Asteroids);
-var Asteroids = this.Asteroids = (this.Asteroids || {});
+})(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function (global){
 
 	var Store = global.Store;
 
-	var Asteroid = global.Asteroid = function (pos, vel, rad, color) {
-		var color = color || Store.randomColor();
-		this.radius = rad;
-		this.color = color;
-		this.pos = pos;
-		this.vel = vel;
-		this.health = this.radius;
+	var Asteroid = global.Asteroid = function (opts) {
+		this.color = opts.color || Store.randomColor();
+		this.health = opts.radius;
+		this.id = opts.id || null;
+
+		MovingObject.call(this, opts.pos, opts.vel, opts.radius)
 	};
 
 	Store.inherits(Asteroid, MovingObject);
@@ -246,8 +247,15 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return (Asteroid.MAX_SPEED_MULTIPLIER / 5) * Math.log(radius);
 	};
 
-	Asteroid.randomAsteroid = function(dimX, dimY) {
+	Asteroid.randomAsteroid = function (dimX, dimY) {
+		var vals = Asteroid.randomAsteroidValues(dimX, dimY)
+
+		return new Asteroid(vals);
+	};
+
+	Asteroid.randomAsteroidValues = function (dimX, dimY) {
 		var radius = Asteroid.RADII[0];
+
 		// could also if ( Math.round(Math.random()) )
 		if ( [true, false].sample() ) {
 			var posX = Math.random() * dimX;
@@ -259,8 +267,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		var vel = Store.randomVel(radius);
 		var pos = [posX, posY];
+		var color = Store.randomColor();
+		var id = Store.uid();
 
-		return new Asteroid(pos, vel, radius);
+		return {pos: pos, vel: vel, radius: radius, color: color, id: id};
 	};
 
 	Asteroid.prototype.draw = function (ctx) {
@@ -281,45 +291,66 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	Asteroid.prototype.explode = function() {
 		// create three new asteroids of size one smaller at pos
 
-		var rad = Asteroid.RADII[Asteroid.RADII.indexOf(this.radius) + 1];
+		var radius = Asteroid.RADII[Asteroid.RADII.indexOf(this.radius) + 1];
 
-		if (!rad) {
+		if (!radius) {
 			return [];
 		}
 
-		var newAsteroids = [];
+		var newAsteroidOpts = [];
 
 		var vel;
+		var color;
 		for (var i = 0; i < 3; i++) {
 			var pos = [];
 			pos[0] = this.pos[0]// + [1,2,3].sample() * this.radius;
 			pos[1] = this.pos[1]// + [1,2,3].sample() * this.radius;
 
-			vel = Store.randomVel(rad);
-			newAsteroids.push(new Asteroid(pos, vel, rad));
+			vel = Store.randomVel(radius);
+			color = Store.randomColor();
+
+			var opts = { pos: pos, vel: vel, radius: radius, color: color }
+			newAsteroidOpts.push(opts);
 		}
 
-		return newAsteroids;
+		return newAsteroidOpts;
 	};
 
-})(Asteroids);
-var Asteroids = (this.Asteroids || {});
+	Asteroid.prototype.getState = function() {
+		var state = {
+			type: 'asteroid',
+			radius: this.radius,
+			pos: this.pos,
+			vel: this.vel,
+			id: this.id,
+			health: this.health,
+			color: this.color
+		}
+
+		return state;
+	}
+
+})(Asteroids);;var Asteroids = (this.Asteroids || {});
 
 (function(global){
 
 	var Store = global.Store;
 
-	var Ship = global.Ship = function (pos) {
-		var pos = pos;
-		var vel = [0, 0];
-		var radius = 20 / 3;
-		this.orientation = [0,-1];
-		this.rotateSpeed = 0.25;
-		this.impulse = 0.4;
-		this.dampenRate = 0.95;
-		this.fireFrequency = 200;
-		this.health = 40;
-		this.damage = 15;
+	var Ship = global.Ship = function (opts) {
+		if (!opts) var opts = {};
+		var pos = opts.pos || [100, 100];
+		var vel = opts.vel || [0, 0];
+		var radius = opts.radius || 20 / 3;
+		this.orientation = opts.orientation || [0,-1];
+		this.rotateSpeed = opts.rotateSpeed || 0.25;
+		this.impulse = opts.impulse || 0.4;
+		this.dampenRate = opts.dampenRate || 0.95;
+		this.fireFrequency = opts.fireFrequency || 200;
+		this.health = opts.health || 40;
+		this.damage = opts.damage || 15;
+		this.id = opts.id || null;
+		this.borderColor = opts.borderColor || Store.randomColor();
+		this.fillColor = opts.fillColor || Store.randomColor();
 
 		this.kineticBullets = true;
 		this.bulletWeight = 0.5;
@@ -393,8 +424,8 @@ var Asteroids = (this.Asteroids || {});
 		var pt3 = pt1.add(or.scale(-height).rotate(-base));
 		var pt4 = pt1;
 
-		ctx.fillStyle = 'black';
-		ctx.strokeStyle = 'red';
+		ctx.fillStyle = this.fillColor;
+		ctx.strokeStyle = this.borderColor;
 		ctx.lineWidth = 3;
 		ctx.beginPath();
 		ctx.moveTo(pt1[0], pt1[1]);
@@ -406,10 +437,787 @@ var Asteroids = (this.Asteroids || {});
 		ctx.fill();
 	};
 
-	// Ship.prototype.drawExhaustParticles = function (ctx) {
-	// 	this.exhaustParticles.forEach(function(particle){
-	// 		particle.draw(ctx);
+	Ship.prototype.getState = function() {
+		var state = {
+			type: 'ship',
+			radius: this.radius,
+			pos: this.pos,
+			vel: this.vel,
+			id: this.id,
+			orientation: this.orientation,
+			rotateSpeed: this.rotateSpeed,
+			impulse: this.impulse,
+			dampenRate: this.dampenRate,
+			fireFrequency: this.fireFrequency,
+			health: this.health,
+			damage: this.damage,
+			kineticBullets: this.kineticBullets,
+			bulletWeight: this.bulletWeight,
+			borderColor: this.borderColor,
+			fillColor: this.fillColor
+		}
+
+		return state;
+	}
+
+})(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
+
+(function(global){
+
+	var Store = global.Store;
+
+	var Bullet = global.Bullet = function (ship, opts) {
+		var opts = opts || {};
+		this.ship = ship;
+		this.orientation = opts.orientation || ship.orientation.slice(0);
+		var vel = opts.vel || ship.vel.add(ship.orientation.scale(10));
+		var pos = opts.pos || ship.pos.slice(0);
+		var color = opts.color || 'red';
+		this.damage = opts.damage || ship.damage;
+		this.id = opts.id || null;
+
+		MovingObject.call(this, pos, vel, null, color)
+	}
+
+	Store.inherits(Bullet, MovingObject)
+
+	Bullet.prototype.draw = function (ctx) {
+		var start = this.pos;
+		var end = this.pos.add(this.orientation.scale(10))
+
+		ctx.beginPath();
+		ctx.moveTo(start[0], start[1]);
+		ctx.lineTo(end[0], end[1]);
+		ctx.lineWidth = 3;
+		ctx.strokeStyle = this.color;
+		ctx.stroke();
+	}
+
+	Bullet.prototype.isCollidedWithAsteroid = function (asteroid) {
+		if (this.pos.distance(asteroid.pos) <= asteroid.radius) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	Bullet.prototype.getState = function() {
+		var state = {
+			type: 'bullet',
+			radius: this.radius,
+			pos: this.pos,
+			vel: this.vel,
+			id: this.id,
+			orientation: this.orientation,
+			damage: this.damage,
+			color: this.color
+		}
+
+		return state;
+	}
+
+})(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
+
+(function(global){
+
+	var ServerGame = global.ServerGame = function(serverListener, serverResponder, width, height) {
+		this.serverListener = serverListener;
+		this.serverResponder = serverResponder;
+		serverListener.game = this;
+		serverResponder.game = this;
+		serverListener.initialize();
+		this.WIDTH = width;
+		this.HEIGHT = height;
+		this.ships = [];
+		this.asteroids = [];
+		this.noExplodeAsteroids = [];
+		this.bullets = [];
+		this.FPS = 30;
+		this.repopulationRate = 30;
+		this.difficultyRate = 0.6;
+		this.level = 1;
+		this._counter = 0;
+		this.initialize();
+	};
+
+	ServerGame.prototype.addAsteroids = function (numAsteroids) {
+		var asteroidOpts;
+
+		for (var i = 0; i < numAsteroids; i++) {
+			asteroidOpts = global.Asteroid.randomAsteroidValues(this.WIDTH, this.HEIGHT);
+			this.asteroids.push(new global.Asteroid(asteroidOpts));
+			this.serverResponder.sendAsteroid(asteroidOpts);
+		}
+	};
+
+	ServerGame.prototype.addShip = function (shipOpts) {
+		this.ships.push(new global.Ship(shipOpts));
+	};
+
+	ServerGame.prototype.updateShip = function (shipOpts) {
+		var ship = this.get(shipOpts.id);
+
+		this.ships.remove(ship);
+		this.ships.push(new global.Ship(shipOpts))
+	}
+
+	// ServerGame.prototype.addReadout = function() {
+	// 	var options = {
+	// 		'ship': this.ship,
+	// 		'game': this
+	// 	}
+
+	// 	this.readout = new global.Readout(options)
+	// };
+
+	// ServerGame.prototype.addBackground = function() {
+	// 	this.background = new global.Background(this);
+	// };
+
+	ServerGame.prototype.fireShip = function (ship, opts) {
+		var ship = ship || this.get(opts.shipID);
+		ship.fire();
+		var bullet = new global.Bullet(ship, opts);
+		this.bullets.push(bullet);
+	};
+
+	ServerGame.prototype.powerShip = function (ship) {
+		ship.power();
+	};
+
+	ServerGame.prototype.turnShip = function (turnOpts) {
+		var ship = this.get(turnOpts.shipID);
+		var dir = turnOpts.dir;
+		var percentage = turnOpts.percentage;
+		
+		ship.power(dir, percentage);
+	};
+
+	// ServerGame.prototype.turnShip = function (ship, dir, percentage) {
+	// 	ship.turn(dir, percentage);
+	// };
+
+	// ServerGame.prototype.dampenShip = function (ship) {
+	// 	ship.dampen();
+	// }
+
+	// ServerGame.prototype.draw = function() {
+	// 	var game = this;
+
+	// 	// clear the canvas
+	// 	this.ctx.clearRect(0,0,this.WIDTH, this.HEIGHT);
+
+	// 	// background
+	// 	this.background.draw(this.ctx);
+
+	// 	// ship exhaust particles
+	// 	this.exhaustParticles.forEach(function(ep){
+	// 		ep.draw(game.ctx);
+	// 	})
+
+	// 	// asteroids
+	// 	this.asteroids.forEach(function(asteroid){
+	// 		asteroid.draw(game.ctx);
+	// 	})
+
+	// 	// bullets
+	// 	this.bullets.forEach(function(bullet){
+	// 		bullet.draw(game.ctx);
+	// 	})
+
+	// 	// ship
+	// 	this.ship.draw(this.ctx);
+
+	// 	// readout text
+	// 	this.readout.draw(this.ctx);
+
+	// 	// exploding texts
+	// 	this.explodingTexts.forEach(function(txt){
+	// 		txt.draw(game.ctx);
 	// 	})
 	// };
 
-})(Asteroids);module.exports = Asteroids;
+	ServerGame.prototype.move = function() {
+		this.asteroids.forEach(function(asteroid){
+			asteroid.move();
+		});
+
+		this.ships.forEach(function(ship){
+			ship.move();
+		});
+
+		this.bullets.forEach(function(bullet){
+			bullet.move();
+		});
+
+		// this.exhaustParticles.forEach(function(ep){
+		// 	ep.move();
+		// })
+
+		// this.background.move();
+	};
+
+	// ServerGame.prototype.announce = function (txt, independentTimer) {
+	// 	var independentTimer = independentTimer || false;
+
+	// 	var explodingTextOptions = {
+	// 		'game': this,
+	// 		'txt': txt,
+	// 		'independentTimer': independentTimer
+	// 	}
+
+	// 	this.explodingTexts.push(new global.ExplodingText(explodingTextOptions))
+	// }
+
+	ServerGame.prototype.levelUp = function() {
+		this.level += 1;
+		// this.announce('Level ' + this.level);
+
+		this.repopulateAsteroids();
+		this.modifyDifficulty();
+
+		this.serverResponder.levelUp();
+	};
+
+	ServerGame.prototype.clearOOBObjects = function() {
+		// this.clearOOBAsteroids();
+		this.clearOOBBullets();
+		// this.clearOOBExhaustParticles();
+	}
+
+	ServerGame.prototype.clearOOBAsteroids = function() { // substituted for wrap around
+		var posX;
+		var posY;
+		var as;
+
+		for(var i = 0; i < this.asteroids.length; i++){
+			as = this.asteroids[i];
+
+			posX = as.pos[0];
+			posY = as.pos[1];
+
+
+			if ((posX - as.RADIUS > this.WIDTH || posX + as.RADIUS < 0) || 
+				(posY - as.RADIUS > this.HEIGHT || posY + as.RADIUS < 0)) {
+				this.asteroids.splice(i, 1);
+				this.addAsteroids(1);
+			}
+		}
+	};
+
+	ServerGame.prototype.clearOOBBullets = function() {
+		var bullet;
+		var posX;
+		var posY;
+
+		for (var i = 0; i < this.bullets.length; i++) {
+			bullet = this.bullets[i];
+			posX = bullet.pos[0];
+			posY = bullet.pos[1];
+
+			if (posX < 0 || posY < 0 || posX > this.WIDTH || posY > this.HEIGHT) {
+				this.bullets.splice(i, 1);
+			}
+		}
+	};
+
+	// ServerGame.prototype.clearOOBExhaustParticles = function() {
+	// 	var ep;
+	// 	var posX;
+	// 	var posY;
+
+	// 	for (var i = 0; i < this.exhaustParticles.length; i++) {
+	// 		ep = this.exhaustParticles[i];
+	// 		posX = ep.pos[0];
+	// 		posY = ep.pos[1];
+
+	// 		if (posX < 0 || posY < 0 || posX > this.WIDTH || posY > this.HEIGHT) {
+	// 			this.exhaustParticles.splice(i, 1);
+	// 		}
+	// 	}
+	// };
+
+	ServerGame.prototype.wrapMovingObjects = function() {
+		var game = this;
+
+		var movingObjects = [];
+		movingObjects = movingObjects.concat(game.asteroids).concat(game.ships);
+
+		movingObjects.forEach(function(object){
+			if ( (object.pos[0] + object.radius) < 0) {
+				object.pos[0] += (game.WIDTH + 2 * object.radius);
+			}
+
+			if ( (object.pos[1] + object.radius) < 0) {
+				object.pos[1] += (game.HEIGHT + 2 * object.radius);
+			}
+
+			if ( (object.pos[0] - object.radius) > game.WIDTH) {
+				object.pos[0] -= (game.WIDTH + 2 * object.radius);
+			}
+
+			if ( (object.pos[1] - object.radius) > game.HEIGHT) {
+				object.pos[1] -= (game.HEIGHT + 2 * object.radius);
+			}	
+		})
+	};
+
+	ServerGame.prototype.asteroidCollisionPairs = function() {
+		var collisions = [];
+
+		for (var i = 0; i < this.asteroids.length; i++) {
+			for (var j = i + 1; j < this.asteroids.length; j++) {
+				if ( this.asteroids[i].isCollidedWith(this.asteroids[j]) ) {
+					collisions.push([this.asteroids[i], this.asteroids[j]]);
+				}
+			}
+		}
+
+		return collisions
+	};
+
+	ServerGame.prototype.asteroidCollisions = function() {
+		return this.asteroidCollisionPairs().uniq
+	};
+
+	ServerGame.prototype.asteroidBulletCollisions = function() {
+		var game = this;
+		var collisions = [];
+
+		this.bullets.forEach(function(bullet){
+			game.asteroids.forEach(function(asteroid){
+				if (bullet.isCollidedWithAsteroid(asteroid)) {
+					collisions.push([asteroid, bullet]);
+				}
+			})
+		})
+
+		return collisions;
+	};
+
+	ServerGame.prototype.depopulateNoExplodeAsteroids = function() {
+		var game = this;
+
+		this.noExplodeAsteroids.forEach(function(as1){
+			var alone = game.noExplodeAsteroids.every(function(as2){
+				if (as1 === as2) {
+					return true
+				}
+
+				return !as1.isCollidedWith(as2);
+			})
+
+			if (alone) {
+				game.noExplodeAsteroids.remove(as1);
+			}
+		})
+	};
+
+	ServerGame.prototype.explodeAsteroid = function(asteroid) {
+		var game = this;
+
+		this.asteroids.remove(asteroid);
+		var newAsteroidOpts = asteroid.explode();
+		var newAsteroids = newAsteroidOpts.map(function(opts){
+			return new global.Asteroid(opts);
+		})
+
+		this.noExplodeAsteroids = this.noExplodeAsteroids.concat(newAsteroids);
+		this.asteroids = this.asteroids.concat(newAsteroids);
+
+		newAsteroidOpts.forEach(function(opts){
+			game.serverResponder.sendAsteroid(opts);
+		})
+	};
+
+	ServerGame.prototype.damageAsteroid = function(asteroid, damage) {
+		asteroid.health -= damage;
+	};
+
+	ServerGame.prototype.removeBullet = function (bullet) {
+		this.bullets.remove(bullet);
+
+		var opts = {
+			id: bullet.id
+		}
+
+		this.serverResponder.removeBullet(opts);
+	};
+
+	ServerGame.prototype.repopulateAsteroids = function() {
+			this.addAsteroids(5);
+	};
+
+	ServerGame.prototype.modifyDifficulty = function() {
+			this.changeAsteroidSpeed(this.difficultyRate);
+	};
+
+	ServerGame.prototype.changeAsteroidSpeed = function (amnt) {
+		Asteroids.Asteroid.MAX_SPEED_MULTIPLIER += amnt;
+	};
+
+	ServerGame.prototype.handleCollidingAsteroids = function (as1, as2) {
+		this.damageAsteroid(as1, as2.radius);
+		this.damageAsteroid(as2, as1.radius);
+	};
+
+	ServerGame.prototype.handleCollidedShip = function (ship, asteroid) {
+		this.explodeAsteroid(asteroid);
+		// global.Visuals.hit(game.canvas);
+		ship.health -= asteroid.radius;
+	};
+
+	ServerGame.prototype.handleAsteroidBulletCollisions = function (as, bullet) {
+		this.damageAsteroid(as, bullet.damage);
+		this.removeBullet(bullet);
+	};
+
+	// ServerGame.prototype.handleExplodedText = function (txt) {
+	// 	this.explodingTexts.remove(txt);
+	// };
+
+	ServerGame.prototype.detectCollidingAsteroids = function() {
+		var game = this;
+
+		this.asteroidCollisionPairs().forEach(function(asteroidPair){
+			if (game.noExplodeAsteroids.indexOf(asteroidPair[0]) === -1) {
+				game.handleCollidingAsteroids(asteroidPair[0], asteroidPair[1]);
+			}
+		})
+	};
+
+	ServerGame.prototype.detectHitAsteroids = function() {
+		var game = this;
+
+		this.hitAsteroids().forEach(function(asteroid){
+			game.handleHitAsteroid(asteroid);
+		})
+	};
+
+	ServerGame.prototype.detectHitShip = function() {
+		var game = this;
+		var ship;
+		var as;
+
+		for (var i = 0; i < this.ships.length; i++) {
+			for (var j = 0; j < this.asteroids.length; j++) {
+				ship = this.ships[i]; as = this.asteroids[j];
+
+				if (ship.isCollidedWith(as)) {
+					game.handleCollidedShip(ship, as);
+				}
+			}
+		}
+	};
+
+	ServerGame.prototype.detectAsteroidBulletCollisions = function() {
+		var game = this;
+
+		this.asteroidBulletCollisions().forEach(function(col){
+			game.handleAsteroidBulletCollisions(col[0], col[1]);
+		})
+	};
+
+	ServerGame.prototype.detectBulletHits = function() {
+		var game = this;
+
+		this.collidedBullets().forEach(function(bullet){
+			game.removeBullet(bullet);
+			game.handleBulletHits(bullet);
+		})
+	};
+
+	ServerGame.prototype.detectDestroyedObjects = function() {
+		var game = this;
+
+		this.asteroids.forEach(function(asteroid){
+			if (asteroid.health <= 0) {
+				game.explodeAsteroid(asteroid);
+			}
+		});
+	};
+
+	// ServerGame.prototype.detectExplodedTexts = function() {
+	// 	var game = this;
+
+	// 	this.explodingTexts.forEach(function(txt){
+	// 		if (txt.alpha <= 0) {
+	// 			game.handleExplodedText(txt);
+	// 		}
+	// 	})
+	// };
+
+	ServerGame.prototype.detectLevelChangeReady = function() {
+		if (this.asteroids.length == 0) {
+			this.levelUp();
+		}
+	};
+
+	ServerGame.prototype.detectSendFullState = function() {
+		if (this._counter % 10 == 0) this.sendFullState();
+	}
+
+	ServerGame.prototype.detect = function() {
+		this.detectCollidingAsteroids();
+		this.detectAsteroidBulletCollisions();
+		this.detectHitShip();
+		this.detectDestroyedObjects();
+		// // this.detectExplodedTexts();
+		this.detectLevelChangeReady();
+		this.detectSendFullState();
+	};
+
+	ServerGame.prototype.sendFullState = function() {
+		this.serverResponder.sendFullState();
+	}
+
+	ServerGame.prototype.tic = function() {
+		this._counter += 1;
+	}
+
+	ServerGame.prototype.step = function() {
+		// this.clearOOBAsteroids();
+		this.clearOOBObjects();
+		this.depopulateNoExplodeAsteroids();
+		this.wrapMovingObjects();
+		this.detect();
+		// this.draw();
+		this.move();
+		this.tic();
+	};
+
+	ServerGame.prototype.pause = function() {
+		if (this['mainTimer']) {
+			this.stop();
+			this.announce('Pause', true);
+		} else {
+			this.start();
+			this.announce('Resume')
+		}
+	};
+
+	ServerGame.prototype.stop = function() {
+		clearInterval(this['mainTimer']);
+		delete this['mainTimer'];
+	};
+
+	ServerGame.prototype.start = function() {
+		var that = this;
+		this['mainTimer'] = setInterval(function () {
+			that.step();
+		}, that.FPS);
+	};
+
+	ServerGame.prototype.initialize = function() {
+		this.addAsteroids(5);
+		// this.addShip();
+		// this.addReadout();
+		// this.addBackground();
+		// new global.Listener(this);
+		this.start();
+	};
+
+	ServerGame.prototype.get = function (objID) {
+		var objects = this.asteroids.concat(this.bullets).concat(this.ships);
+		var matchingObj;
+
+		objects.forEach(function (obj) {
+			if (obj.id === objID) {
+				matchingObj = obj;
+				return
+			}
+		})
+
+		return matchingObj;
+	}
+
+	ServerGame.prototype.getFullState = function() {
+		var objs = this.asteroids.concat(this.bullets).concat(this.ships)
+		var states = objs.map(function (obj) {
+			return obj.getState();
+		})
+
+		var levelObj = {
+			type: 'level',
+			level: this.level
+		}
+
+		states.push(levelObj)
+
+		return states;
+	}
+
+})(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
+
+(function(global){
+
+	var Store = global.Store;
+
+	var ServerListener = global.ServerListener = function (socket, io, gameID) {
+		// global.ServerSocket.call(this, socket, gameID);
+		this.sockets = [socket];
+		this.gameID = gameID;
+		this.io = io;
+		//this.game is assigned in server_game.js
+		// this.initialize();
+	};
+
+	// Store.inherits(ServerListener, global.ServerSocket);
+
+	ServerListener.prototype.initialize = function() {
+		var that = this;
+		var gameID = this.gameID;
+		var game = this.game;
+		var sr = this.game.serverResponder;
+
+		this.sockets.forEach(function(socket){
+
+			socket.removeAllListeners();
+
+			socket.on('test', function (data) {
+				console.log('test call received');
+				that.broadcast('testSuccess');
+			})
+
+			// game
+			socket.on('createBullet', function (bulletOpts) {
+				game.fireShip(null, bulletOpts);
+				sr.fireShip(socket, bulletOpts);
+			})
+
+			socket.on('addShip', function (shipOpts) {
+				game.addShip(shipOpts);
+				sr.addShip(socket, shipOpts);
+			})
+
+			socket.on('powerShip', function (shipOpts) {
+				var ship = game.get(shipOpts.shipID);
+				game.powerShip(ship);
+				sr.powerShip(socket, shipOpts);
+			})
+
+			socket.on('turnShip', function (turnOpts) {
+				game.turnShip(turnOpts);
+				sr.turnShip(socket, turnOpts);
+			})
+
+			socket.on('requestFullState', function() {
+				sr.sendFullState();
+			})
+
+			socket.on('shipState', function (shipOpts) {
+				game.updateShip(shipOpts);
+			})
+		})
+
+	};
+
+	ServerListener.prototype.addSocket = function (socket) {
+		this.sockets.push(socket);
+		this.initialize();
+		this.game.serverResponder.sendFullState();
+	};
+
+	ServerListener.prototype.broadcast = function (event, object) {
+		this.io.sockets.in(this.gameID).emit(event, object);
+	};
+
+
+
+
+})(Asteroids);// OK server_game.js holds all the state, server_listener.js listens for client speak, server_responder.js will give the clients what they ask for.  Not totally sure if this file will be necessary, it may be able to be combined into the server_game.  Either way, it'll interact heavily with the server_game.
+
+// Also one thing to remember is that every event is going to have to have the gameID in it.
+
+var Asteroids = this.Asteroids = (this.Asteroids || {});
+
+(function(global){
+
+	var Store = global.Store
+
+	var ServerResponder = global.ServerResponder = function (socket, io, gameID) {
+		// global.ServerSocket.call(this, socket, gameID)
+		this.sockets = [socket];
+		this.gameID = gameID;
+		this.io = io;
+		// this.game assigned in server_game.js;
+	}
+
+	// Store.inherits(ServerResponder, global.ServerSocket);
+
+	ServerResponder.prototype.sendAsteroid = function (asteroidOpts) {
+		this.broadcast('addAsteroid', asteroidOpts);
+	}
+
+	ServerResponder.prototype.fireShip = function (socket, data) {
+		this.relay(socket, 'fireShip', data);
+	}
+
+	ServerResponder.prototype.addShip = function (socket, shipOpts) {
+		// this.relay(socket, 'addShip', shipOpts);
+	}
+
+	ServerResponder.prototype.removeBullet = function (bulletOpts) {
+		this.broadcast('removeBullet', bulletOpts);
+	}
+
+	ServerResponder.prototype.powerShip = function (socket, shipOpts) {
+		this.relay(socket, 'powerForeignShip', shipOpts);
+	}
+
+	ServerResponder.prototype.turnShip = function (socket, turnOpts) {
+		this.relay(socket, 'turnForeignShip', turnOpts);
+	}
+
+	ServerResponder.prototype.levelUp = function() {
+		this.broadcast('levelUp');
+	}
+
+	ServerResponder.prototype.sendFullState = function() {
+		var fullStateArray = this.game.getFullState();
+		var fullStateObject = { fullStateArray: fullStateArray }
+		this.broadcast('fullState', fullStateObject);
+	}
+
+
+	// private (esque)
+	ServerResponder.prototype.broadcast = function (event, object) {
+		this.io.sockets.in(this.gameID).emit(event, object);
+	}
+
+	ServerResponder.prototype.relay = function (socket, event, object) {
+		socket.broadcast.to(this.gameID).emit(event, object);
+	}
+})(Asteroids);var Asteroids = this.Asteroids = (this.Asteroids || {});
+
+(function(global){
+	// When initialized, Sessions will act just like a regular hash, but it will have some extra helpers that are designed to satisfy some requirements not met by the regular hash object.  Another way to do this would be to modify the hash prototype, but I'm not sure what kind of effects that may have on the node environment.
+
+
+	var Sessions = global.Sessions = function() {
+
+	};
+
+	Sessions.prototype.keys = function() {
+		var keys = [];
+
+		for (i in this) {
+			keys.push(i);
+		}
+
+		return keys;
+	};
+
+	Sessions.prototype.randomSession = function() {
+		var sessions = [];
+
+		for (i in this) {
+			if (this[i] === true) {
+				sessions.push(i);
+			}
+		}
+
+		return sessions.sample();
+	};
+})(Asteroids)
+module.exports = Asteroids;

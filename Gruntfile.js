@@ -16,7 +16,7 @@ var jsClientSourceFiles = [
   'lib/javascripts/exhaust_particle.js',
   'lib/javascripts/background.js',
   'lib/javascripts/star.js',
-  'lib/javascripts/socket.js'
+  'lib/javascripts/client_listener.js'
 ];
 
 var jsServerSourceFiles = [ 
@@ -27,15 +27,19 @@ var jsServerSourceFiles = [
   // 'lib/javascripts/game.js',
   // 'lib/javascripts/game_mp.js',
   'lib/javascripts/ship.js',
+  'lib/javascripts/bullet.js',
+  'server_game.js',
+  'server_listener.js',
+  'server_responder.js',
+  'server_sessions.js'
   // 'lib/javascripts/key_listener.js',
-  // 'lib/javascripts/bullet.js',
   // 'lib/javascripts/visuals.js',
   // 'lib/javascripts/init.js',
   // 'lib/javascripts/text.js',
   // 'lib/javascripts/exhaust_particle.js',
   // 'lib/javascripts/background.js',
   // 'lib/javascripts/star.js',
-  // 'lib/javascripts/socket.js'
+  // 'lib/javascripts/client_listener.js'
 ];
 
 
@@ -52,7 +56,8 @@ var jsServerSourceFiles = [
       },
       serverJS: {
         options: {
-          footer: 'module.exports = Asteroids;'
+          separator: ';',
+          footer: '\nmodule.exports = Asteroids;'
         },
         src: jsServerSourceFiles,
         dest: '<%= pkg.name %>.js'
@@ -86,8 +91,8 @@ var jsServerSourceFiles = [
       }
     },
     watch: {
-      files: ['<%=jsDir%>*.js', '<%=cssDir%>*.scss'],
-      tasks: ['sass','concat', 'uglify', 'cssmin']
+      files: ['<%=jsDir%>*.js', '<%=cssDir%>*.scss', './*'],
+      tasks: ['build']
     },
     nodemon: {
       dev: {}

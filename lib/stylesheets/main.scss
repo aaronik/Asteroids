@@ -24,15 +24,6 @@ body {
 .index-pane {
 	width: 45%;
 	height: 100%;
-	text-align: center;
-}
-
-#index-right-pane {
-	text-align: left;
-}
-
-#index-left-pane {
-	text-align: right;
 }
 
 $background-color: #4f4f4f - 60;
@@ -41,31 +32,20 @@ $background-hover-color: #616161 - 50;
 .button {
 	cursor: pointer;
 	margin: 20px;
-	padding: 20px;
+	padding: 40px 20px 40px 20px;
 	width: 80%;
-	min-width: 402px;
-	height: 100px;
-	line-height: 100px;
 	background-color: $background-color; 
 	text-align: center; 
 	font-size: 18pt;
 	border-radius: 10px;
+	margin-left: auto;
+	margin-right: auto;
 	transition: all 0.3s;
 }
 
 .button:hover { 
-	// background: $background-hover-color;
 	box-shadow: inset 0px 0px 20px 10px $background-hover-color;
 	color: #FFF;
-}
-
-#right-button {
-	// float: left;
-}
-
-#left-button {
-	// float: right;
-	margin-right: -50px;
 }
 
 footer {
@@ -78,5 +58,5 @@ footer {
 // Game Page
 #canvas-wrapper {
 	text-align: center;
-	margin-top: 100px;
+	margin-top: 1px;
 }

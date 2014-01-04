@@ -29,6 +29,8 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 var io = require('socket.io').listen(server);
 var Asteroids = require('./Asteroids.js');
 
+var sessions = new Asteroids.Sessions(); // this guy will aid us in requestSessionsStatus
+
 // per heroku's stupid dumb smelly rules
 io.configure(function () {
 	io.set("transports", ["xhr-polling"]);
@@ -37,36 +39,43 @@ io.configure(function () {
 
 io.sockets.on('connection', function (socket) {
 	socket.emit('connectionSuccessful');
-	socket.on('test', function() {
-		console.log('test received, emitting response');
-		socket.emit('testSuccess');
-	});
+
+	socket.on('requestSessionsStatus', function() {
+		socket.emit('sessionsStatus', sessions.keys());
+	})
+
+	// Host a Multiplayer Game
+	socket.on('hmpg', function (data) {
+		var gameID = Asteroids.Store.uid(5);
+		var width = data.width;
+		var height = data.height;
+
+		sessions['serverListener' + gameID] = sl = new Asteroids.ServerListener(socket, io, gameID);
+		sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket, io, gameID);
+		sessions['serverGame' + gameID] = new Asteroids.ServerGame(sl, sr, width, height);
+		sessions[gameID] = true;
+
+		socket.join(gameID);
+		socket.emit('hmpgResponse', { gameID: gameID })
+	})
+
+	// Join a Multiplayer Game
+	socket.on('jrmpg', function (data) {
+		var gameID = sessions.randomSession();
+		if (!gameID) {
+			socket.emit('couldntFindGames');
+			return
+		}
+		console.log('jrmpg called, gameID retrieved was ' + gameID)
+		var width = data.width;
+		var height = data.height;
+
+		socket.join(gameID);
+		sessions['serverListener' + gameID].addSocket(socket);
+
+		// socket.set('gameID', gameID); // works?
+		socket.emit('jrmpgResponse', { gameID: gameID })
+		socket.broadcast.to(gameID).emit('foreignJoin')
+	})
 });
 
-// io.sockets.on('connection', function (socket) {
-// 	socket.emit('connectionSuccessful');
-// 	socket.on('test', function() {
-// 		console.log('test received, emitting response');
-// 		socket.emit('testSuccess');
-// 	});
-
-// 	socket.on('requestRandomAsteroidParams', function (data) {
-// 		console.log('received request for rand asteroid params');
-// 		var number = data.number;
-// 		var dimX = data.dimX;
-// 		var dimY = data.dimY;
-
-// 		var returnParams = {};
-
-// 		for (i = 0; i < number; i++) {
-// 			returnParams[i] = Asteroids.Asteroid.randomAsteroidParams(dimX, dimY)
-// 		};
-
-// 		socket.emit('returnRequestForRandomAsteroidParams', returnParams);
-// 		console.log('sent rand asteroid params')
-// 	});
-
-// 	socket.on('changeAsteroidSpeed', function (data){
-// 		socket.emit('changeAsteroidSpeed', data);
-// 	})
-// });
