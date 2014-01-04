@@ -514,7 +514,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	}
 
 	ServerGame.prototype.getFullState = function() {
-		var objs = this.asteroids.concat(this.bullets).concat(this.ships)
+		var objs = this.asteroids.concat(this.ships)//.concat(this.bullets)
 		var states = objs.map(function (obj) {
 			return obj.getState();
 		})

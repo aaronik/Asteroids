@@ -1032,7 +1032,7 @@
 	}
 
 	ServerGame.prototype.getFullState = function() {
-		var objs = this.asteroids.concat(this.bullets).concat(this.ships)
+		var objs = this.asteroids.concat(this.ships)//.concat(this.bullets)
 		var states = objs.map(function (obj) {
 			return obj.getState();
 		})
@@ -1154,6 +1154,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	}
 
 	ServerResponder.prototype.addShip = function (socket, shipOpts) {
+		// can't remember why this is gone
 		// this.relay(socket, 'addShip', shipOpts);
 	}
 
