@@ -575,9 +575,7 @@
 	// };
 
 	ServerGame.prototype.fireShip = function (ship, opts) {
-		console.log(ship) // null
 		var ship = ship || this.get(opts.shipID);
-		console.log(ship) // undefined
 		ship.fire();
 		var bullet = new global.Bullet(ship, opts);
 		this.bullets.push(bullet);
@@ -677,6 +675,8 @@
 
 		this.repopulateAsteroids();
 		this.modifyDifficulty();
+
+		this.serverResponder.levelUp();
 	};
 
 	ServerGame.prototype.clearOOBObjects = function() {
@@ -862,8 +862,8 @@
 	};
 
 	ServerGame.prototype.handleCollidedShip = function (ship, asteroid) {
-		game.explodeAsteroid(asteroid);
-		global.Visuals.hit(game.canvas);
+		this.explodeAsteroid(asteroid);
+		// global.Visuals.hit(game.canvas);
 		ship.health -= asteroid.radius;
 	};
 
@@ -958,12 +958,12 @@
 	}
 
 	ServerGame.prototype.detect = function() {
-		// this.detectCollidingAsteroids();
-		// this.detectAsteroidBulletCollisions();
-		// this.detectHitShip();
-		// this.detectDestroyedObjects();
+		this.detectCollidingAsteroids();
+		this.detectAsteroidBulletCollisions();
+		this.detectHitShip();
+		this.detectDestroyedObjects();
 		// // this.detectExplodedTexts();
-		// this.detectLevelChangeReady();
+		this.detectLevelChangeReady();
 		this.detectSendFullState();
 	};
 
@@ -1018,15 +1018,11 @@
 	};
 
 	ServerGame.prototype.get = function (objID) {
-		console.log(objID)
 		var objects = this.asteroids.concat(this.bullets).concat(this.ships);
-		console.log(objects.length)
 		var matchingObj;
 
 		objects.forEach(function (obj) {
-			console.log(obj.id)
 			if (obj.id === objID) {
-				console.log('found a match')
 				matchingObj = obj;
 				return
 			}
@@ -1167,6 +1163,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.relay(socket, 'turnForeignShip', turnOpts);
 	}
 
+	ServerResponder.prototype.levelUp = function() {
+		this.broadcast('levelUp');
+	}
+
 	ServerResponder.prototype.sendFullState = function() {
 		var fullStateArray = this.game.getFullState();
 		var fullStateObject = { fullStateArray: fullStateArray }
@@ -1206,7 +1206,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var sessions = [];
 
 		for (i in this) {
-			console.log(i)
 			if (this[i] === true) {
 				sessions.push(i);
 			}

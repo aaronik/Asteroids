@@ -57,9 +57,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	// };
 
 	ServerGame.prototype.fireShip = function (ship, opts) {
-		console.log(ship) // null
 		var ship = ship || this.get(opts.shipID);
-		console.log(ship) // undefined
 		ship.fire();
 		var bullet = new global.Bullet(ship, opts);
 		this.bullets.push(bullet);
@@ -159,6 +157,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		this.repopulateAsteroids();
 		this.modifyDifficulty();
+
+		this.serverResponder.levelUp();
 	};
 
 	ServerGame.prototype.clearOOBObjects = function() {
@@ -344,8 +344,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 
 	ServerGame.prototype.handleCollidedShip = function (ship, asteroid) {
-		game.explodeAsteroid(asteroid);
-		global.Visuals.hit(game.canvas);
+		this.explodeAsteroid(asteroid);
+		// global.Visuals.hit(game.canvas);
 		ship.health -= asteroid.radius;
 	};
 
@@ -440,12 +440,12 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	}
 
 	ServerGame.prototype.detect = function() {
-		// this.detectCollidingAsteroids();
-		// this.detectAsteroidBulletCollisions();
-		// this.detectHitShip();
-		// this.detectDestroyedObjects();
+		this.detectCollidingAsteroids();
+		this.detectAsteroidBulletCollisions();
+		this.detectHitShip();
+		this.detectDestroyedObjects();
 		// // this.detectExplodedTexts();
-		// this.detectLevelChangeReady();
+		this.detectLevelChangeReady();
 		this.detectSendFullState();
 	};
 
@@ -500,15 +500,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 
 	ServerGame.prototype.get = function (objID) {
-		console.log(objID)
 		var objects = this.asteroids.concat(this.bullets).concat(this.ships);
-		console.log(objects.length)
 		var matchingObj;
 
 		objects.forEach(function (obj) {
-			console.log(obj.id)
 			if (obj.id === objID) {
-				console.log('found a match')
 				matchingObj = obj;
 				return
 			}

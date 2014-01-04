@@ -1112,20 +1112,20 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	// 	return this.asteroidCollisionPairs().uniq
 	// };
 
-	// GameMP.prototype.hitAsteroids = function() {
-	// 	var game = this;
-	// 	var asteroids = [];
+	GameMP.prototype.hitAsteroids = function() {
+		var game = this;
+		var asteroids = [];
 
-	// 	this.bullets.forEach(function(bullet){
-	// 		game.asteroids.forEach(function(asteroid){
-	// 			if (bullet.isCollidedWithAsteroid(asteroid)) {
-	// 				asteroids.push(asteroid);
-	// 			}
-	// 		})
-	// 	})
+		this.bullets.forEach(function(bullet){
+			game.asteroids.forEach(function(asteroid){
+				if (bullet.isCollidedWithAsteroid(asteroid)) {
+					asteroids.push(asteroid);
+				}
+			})
+		})
 
-	// 	return asteroids;
-	// };
+		return asteroids;
+	};
 
 	// GameMP.prototype.collidedBullets = function() {
 	// 	var game = this;
@@ -1204,7 +1204,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 
 	GameMP.prototype.handleCollidedShip = function (ship, asteroid) {
-		game.explodeAsteroid(asteroid);
+		// game.explodeAsteroid(asteroid);
 		global.Visuals.hit(game.canvas);
 		ship.health -= asteroid.radius;
 	};
@@ -1231,23 +1231,23 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	// 	})
 	// };
 
-	// GameMP.prototype.detectHitAsteroids = function() {
-	// 	var game = this;
+	GameMP.prototype.detectHitAsteroids = function() {
+		var game = this;
 
-	// 	this.hitAsteroids().forEach(function(asteroid){
-	// 		game.handleHitAsteroid(asteroid);
-	// 	})
-	// };
+		this.hitAsteroids().forEach(function(asteroid){
+			game.handleHitAsteroid(asteroid);
+		})
+	};
 
-	// GameMP.prototype.detectHitShip = function() {
-	// 	var game = this;
+	GameMP.prototype.detectHitShip = function() {
+		var game = this;
 
-	// 	this.asteroids.forEach(function(as){
-	// 		if (game.ship.isCollidedWith(as)) {
-	// 			game.handleCollidedShip(as);
-	// 		}
-	// 	})
-	// };
+		this.asteroids.forEach(function(as){
+			if (game.ships[0].isCollidedWith(as)) {
+				game.handleCollidedShip(game.ships[0], as);
+			}
+		})
+	};
 
 	// GameMP.prototype.detectBulletHits = function() {
 	// 	var game = this;
@@ -1290,8 +1290,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	GameMP.prototype.detect = function() {
 		// this.detectCollidingAsteroids();
-		// this.detectHitAsteroids();
-		// this.detectHitShip();
+		this.detectHitAsteroids();
+		this.detectHitShip();
 		// this.detectBulletHits();
 		// this.detectDestroyedObjects();
 		this.detectExplodedTexts();
@@ -2145,6 +2145,10 @@ var SocketListener = Asteroids.SocketListener = {};
 
 		socket.on('turnForeignShip', function (turnOpts) {
 			game.turnForeignShip(turnOpts);
+		})
+
+		socket.on('levelUp', function() {
+			game.levelUp();
 		})
 
 		socket.on('fullState', function (fullStateObject) {

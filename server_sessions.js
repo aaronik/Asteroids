@@ -22,7 +22,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var sessions = [];
 
 		for (i in this) {
-			console.log(i)
 			if (this[i] === true) {
 				sessions.push(i);
 			}

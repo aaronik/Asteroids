@@ -42,6 +42,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.relay(socket, 'turnForeignShip', turnOpts);
 	}
 
+	ServerResponder.prototype.levelUp = function() {
+		this.broadcast('levelUp');
+	}
+
 	ServerResponder.prototype.sendFullState = function() {
 		var fullStateArray = this.game.getFullState();
 		var fullStateObject = { fullStateArray: fullStateArray }
