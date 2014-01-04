@@ -59,14 +59,31 @@ io.sockets.on('connection', function (socket) {
 		socket.emit('hmpgResponse', { gameID: gameID })
 	})
 
-	// Join a Multiplayer Game
+	// Join a Designated Multiplayer Game
+	socket.on('jmpg', function (data) {
+		var gameID = data.gameID;
+		var width = data.width;
+		var height = data.height;
+
+		if (sessions.keys().indexOf(gameID) != -1) {
+			socket.join(gameID);
+			sessions['serverListener' + gameID].addSocket(socket);
+
+			socket.emit('jmpgSuccess');
+			socket.broadcast.to(gameID).emit('foreignJoin')
+		} else {
+			socket.emit('jmpgNoGame');
+		}
+	})
+
+	// Join a Random Multiplayer Game
 	socket.on('jrmpg', function (data) {
 		var gameID = sessions.randomSession();
 		if (!gameID) {
 			socket.emit('couldntFindGames');
 			return
 		}
-		console.log('jrmpg called, gameID retrieved was ' + gameID)
+		console.log('jrmpg called, gameID retrieved was ' + gameID);
 		var width = data.width;
 		var height = data.height;
 

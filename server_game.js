@@ -43,6 +43,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.ships.push(new global.Ship(shipOpts))
 	}
 
+	ServerGame.prototype.removeShip = function (shipID) {
+		var ship = this.get(shipID);
+		this.ships.remove(ship);
+	}
+
 	// ServerGame.prototype.addReadout = function() {
 	// 	var options = {
 	// 		'ship': this.ship,
@@ -474,10 +479,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	ServerGame.prototype.pause = function() {
 		if (this['mainTimer']) {
 			this.stop();
-			this.announce('Pause', true);
+			// this.announce('Pause', true);
 		} else {
 			this.start();
-			this.announce('Resume')
+			// this.announce('Resume')
 		}
 	};
 

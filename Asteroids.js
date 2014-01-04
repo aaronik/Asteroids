@@ -561,6 +561,11 @@
 		this.ships.push(new global.Ship(shipOpts))
 	}
 
+	ServerGame.prototype.removeShip = function (shipID) {
+		var ship = this.get(shipID);
+		this.ships.remove(ship);
+	}
+
 	// ServerGame.prototype.addReadout = function() {
 	// 	var options = {
 	// 		'ship': this.ship,
@@ -992,10 +997,10 @@
 	ServerGame.prototype.pause = function() {
 		if (this['mainTimer']) {
 			this.stop();
-			this.announce('Pause', true);
+			// this.announce('Pause', true);
 		} else {
 			this.start();
-			this.announce('Resume')
+			// this.announce('Resume')
 		}
 	};
 
@@ -1057,15 +1062,12 @@
 	var Store = global.Store;
 
 	var ServerListener = global.ServerListener = function (socket, io, gameID) {
-		// global.ServerSocket.call(this, socket, gameID);
 		this.sockets = [socket];
 		this.gameID = gameID;
 		this.io = io;
-		//this.game is assigned in server_game.js
-		// this.initialize();
+		// this.game is assigned in server_game.js
 	};
 
-	// Store.inherits(ServerListener, global.ServerSocket);
 
 	ServerListener.prototype.initialize = function() {
 		var that = this;
@@ -1091,6 +1093,7 @@
 			socket.on('addShip', function (shipOpts) {
 				game.addShip(shipOpts);
 				sr.addShip(socket, shipOpts);
+				socket.shipID = shipOpts.id;
 			})
 
 			socket.on('powerShip', function (shipOpts) {
@@ -1111,6 +1114,33 @@
 			socket.on('shipState', function (shipOpts) {
 				game.updateShip(shipOpts);
 			})
+
+			// socket.on('start', function() {
+			// 	game.start();
+			// 	sr.start(socket);
+			// })
+
+			// socket.on('stop', function() {
+			// 	game.stop();
+			// 	sr.stop(socket);
+			// })
+
+			socket.on('pause', function() {
+				game.pause();
+				sr.pause(socket);
+			})
+
+			socket.on('disconnect', function() {
+				that[socket.sessionid] = setTimeout(function() {
+					that.removeSocket(socket);
+				}, 30000)
+			})
+
+			socket.on('connection', function() {
+				if (that[socket.sessionid]) {
+					clearTimeout(that[socket.sessionid]);
+				}
+			})
 		})
 
 	};
@@ -1120,6 +1150,13 @@
 		this.initialize();
 		this.game.serverResponder.sendFullState();
 	};
+
+	ServerListener.prototype.removeSocket = function (socket) {
+		socket.removeAllListeners();
+		this.sockets.remove(socket);
+		this.initialize();
+		this.game.removeShip(socket.shipID);
+	}
 
 	ServerListener.prototype.broadcast = function (event, object) {
 		this.io.sockets.in(this.gameID).emit(event, object);
@@ -1178,6 +1215,18 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerResponder.prototype.explodeAsteroid = function (asteroidOpts) {
 		this.broadcast('explodeAsteroid', asteroidOpts)
+	}
+
+	// ServerResponder.prototype.start = function (socket) {
+	// 	this.relay(socket, 'start', {});
+	// }
+
+	// ServerResponder.prototype.stop = function (socket) {
+	// 	this.relay(socket, 'stop', {});
+	// }
+
+	ServerResponder.prototype.pause = function (socket) {
+		this.relay(socket, 'pause', {});
 	}
 
 	ServerResponder.prototype.sendFullState = function() {

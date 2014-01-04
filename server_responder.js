@@ -50,6 +50,18 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.broadcast('explodeAsteroid', asteroidOpts)
 	}
 
+	// ServerResponder.prototype.start = function (socket) {
+	// 	this.relay(socket, 'start', {});
+	// }
+
+	// ServerResponder.prototype.stop = function (socket) {
+	// 	this.relay(socket, 'stop', {});
+	// }
+
+	ServerResponder.prototype.pause = function (socket) {
+		this.relay(socket, 'pause', {});
+	}
+
 	ServerResponder.prototype.sendFullState = function() {
 		var fullStateArray = this.game.getFullState();
 		var fullStateObject = { fullStateArray: fullStateArray }

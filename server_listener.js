@@ -5,15 +5,12 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	var Store = global.Store;
 
 	var ServerListener = global.ServerListener = function (socket, io, gameID) {
-		// global.ServerSocket.call(this, socket, gameID);
 		this.sockets = [socket];
 		this.gameID = gameID;
 		this.io = io;
-		//this.game is assigned in server_game.js
-		// this.initialize();
+		// this.game is assigned in server_game.js
 	};
 
-	// Store.inherits(ServerListener, global.ServerSocket);
 
 	ServerListener.prototype.initialize = function() {
 		var that = this;
@@ -39,6 +36,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			socket.on('addShip', function (shipOpts) {
 				game.addShip(shipOpts);
 				sr.addShip(socket, shipOpts);
+				socket.shipID = shipOpts.id;
 			})
 
 			socket.on('powerShip', function (shipOpts) {
@@ -59,6 +57,33 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			socket.on('shipState', function (shipOpts) {
 				game.updateShip(shipOpts);
 			})
+
+			// socket.on('start', function() {
+			// 	game.start();
+			// 	sr.start(socket);
+			// })
+
+			// socket.on('stop', function() {
+			// 	game.stop();
+			// 	sr.stop(socket);
+			// })
+
+			socket.on('pause', function() {
+				game.pause();
+				sr.pause(socket);
+			})
+
+			socket.on('disconnect', function() {
+				that[socket.sessionid] = setTimeout(function() {
+					that.removeSocket(socket);
+				}, 30000)
+			})
+
+			socket.on('connection', function() {
+				if (that[socket.sessionid]) {
+					clearTimeout(that[socket.sessionid]);
+				}
+			})
 		})
 
 	};
@@ -68,6 +93,13 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.initialize();
 		this.game.serverResponder.sendFullState();
 	};
+
+	ServerListener.prototype.removeSocket = function (socket) {
+		socket.removeAllListeners();
+		this.sockets.remove(socket);
+		this.initialize();
+		this.game.removeShip(socket.shipID);
+	}
 
 	ServerListener.prototype.broadcast = function (event, object) {
 		this.io.sockets.in(this.gameID).emit(event, object);
