@@ -57,6 +57,8 @@ io.sockets.on('connection', function (socket) {
 
 		socket.join(gameID);
 		socket.emit('hmpgResponse', { gameID: gameID })
+
+		setDecay(gameID);
 	})
 
 	// Join a Designated Multiplayer Game
@@ -74,6 +76,8 @@ io.sockets.on('connection', function (socket) {
 		} else {
 			socket.emit('jmpgNoGame');
 		}
+
+		setDecay(gameID);
 	})
 
 	// Join a Random Multiplayer Game
@@ -93,6 +97,20 @@ io.sockets.on('connection', function (socket) {
 		// socket.set('gameID', gameID); // works?
 		socket.emit('jrmpgResponse', { gameID: gameID })
 		socket.broadcast.to(gameID).emit('foreignJoin')
+
+		setDecay(gameID);
 	})
 });
 
+function setDecay (gameID) {
+	setTimeout(function() {
+		removeSession(gameID);
+	}, 3600000)
+}
+
+function removeSession (gameID) {
+	sessions['serverListener' + gameID] = null;
+	sessions['serverResponder' + gameID] = null;
+	sessions['serverGame' + gameID] = null;
+	sessions[gameID] = false;
+}
