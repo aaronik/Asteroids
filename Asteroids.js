@@ -955,7 +955,7 @@
 	};
 
 	ServerGame.prototype.detectSendFullState = function() {
-		if (this._counter % 10 == 0) this.sendFullState();
+		if (this._counter % 30 == 0) this.sendFullState();
 	}
 
 	ServerGame.prototype.detect = function() {
