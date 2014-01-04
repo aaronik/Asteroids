@@ -566,19 +566,6 @@
 		this.ships.remove(ship);
 	}
 
-	// ServerGame.prototype.addReadout = function() {
-	// 	var options = {
-	// 		'ship': this.ship,
-	// 		'game': this
-	// 	}
-
-	// 	this.readout = new global.Readout(options)
-	// };
-
-	// ServerGame.prototype.addBackground = function() {
-	// 	this.background = new global.Background(this);
-	// };
-
 	ServerGame.prototype.fireShip = function (ship, opts) {
 		var ship = ship || this.get(opts.shipID);
 		ship.fire();
@@ -598,49 +585,10 @@
 		ship.power(dir, percentage);
 	};
 
-	// ServerGame.prototype.turnShip = function (ship, dir, percentage) {
-	// 	ship.turn(dir, percentage);
-	// };
-
-	// ServerGame.prototype.dampenShip = function (ship) {
-	// 	ship.dampen();
-	// }
-
-	// ServerGame.prototype.draw = function() {
-	// 	var game = this;
-
-	// 	// clear the canvas
-	// 	this.ctx.clearRect(0,0,this.WIDTH, this.HEIGHT);
-
-	// 	// background
-	// 	this.background.draw(this.ctx);
-
-	// 	// ship exhaust particles
-	// 	this.exhaustParticles.forEach(function(ep){
-	// 		ep.draw(game.ctx);
-	// 	})
-
-	// 	// asteroids
-	// 	this.asteroids.forEach(function(asteroid){
-	// 		asteroid.draw(game.ctx);
-	// 	})
-
-	// 	// bullets
-	// 	this.bullets.forEach(function(bullet){
-	// 		bullet.draw(game.ctx);
-	// 	})
-
-	// 	// ship
-	// 	this.ship.draw(this.ctx);
-
-	// 	// readout text
-	// 	this.readout.draw(this.ctx);
-
-	// 	// exploding texts
-	// 	this.explodingTexts.forEach(function(txt){
-	// 		txt.draw(game.ctx);
-	// 	})
-	// };
+	ServerGame.prototype.dampenShip = function (dampenOpts) {
+		var ship = this.get(dampenOpts.shipID);
+		ship.dampen();
+	}
 
 	ServerGame.prototype.move = function() {
 		this.asteroids.forEach(function(asteroid){
@@ -654,29 +602,10 @@
 		this.bullets.forEach(function(bullet){
 			bullet.move();
 		});
-
-		// this.exhaustParticles.forEach(function(ep){
-		// 	ep.move();
-		// })
-
-		// this.background.move();
 	};
-
-	// ServerGame.prototype.announce = function (txt, independentTimer) {
-	// 	var independentTimer = independentTimer || false;
-
-	// 	var explodingTextOptions = {
-	// 		'game': this,
-	// 		'txt': txt,
-	// 		'independentTimer': independentTimer
-	// 	}
-
-	// 	this.explodingTexts.push(new global.ExplodingText(explodingTextOptions))
-	// }
 
 	ServerGame.prototype.levelUp = function() {
 		this.level += 1;
-		// this.announce('Level ' + this.level);
 
 		this.repopulateAsteroids();
 		this.modifyDifficulty();
@@ -687,7 +616,6 @@
 	ServerGame.prototype.clearOOBObjects = function() {
 		// this.clearOOBAsteroids();
 		this.clearOOBBullets();
-		// this.clearOOBExhaustParticles();
 	}
 
 	ServerGame.prototype.clearOOBAsteroids = function() { // substituted for wrap around
@@ -725,22 +653,6 @@
 			}
 		}
 	};
-
-	// ServerGame.prototype.clearOOBExhaustParticles = function() {
-	// 	var ep;
-	// 	var posX;
-	// 	var posY;
-
-	// 	for (var i = 0; i < this.exhaustParticles.length; i++) {
-	// 		ep = this.exhaustParticles[i];
-	// 		posX = ep.pos[0];
-	// 		posY = ep.pos[1];
-
-	// 		if (posX < 0 || posY < 0 || posX > this.WIDTH || posY > this.HEIGHT) {
-	// 			this.exhaustParticles.splice(i, 1);
-	// 		}
-	// 	}
-	// };
 
 	ServerGame.prototype.wrapMovingObjects = function() {
 		var game = this;
@@ -880,10 +792,6 @@
 		this.removeBullet(bullet);
 	};
 
-	// ServerGame.prototype.handleExplodedText = function (txt) {
-	// 	this.explodingTexts.remove(txt);
-	// };
-
 	ServerGame.prototype.detectCollidingAsteroids = function() {
 		var game = this;
 
@@ -945,16 +853,6 @@
 		});
 	};
 
-	// ServerGame.prototype.detectExplodedTexts = function() {
-	// 	var game = this;
-
-	// 	this.explodingTexts.forEach(function(txt){
-	// 		if (txt.alpha <= 0) {
-	// 			game.handleExplodedText(txt);
-	// 		}
-	// 	})
-	// };
-
 	ServerGame.prototype.detectLevelChangeReady = function() {
 		if (this.asteroids.length == 0) {
 			this.levelUp();
@@ -970,7 +868,7 @@
 		this.detectAsteroidBulletCollisions();
 		this.detectHitShip();
 		this.detectDestroyedObjects();
-		// // this.detectExplodedTexts();
+		// this.detectExplodedTexts();
 		this.detectLevelChangeReady();
 		this.detectSendFullState();
 	};
@@ -997,10 +895,8 @@
 	ServerGame.prototype.pause = function() {
 		if (this['mainTimer']) {
 			this.stop();
-			// this.announce('Pause', true);
 		} else {
 			this.start();
-			// this.announce('Resume')
 		}
 	};
 
@@ -1077,7 +973,19 @@
 
 		this.sockets.forEach(function(socket){
 
-			socket.removeAllListeners();
+			removeListeners(socket, [
+				'test',
+				'createBullet',
+				'addShip',
+				'powerShip',
+				'turnShip',
+				'dampenShip',
+				'requestFullState',
+				'shipState',
+				'pause',
+				'disconnect',
+				'connection'
+			])
 
 			socket.on('test', function (data) {
 				console.log('test call received');
@@ -1107,6 +1015,11 @@
 				sr.turnShip(socket, turnOpts);
 			})
 
+			socket.on('dampenShip', function (dampenOpts) {
+				game.dampenShip(dampenOpts);
+				sr.dampenShip(socket, dampenOpts);
+			})
+
 			socket.on('requestFullState', function() {
 				sr.sendFullState();
 			})
@@ -1115,29 +1028,19 @@
 				game.updateShip(shipOpts);
 			})
 
-			// socket.on('start', function() {
-			// 	game.start();
-			// 	sr.start(socket);
-			// })
-
-			// socket.on('stop', function() {
-			// 	game.stop();
-			// 	sr.stop(socket);
-			// })
-
 			socket.on('pause', function() {
 				game.pause();
 				sr.pause(socket);
 			})
 
 			socket.on('disconnect', function() {
-				that[socket.sessionid] = setTimeout(function() {
+				that[socket.id] = setTimeout(function() {
 					that.removeSocket(socket);
 				}, 30000)
 			})
 
 			socket.on('connection', function() {
-				if (that[socket.sessionid]) {
+				if (that[socket.id]) {
 					clearTimeout(that[socket.sessionid]);
 				}
 			})
@@ -1162,6 +1065,12 @@
 		this.io.sockets.in(this.gameID).emit(event, object);
 	};
 
+	function removeListeners(socket, listenerArray) {
+		listenerArray.forEach(function (listener) {
+			socket.removeListener(listener, function(){});
+		})
+	}
+
 
 
 
@@ -1176,14 +1085,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	var Store = global.Store
 
 	var ServerResponder = global.ServerResponder = function (socket, io, gameID) {
-		// global.ServerSocket.call(this, socket, gameID)
 		this.sockets = [socket];
 		this.gameID = gameID;
 		this.io = io;
 		// this.game assigned in server_game.js;
 	}
-
-	// Store.inherits(ServerResponder, global.ServerSocket);
 
 	ServerResponder.prototype.sendAsteroid = function (asteroidOpts) {
 		this.broadcast('addAsteroid', asteroidOpts);
@@ -1209,6 +1115,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.relay(socket, 'turnForeignShip', turnOpts);
 	}
 
+	ServerResponder.prototype.dampenShip = function (socket, dampenOpts) {
+		this.relay(socket, 'dampenForeignShip', dampenOpts);
+	}
+
 	ServerResponder.prototype.levelUp = function() {
 		this.broadcast('levelUp');
 	}
@@ -1216,14 +1126,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	ServerResponder.prototype.explodeAsteroid = function (asteroidOpts) {
 		this.broadcast('explodeAsteroid', asteroidOpts)
 	}
-
-	// ServerResponder.prototype.start = function (socket) {
-	// 	this.relay(socket, 'start', {});
-	// }
-
-	// ServerResponder.prototype.stop = function (socket) {
-	// 	this.relay(socket, 'stop', {});
-	// }
 
 	ServerResponder.prototype.pause = function (socket) {
 		this.relay(socket, 'pause', {});

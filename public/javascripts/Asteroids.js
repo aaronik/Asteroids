@@ -931,7 +931,17 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	GameMP.prototype.dampenShip = function (ship) {
 		ship.dampen();
 
-		// don't need to send, will send constant ship updates
+		var opts = {
+			shipID: ship.id
+		}
+
+		socket.emit('dampenShip', opts);
+	}
+
+	GameMP.prototype.dampenForeignShip = function (dampenOpts) {
+		var ship = this.get(dampenOpts.shipID);
+
+		ship.dampen();
 	}
 
 	GameMP.prototype.draw = function() {
@@ -1193,11 +1203,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	// GameMP.prototype.changeAsteroidSpeed = function (amnt) {
 	// 	Asteroids.Asteroid.MAX_SPEED_MULTIPLIER += amnt;
 	// };
-
-
-	////////////////////
-	// all these will probably be replaced with simple listeners to damage asteroids, etc.
-	////////////////////
 
 	GameMP.prototype.handleCollidingAsteroids = function (as1, as2) {
 		this.damageAsteroid(as1, as2.radius);
@@ -2263,17 +2268,13 @@ var SocketListener = Asteroids.SocketListener = {};
 			game.turnForeignShip(turnOpts);
 		})
 
+		socket.on('dampenForeignShip', function (dampenOpts) {
+			game.dampenForeignShip(dampenOpts);
+		})
+
 		socket.on('levelUp', function() {
 			game.levelUp();
 		})
-
-		// socket.on('start', function() {
-		// 	game.start();
-		// })
-
-		// socket.on('stop', function() {
-		// 	game.stop();
-		// })
 
 		socket.on('pause', function() {
 			game.foreignPause();

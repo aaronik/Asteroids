@@ -20,7 +20,19 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		this.sockets.forEach(function(socket){
 
-			socket.removeAllListeners();
+			removeListeners(socket, [
+				'test',
+				'createBullet',
+				'addShip',
+				'powerShip',
+				'turnShip',
+				'dampenShip',
+				'requestFullState',
+				'shipState',
+				'pause',
+				'disconnect',
+				'connection'
+			])
 
 			socket.on('test', function (data) {
 				console.log('test call received');
@@ -50,6 +62,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 				sr.turnShip(socket, turnOpts);
 			})
 
+			socket.on('dampenShip', function (dampenOpts) {
+				game.dampenShip(dampenOpts);
+				sr.dampenShip(socket, dampenOpts);
+			})
+
 			socket.on('requestFullState', function() {
 				sr.sendFullState();
 			})
@@ -58,29 +75,19 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 				game.updateShip(shipOpts);
 			})
 
-			// socket.on('start', function() {
-			// 	game.start();
-			// 	sr.start(socket);
-			// })
-
-			// socket.on('stop', function() {
-			// 	game.stop();
-			// 	sr.stop(socket);
-			// })
-
 			socket.on('pause', function() {
 				game.pause();
 				sr.pause(socket);
 			})
 
 			socket.on('disconnect', function() {
-				that[socket.sessionid] = setTimeout(function() {
+				that[socket.id] = setTimeout(function() {
 					that.removeSocket(socket);
 				}, 30000)
 			})
 
 			socket.on('connection', function() {
-				if (that[socket.sessionid]) {
+				if (that[socket.id]) {
 					clearTimeout(that[socket.sessionid]);
 				}
 			})
@@ -104,6 +111,12 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	ServerListener.prototype.broadcast = function (event, object) {
 		this.io.sockets.in(this.gameID).emit(event, object);
 	};
+
+	function removeListeners(socket, listenerArray) {
+		listenerArray.forEach(function (listener) {
+			socket.removeListener(listener, function(){});
+		})
+	}
 
 
 

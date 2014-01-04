@@ -9,14 +9,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	var Store = global.Store
 
 	var ServerResponder = global.ServerResponder = function (socket, io, gameID) {
-		// global.ServerSocket.call(this, socket, gameID)
 		this.sockets = [socket];
 		this.gameID = gameID;
 		this.io = io;
 		// this.game assigned in server_game.js;
 	}
-
-	// Store.inherits(ServerResponder, global.ServerSocket);
 
 	ServerResponder.prototype.sendAsteroid = function (asteroidOpts) {
 		this.broadcast('addAsteroid', asteroidOpts);
@@ -42,6 +39,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.relay(socket, 'turnForeignShip', turnOpts);
 	}
 
+	ServerResponder.prototype.dampenShip = function (socket, dampenOpts) {
+		this.relay(socket, 'dampenForeignShip', dampenOpts);
+	}
+
 	ServerResponder.prototype.levelUp = function() {
 		this.broadcast('levelUp');
 	}
@@ -49,14 +50,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	ServerResponder.prototype.explodeAsteroid = function (asteroidOpts) {
 		this.broadcast('explodeAsteroid', asteroidOpts)
 	}
-
-	// ServerResponder.prototype.start = function (socket) {
-	// 	this.relay(socket, 'start', {});
-	// }
-
-	// ServerResponder.prototype.stop = function (socket) {
-	// 	this.relay(socket, 'stop', {});
-	// }
 
 	ServerResponder.prototype.pause = function (socket) {
 		this.relay(socket, 'pause', {});

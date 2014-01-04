@@ -48,19 +48,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.ships.remove(ship);
 	}
 
-	// ServerGame.prototype.addReadout = function() {
-	// 	var options = {
-	// 		'ship': this.ship,
-	// 		'game': this
-	// 	}
-
-	// 	this.readout = new global.Readout(options)
-	// };
-
-	// ServerGame.prototype.addBackground = function() {
-	// 	this.background = new global.Background(this);
-	// };
-
 	ServerGame.prototype.fireShip = function (ship, opts) {
 		var ship = ship || this.get(opts.shipID);
 		ship.fire();
@@ -80,49 +67,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		ship.power(dir, percentage);
 	};
 
-	// ServerGame.prototype.turnShip = function (ship, dir, percentage) {
-	// 	ship.turn(dir, percentage);
-	// };
-
-	// ServerGame.prototype.dampenShip = function (ship) {
-	// 	ship.dampen();
-	// }
-
-	// ServerGame.prototype.draw = function() {
-	// 	var game = this;
-
-	// 	// clear the canvas
-	// 	this.ctx.clearRect(0,0,this.WIDTH, this.HEIGHT);
-
-	// 	// background
-	// 	this.background.draw(this.ctx);
-
-	// 	// ship exhaust particles
-	// 	this.exhaustParticles.forEach(function(ep){
-	// 		ep.draw(game.ctx);
-	// 	})
-
-	// 	// asteroids
-	// 	this.asteroids.forEach(function(asteroid){
-	// 		asteroid.draw(game.ctx);
-	// 	})
-
-	// 	// bullets
-	// 	this.bullets.forEach(function(bullet){
-	// 		bullet.draw(game.ctx);
-	// 	})
-
-	// 	// ship
-	// 	this.ship.draw(this.ctx);
-
-	// 	// readout text
-	// 	this.readout.draw(this.ctx);
-
-	// 	// exploding texts
-	// 	this.explodingTexts.forEach(function(txt){
-	// 		txt.draw(game.ctx);
-	// 	})
-	// };
+	ServerGame.prototype.dampenShip = function (dampenOpts) {
+		var ship = this.get(dampenOpts.shipID);
+		ship.dampen();
+	}
 
 	ServerGame.prototype.move = function() {
 		this.asteroids.forEach(function(asteroid){
@@ -136,29 +84,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.bullets.forEach(function(bullet){
 			bullet.move();
 		});
-
-		// this.exhaustParticles.forEach(function(ep){
-		// 	ep.move();
-		// })
-
-		// this.background.move();
 	};
-
-	// ServerGame.prototype.announce = function (txt, independentTimer) {
-	// 	var independentTimer = independentTimer || false;
-
-	// 	var explodingTextOptions = {
-	// 		'game': this,
-	// 		'txt': txt,
-	// 		'independentTimer': independentTimer
-	// 	}
-
-	// 	this.explodingTexts.push(new global.ExplodingText(explodingTextOptions))
-	// }
 
 	ServerGame.prototype.levelUp = function() {
 		this.level += 1;
-		// this.announce('Level ' + this.level);
 
 		this.repopulateAsteroids();
 		this.modifyDifficulty();
@@ -169,7 +98,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	ServerGame.prototype.clearOOBObjects = function() {
 		// this.clearOOBAsteroids();
 		this.clearOOBBullets();
-		// this.clearOOBExhaustParticles();
 	}
 
 	ServerGame.prototype.clearOOBAsteroids = function() { // substituted for wrap around
@@ -207,22 +135,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			}
 		}
 	};
-
-	// ServerGame.prototype.clearOOBExhaustParticles = function() {
-	// 	var ep;
-	// 	var posX;
-	// 	var posY;
-
-	// 	for (var i = 0; i < this.exhaustParticles.length; i++) {
-	// 		ep = this.exhaustParticles[i];
-	// 		posX = ep.pos[0];
-	// 		posY = ep.pos[1];
-
-	// 		if (posX < 0 || posY < 0 || posX > this.WIDTH || posY > this.HEIGHT) {
-	// 			this.exhaustParticles.splice(i, 1);
-	// 		}
-	// 	}
-	// };
 
 	ServerGame.prototype.wrapMovingObjects = function() {
 		var game = this;
@@ -362,10 +274,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.removeBullet(bullet);
 	};
 
-	// ServerGame.prototype.handleExplodedText = function (txt) {
-	// 	this.explodingTexts.remove(txt);
-	// };
-
 	ServerGame.prototype.detectCollidingAsteroids = function() {
 		var game = this;
 
@@ -427,16 +335,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		});
 	};
 
-	// ServerGame.prototype.detectExplodedTexts = function() {
-	// 	var game = this;
-
-	// 	this.explodingTexts.forEach(function(txt){
-	// 		if (txt.alpha <= 0) {
-	// 			game.handleExplodedText(txt);
-	// 		}
-	// 	})
-	// };
-
 	ServerGame.prototype.detectLevelChangeReady = function() {
 		if (this.asteroids.length == 0) {
 			this.levelUp();
@@ -452,7 +350,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detectAsteroidBulletCollisions();
 		this.detectHitShip();
 		this.detectDestroyedObjects();
-		// // this.detectExplodedTexts();
+		// this.detectExplodedTexts();
 		this.detectLevelChangeReady();
 		this.detectSendFullState();
 	};
@@ -479,10 +377,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	ServerGame.prototype.pause = function() {
 		if (this['mainTimer']) {
 			this.stop();
-			// this.announce('Pause', true);
 		} else {
 			this.start();
-			// this.announce('Resume')
 		}
 	};
 
