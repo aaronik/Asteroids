@@ -949,6 +949,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		// asteroids
 		this.asteroids.forEach(function(asteroid){
+			debugger
 			asteroid.draw(game.ctx);
 		})
 
@@ -1213,9 +1214,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.removeBullet(bullet);
 	};
 
-	GameMP.prototype.handleHitAsteroid = function (asteroid) {
-		this.damageAsteroid(asteroid, this.ships[0].damage);
-	};
+	// GameMP.prototype.handleHitAsteroid = function (asteroid) {
+	// 	this.damageAsteroid(asteroid, this.ships[0].damage);
+	// };
 
 	GameMP.prototype.handleExplodedText = function (txt) {
 		this.explodingTexts.remove(txt);
@@ -1231,13 +1232,13 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	// 	})
 	// };
 
-	GameMP.prototype.detectHitAsteroids = function() {
-		var game = this;
+	// GameMP.prototype.detectHitAsteroids = function() {
+	// 	var game = this;
 
-		this.hitAsteroids().forEach(function(asteroid){
-			game.handleHitAsteroid(asteroid);
-		})
-	};
+	// 	this.hitAsteroids().forEach(function(asteroid){
+	// 		game.handleHitAsteroid(asteroid);
+	// 	})
+	// };
 
 	GameMP.prototype.detectHitShip = function() {
 		var game = this;
@@ -1257,15 +1258,15 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	GameMP.prototype.detectDestroyedObjects = function() {
-		var game = this;
+	// GameMP.prototype.detectDestroyedObjects = function() {
+	// 	var game = this;
 
-		this.asteroids.forEach(function(asteroid){
-			if (asteroid.health <= 0) {
-				game.explodeAsteroid(asteroid);
-			}
-		});
-	};
+	// 	this.asteroids.forEach(function(asteroid){
+	// 		if (asteroid.health <= 0) {
+	// 			game.explodeAsteroid(asteroid);
+	// 		}
+	// 	});
+	// };
 
 	GameMP.prototype.detectExplodedTexts = function() {
 		var game = this;
@@ -1289,10 +1290,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	GameMP.prototype.detect = function() {
 		// this.detectCollidingAsteroids();
-		this.detectHitAsteroids();
+		// this.detectHitAsteroids();
 		this.detectHitShip();
 		this.detectBulletHits();
-		this.detectDestroyedObjects();
+		// this.detectDestroyedObjects();
 		this.detectExplodedTexts();
 		this.detectSendState();
 		// this.detectLevelChangeReady();
