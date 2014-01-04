@@ -307,6 +307,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.noExplodeAsteroids = this.noExplodeAsteroids.concat(newAsteroids);
 		this.asteroids = this.asteroids.concat(newAsteroids);
 
+		this.serverResponder.explodeAsteroid({ id: asteroid.id })
+
 		newAsteroidOpts.forEach(function(opts){
 			game.serverResponder.sendAsteroid(opts);
 		})

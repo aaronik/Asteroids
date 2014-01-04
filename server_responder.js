@@ -46,6 +46,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.broadcast('levelUp');
 	}
 
+	ServerResponder.prototype.explodeAsteroid = function (asteroidOpts) {
+		this.broadcast('explodeAsteroid', asteroidOpts)
+	}
+
 	ServerResponder.prototype.sendFullState = function() {
 		var fullStateArray = this.game.getFullState();
 		var fullStateObject = { fullStateArray: fullStateArray }

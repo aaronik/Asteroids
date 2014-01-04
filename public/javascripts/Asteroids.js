@@ -949,7 +949,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		// asteroids
 		this.asteroids.forEach(function(asteroid){
-			debugger
 			asteroid.draw(game.ctx);
 		})
 
@@ -1163,9 +1162,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	GameMP.prototype.explodeAsteroid = function(asteroid) {
 		this.asteroids.remove(asteroid);
-		var newAsteroids = asteroid.explode();
-		this.noExplodeAsteroids = this.noExplodeAsteroids.concat(newAsteroids);
-		this.asteroids = this.asteroids.concat(newAsteroids);
+		// var newAsteroids = asteroid.explode();
+		// this.noExplodeAsteroids = this.noExplodeAsteroids.concat(newAsteroids);
+		// this.asteroids = this.asteroids.concat(newAsteroids);
 	};
 
 	GameMP.prototype.damageAsteroid = function(asteroid, damage) {
@@ -2143,6 +2142,13 @@ var SocketListener = Asteroids.SocketListener = {};
 		socket.on('addAsteroid', function (asteroidOpts) {
 			debug('received asteroid')
 			game.addAsteroid(asteroidOpts);
+		})
+
+		socket.on('explodeAsteroid', function (asteroidOpts) {
+			debug('explodeAsteroid')
+			var asteroid = game.get(asteroidOpts.id)
+
+			game.explodeAsteroid(asteroid);
 		})
 
 		socket.on('fireShip', function (data) {

@@ -825,6 +825,8 @@
 		this.noExplodeAsteroids = this.noExplodeAsteroids.concat(newAsteroids);
 		this.asteroids = this.asteroids.concat(newAsteroids);
 
+		this.serverResponder.explodeAsteroid({ id: asteroid.id })
+
 		newAsteroidOpts.forEach(function(opts){
 			game.serverResponder.sendAsteroid(opts);
 		})
@@ -1172,6 +1174,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerResponder.prototype.levelUp = function() {
 		this.broadcast('levelUp');
+	}
+
+	ServerResponder.prototype.explodeAsteroid = function (asteroidOpts) {
+		this.broadcast('explodeAsteroid', asteroidOpts)
 	}
 
 	ServerResponder.prototype.sendFullState = function() {
