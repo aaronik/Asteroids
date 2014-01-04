@@ -27,8 +27,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	}
 
 	ServerResponder.prototype.addShip = function (socket, shipOpts) {
-		// can't remember why this is gone
-		// this.relay(socket, 'addShip', shipOpts);
+		this.relay(socket, 'addShip', shipOpts);
 	}
 
 	ServerResponder.prototype.removeBullet = function (bulletOpts) {

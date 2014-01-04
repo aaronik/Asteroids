@@ -354,6 +354,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.difficultyRate = 0.6;
 		this.dropShadowColor = 'red';
 		this.level = 1;
+		this.status = 'Single Player';
 		this.initialize();
 	};
 
@@ -369,7 +370,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	Game.prototype.addReadout = function() {
 		var options = {
-			'ships': this.ships,
 			'game': this
 		}
 
@@ -864,7 +864,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	GameMP.prototype.addReadout = function() {
 		var options = {
-			'ships': this.ships,
 			'game': this
 		}
 
@@ -1215,7 +1214,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 
 	GameMP.prototype.handleHitAsteroid = function (asteroid) {
-		this.damageAsteroid(asteroid, this.ship.damage);
+		this.damageAsteroid(asteroid, this.ships[0].damage);
 	};
 
 	GameMP.prototype.handleExplodedText = function (txt) {
@@ -1258,15 +1257,15 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	// GameMP.prototype.detectDestroyedObjects = function() {
-	// 	var game = this;
+	GameMP.prototype.detectDestroyedObjects = function() {
+		var game = this;
 
-	// 	this.asteroids.forEach(function(asteroid){
-	// 		if (asteroid.health <= 0) {
-	// 			game.explodeAsteroid(asteroid);
-	// 		}
-	// 	});
-	// };
+		this.asteroids.forEach(function(asteroid){
+			if (asteroid.health <= 0) {
+				game.explodeAsteroid(asteroid);
+			}
+		});
+	};
 
 	GameMP.prototype.detectExplodedTexts = function() {
 		var game = this;
@@ -1290,10 +1289,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	GameMP.prototype.detect = function() {
 		// this.detectCollidingAsteroids();
-		// this.detectHitAsteroids();
+		this.detectHitAsteroids();
 		this.detectHitShip();
 		this.detectBulletHits();
-		// this.detectDestroyedObjects();
+		this.detectDestroyedObjects();
 		this.detectExplodedTexts();
 		this.detectSendState();
 		// this.detectLevelChangeReady();
@@ -1502,12 +1501,12 @@ var Asteroids = (this.Asteroids || {});
 		}
 	}
 
-	Ship.prototype.draw = function (ctx) {
+	Ship.prototype.draw = function (ctx, pos, or) {
 		var height = this.radius * 3;
 		var base = 0.3;
-		var or = this.orientation;
+		var or = or || this.orientation;
 
-		var start = this.pos;
+		var start = pos || this.pos;
 		var pt1 = start.add(or.scale(height / 1.5));
 		var pt2 = pt1.add(or.scale(-height).rotate(base));
 		var pt3 = pt1.add(or.scale(-height).rotate(-base));
@@ -1925,19 +1924,24 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 (function(global){
 	// should report ship's health, points, level
 	var Readout = global.Readout = function (options) {
-		this.ships = options.ships
 		this.game = options.game;
 	};
 
 	Readout.prototype.draw = function (ctx) {
-		ctx.font = 'bold 15pt normal';
+		ctx.font = '15pt "Exo 2", sans-serif';
 		ctx.fillStyle = 'white';
-		ctx.fillText('Level: ' + this.game.level, 20, 20);
+		var startHeight = 20;
+		var lineHeight = 35;
+		var bufferHeight = startHeight + lineHeight;
+		ctx.fillText('Level:  ' + this.game.level, 20, startHeight);
+		ctx.fillText('Status:  ' + this.game.status, 20, bufferHeight);
 
-		var lineHeight = 30;
 
-		for (var i = 0; i < this.ships.length; i++) {
-			ctx.fillText('Health: ' + this.ships[i].health, 20, 50 + (i * lineHeight))
+		for (var i = 0; i < this.game.ships.length; i++) {
+			var y = bufferHeight + lineHeight + (i * lineHeight);
+			ctx.fillStyle = 'white';
+			ctx.fillText('Health:        ' + this.game.ships[i].health, 20, y)
+			this.game.ships[i].draw(ctx, [107, y - 5], [0, -1])
 		}
 	};
 
@@ -1974,7 +1978,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	ExplodingText.prototype.draw = function(ctx) {
 		ctx.fillStyle = 'rgba(255, 255, 255, ' + this.alpha + ')';
 		ctx.textAlign = 'center';
-		ctx.font = 'bold ' + this.size + 'pt normal';
+		ctx.font = this.size + 'pt "Exo 2", sans-serif';
 		var x = this.game.WIDTH / 2;
 		var y = (this.game.HEIGHT / 2) + (this.game.HEIGHT / 15);
 
@@ -2100,8 +2104,19 @@ var SocketListener = Asteroids.SocketListener = {};
 
 		// init / general stuff
 		socket.on('connectionSuccessful', function() {
-			console.log('socket connected to server ')
+			console.log('socket connected to server ');
+			game.status = 'connected';
 		});
+
+		socket.on('reconnecting', function() {
+			console.log('reconnecting to server...');
+			game.status = 'reconnecting...';
+		})
+
+		socket.on('reconnect_failed', function() {
+			conosole.log('Damn, can\'t reconect to the server!');
+			game.status = 'disconnected!  =\'('
+		})
 
 		socket.on('testSuccess', function() {
 			console.log('test received successfully!')

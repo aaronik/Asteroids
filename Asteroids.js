@@ -413,12 +413,12 @@
 		}
 	}
 
-	Ship.prototype.draw = function (ctx) {
+	Ship.prototype.draw = function (ctx, pos, or) {
 		var height = this.radius * 3;
 		var base = 0.3;
-		var or = this.orientation;
+		var or = or || this.orientation;
 
-		var start = this.pos;
+		var start = pos || this.pos;
 		var pt1 = start.add(or.scale(height / 1.5));
 		var pt2 = pt1.add(or.scale(-height).rotate(base));
 		var pt3 = pt1.add(or.scale(-height).rotate(-base));
@@ -841,6 +841,7 @@
 			id: bullet.id
 		}
 
+		// I like this b/c the games don't sync bullets
 		this.serverResponder.removeBullet(opts);
 	};
 
@@ -1154,8 +1155,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	}
 
 	ServerResponder.prototype.addShip = function (socket, shipOpts) {
-		// can't remember why this is gone
-		// this.relay(socket, 'addShip', shipOpts);
+		this.relay(socket, 'addShip', shipOpts);
 	}
 
 	ServerResponder.prototype.removeBullet = function (bulletOpts) {

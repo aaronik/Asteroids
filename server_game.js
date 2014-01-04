@@ -323,6 +323,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			id: bullet.id
 		}
 
+		// I like this b/c the games don't sync bullets
 		this.serverResponder.removeBullet(opts);
 	};
 
