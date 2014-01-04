@@ -1342,6 +1342,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 				case 'ship':
 					game.handleFullStateShip(stateObj);
 					break;
+				case 'level':
+					game.handleFullStateLevel(stateObj);
+					break;
 			}
 		})
 	}
@@ -1358,6 +1361,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		if (stateObj.id != this.shipID) {
 			this.ships.push(new global.Ship(stateObj))
 		}
+	}
+
+	GameMP.prototype.handleFullStateLevel = function (stateObj) {
+		this.level = stateObj.level;
 	}
 
 	GameMP.prototype.tic = function() {
@@ -2120,7 +2127,6 @@ var SocketListener = Asteroids.SocketListener = {};
 		// game stuff
 		socket.on('addAsteroid', function (asteroidOpts) {
 			debug('received asteroid')
-			debug(asteroidOpts)
 			game.addAsteroid(asteroidOpts);
 		})
 

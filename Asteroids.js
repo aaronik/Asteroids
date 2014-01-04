@@ -1037,7 +1037,13 @@
 			return obj.getState();
 		})
 
-		console.log(states)
+		var levelObj = {
+			type: 'level',
+			level: this.level
+		}
+
+		states.push(levelObj)
+
 		return states;
 	}
 
