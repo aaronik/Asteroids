@@ -32,10 +32,10 @@ var Asteroids = require('./Asteroids.js');
 var sessions = new Asteroids.Sessions(); // this guy will aid us in requestSessionsStatus
 
 // per heroku's stupid dumb smelly rules
-// io.configure(function () {
-// 	io.set("transports", ["xhr-polling"]);
-// 	io.set("polling duration", 10);
-// });
+io.configure(function () {
+	io.set("transports", ["xhr-polling"]);
+	io.set("polling duration", 10);
+});
 
 io.sockets.on('connection', function (socket) {
 	socket.emit('connectionSuccessful');
