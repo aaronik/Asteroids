@@ -83,7 +83,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			socket.on('disconnect', function() {
 				that[socket.id] = setTimeout(function() {
 					that.removeSocket(socket);
-				}, 30000)
+				}, 15000)
 			})
 
 			socket.on('connection', function() {

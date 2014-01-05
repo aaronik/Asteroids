@@ -715,11 +715,17 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	Game.prototype.detectDestroyedObjects = function() {
 		var game = this;
 
-		this.asteroids.forEach(function(asteroid){
+		this.asteroids.forEach(function (asteroid) {
 			if (asteroid.health <= 0) {
 				game.explodeAsteroid(asteroid);
 			}
 		});
+
+		for (var i = 0; i < this.exhaustParticles.length; i++) {
+			if (this.exhaustParticles[i].health <= 0) {
+				this.exhaustParticles.splice(i, 1);
+			}
+		}
 	};
 
 	Game.prototype.detectExplodedTexts = function() {
@@ -1263,15 +1269,21 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	// GameMP.prototype.detectDestroyedObjects = function() {
-	// 	var game = this;
+	GameMP.prototype.detectDestroyedObjects = function() {
+		var game = this;
 
-	// 	this.asteroids.forEach(function(asteroid){
-	// 		if (asteroid.health <= 0) {
-	// 			game.explodeAsteroid(asteroid);
-	// 		}
-	// 	});
-	// };
+		// this.asteroids.forEach(function(asteroid){
+		// 	if (asteroid.health <= 0) {
+		// 		game.explodeAsteroid(asteroid);
+		// 	}
+		// });
+
+		for (var i = 0; i < this.exhaustParticles.length; i++) {
+			if (this.exhaustParticles[i].health <= 0) {
+				this.exhaustParticles.splice(i, 1);
+			}
+		}
+	};
 
 	GameMP.prototype.detectExplodedTexts = function() {
 		var game = this;
@@ -1298,7 +1310,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		// this.detectHitAsteroids();
 		this.detectHitShip();
 		this.detectBulletHits();
-		// this.detectDestroyedObjects();
+		this.detectDestroyedObjects();
 		this.detectExplodedTexts();
 		this.detectSendState();
 		// this.detectLevelChangeReady();
@@ -2084,10 +2096,12 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	var ExhaustParticle = global.ExhaustParticle = function (options) {
 		this.ship = options.ship;
 		this.pos = this.ship.pos.slice(0);
-		this.radius = options.radius || 1;
+		this.radius = options.radius || 10;
 		this.vel = this.ship.vel.add(this.ship.orientation.scale(-15).nudge());
 		// this.color = ['orange', 'red', 'yellow', 'orange', 'orage'].sample();
 		this.RGB = ['226,72,0','204,24,0','134,2,0','255,119,1'].sample();
+		this.health = 0.2;
+		this.decayRate = 0.01;
 	};
 
 	Store.inherits(ExhaustParticle, MovingObject);
@@ -2096,15 +2110,20 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var x = this.pos[0];
 		var y = this.pos[1];
 
-		var radgrad = ctx.createRadialGradient(x,y,0,x,y,10);
-
-	  radgrad.addColorStop(0, 'rgba(' + this.RGB + ',0.4)');
-	  radgrad.addColorStop(0.1, 'rgba(' + this.RGB + ',.2)');
+		var radgrad = ctx.createRadialGradient(x,y,0,x,y,this.radius);
+		debugger
+	  radgrad.addColorStop(0, 'rgba(' + this.RGB + ',' + this.health + ')');
 	  radgrad.addColorStop(1, 'rgba(' + this.RGB + ',0)');
 	  
 	  // draw shape
 	  ctx.fillStyle = radgrad;
 		ctx.fillRect(0, 0, 1000, 500);
+
+		if (this.health - this.decayRate <= this.decayRate) {
+			this.health = 0
+		} else {
+			this.health -= this.decayRate;
+		}
 	};
 
 })(Asteroids);
