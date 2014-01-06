@@ -31,11 +31,19 @@ var Asteroids = require('./Asteroids.js');
 
 var sessions = new Asteroids.Sessions(); // this guy will aid us in requestSessionsStatus
 
-// per heroku's stupid dumb smelly rules
-io.configure(function () {
-	io.set("transports", ["xhr-polling"]);
-	io.set("polling duration", 10);
-});
+if (app.get('env') != 'development') {
+
+	// unfortunately heroku lacks support for true sockets
+	console.log('setting sockets to long polling')
+
+	io.configure(function () {
+		io.set("transports", ["xhr-polling"]);
+		io.set("polling duration", 10);
+	});
+
+} else {
+	console.log('development environment detected, using true bidirectional sockets');
+}
 
 io.sockets.on('connection', function (socket) {
 	socket.emit('connectionSuccessful');

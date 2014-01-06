@@ -5,9 +5,3 @@ exports.index = function (req, res) {
 
   res.render('index', { title: "Aaronik's Asteroids", min: min });
 };
-
-exports.new = function (req, res) {
-	var uid = Asteroids.Store.uid(5);
-
-	res.send({uid: uid})
-}
