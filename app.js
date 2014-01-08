@@ -28,14 +28,11 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 
 var io = require('socket.io').listen(server);
 var Asteroids = require('./Asteroids.js');
-
 var sessions = new Asteroids.Sessions(); // this guy will aid us in requestSessionsStatus
 
 if (app.get('env') != 'development') {
 
 	// unfortunately heroku lacks support for true sockets
-	console.log('setting sockets to long polling')
-
 	io.configure(function () {
 		io.set("transports", ["xhr-polling"]);
 		io.set("polling duration", 10);
@@ -45,6 +42,7 @@ if (app.get('env') != 'development') {
 	console.log('development environment detected, using true bidirectional sockets');
 }
 
+// Begin socket listeners
 io.sockets.on('connection', function (socket) {
 	socket.emit('connectionSuccessful');
 
@@ -110,6 +108,7 @@ io.sockets.on('connection', function (socket) {
 	})
 });
 
+// socket helpers
 function setDecay (gameID) {
 	setTimeout(function() {
 		removeSession(gameID);

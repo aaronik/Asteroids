@@ -316,14 +316,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	ServerGame.prototype.detectBulletHits = function() {
-		var game = this;
+	// ServerGame.prototype.detectBulletHits = function() {
+	// 	var game = this;
 
-		this.collidedBullets().forEach(function(bullet){
-			game.removeBullet(bullet);
-			game.handleBulletHits(bullet);
-		})
-	};
+	// 	this.collidedBullets().forEach(function(bullet){
+	// 		game.removeBullet(bullet);
+	// 		game.handleBulletHits(bullet);
+	// 	})
+	// };
 
 	ServerGame.prototype.detectDestroyedObjects = function() {
 		var game = this;
