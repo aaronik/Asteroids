@@ -12,7 +12,5 @@
 -objects with gravity
 
 --- multiplayer ---
--game must be deterministic.  So every respawning of asteroids must be predetermined by server so it's the same on both clients
--should have 1p or 2p games.  1p is all client side.  maybe single player or multiplayer.
--app starts out with a SP or MP screen, with Asteroids as the title or something.
--would be awesome to not have separate JS for each.  Just a flag for single or multiplayer.
+-weird bullet action, pause action starts not from host of game, but from last person who joins
+-if no games exist, report so in the join random game function
