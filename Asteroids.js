@@ -168,6 +168,18 @@
 		}
 	};
 
+	Store.nudgers = function (count) {
+		var nudgers = [];
+		var nudger;
+
+		for (var i = 0; i < count; i++) {
+			nudger = (Math.random() * 0.4) + 0.8;
+			nudgers.push(nudger);
+		}
+
+		return nudgers;
+	}
+
 	// Store.randomRGB = function() {
 	// 	// will output a string like '123, 231, 111'
 	// 	var string = '';
@@ -232,6 +244,8 @@
 		this.color = opts.color || Store.randomColor();
 		this.health = opts.radius;
 		this.id = opts.id || null;
+		this.edgeCount = Asteroid.EDGE_COUNTS.sample();
+		this.edgeNudgers = Store.nudgers(2 * this.edgeCount);
 
 		MovingObject.call(this, opts.pos, opts.vel, opts.radius)
 	};
@@ -240,6 +254,7 @@
 
 	Asteroid.MAX_SPEED_MULTIPLIER = 1;
 	Asteroid.RADII = [40, 25, 10];
+	Asteroid.EDGE_COUNTS = [7, 8, 9, 10, 11, 12, 13, 14, 15];
 
 	Asteroid.maxSpeed = function (radius) {
 		radius = radius || Asteroid.RADII[0];
@@ -289,8 +304,29 @@
 	// };
 
 	Asteroid.prototype.draw = function (ctx) {
+		var x = this.pos[0];
+		var y = this.pos[1];
+		var vertX;
+		var vertY;
+		var nudgeX;
+		var nudgeY;
+
+		ctx.beginPath();
+		vertX = (x + this.edgeNudgers[0] * this.radius * Math.cos(0));
+		vertY = (y + this.edgeNudgers[1] * this.radius * Math.sin(0));
+		ctx.moveTo(vertX, vertY);
+
+		for (var i = 1; i <= this.edgeCount; i++) {
+			nudgeX = this.edgeNudgers[i * 2];
+			nudgeY = this.edgeNudgers[(i * 2) + 1];
+			vertX = (x + nudgeX * this.radius * Math.cos(i * 2 * Math.PI / this.edgeCount));
+			vertY = (y + nudgeY * this.radius * Math.sin(i * 2 * Math.PI / this.edgeCount));
+	    ctx.lineTo(vertX, vertY);
+		}
+
 		ctx.fillStyle = this.color;
-		
+		ctx.fill();
+
 	}
 
 	Asteroid.prototype.explode = function() {
