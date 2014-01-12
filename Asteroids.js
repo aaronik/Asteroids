@@ -402,9 +402,9 @@
 		}
 	}
 
-	Ship.prototype.fire = function() {
+	Ship.prototype.fire = function (bulletOpts) {
 		this.recoil();
-		return new global.Bullet(this);
+		return new global.Bullet(this, bulletOpts);
 	}
 
 	Ship.prototype.recoil = function() {
@@ -474,7 +474,7 @@
 		var pos = opts.pos || ship.pos.slice(0);
 		var color = opts.color || 'red';
 		this.damage = opts.damage || ship.damage;
-		this.id = opts.id || null;
+		this.id = opts.id || null; // assigned in moving_object.js
 
 		MovingObject.call(this, pos, vel, null, color)
 	}
@@ -566,10 +566,10 @@
 		this.ships.remove(ship);
 	}
 
-	ServerGame.prototype.fireShip = function (ship, opts) {
-		var ship = ship || this.get(opts.shipID);
-		ship.fire();
-		var bullet = new global.Bullet(ship, opts);
+	ServerGame.prototype.fireShip = function (ship, bulletOpts) {
+		var ship = ship || this.get(bulletOpts.shipID);
+		ship.fire(bulletOpts);
+		var bullet = new global.Bullet(ship, bulletOpts);
 		this.bullets.push(bullet);
 	};
 
@@ -760,7 +760,6 @@
 			id: bullet.id
 		}
 
-		// I like this b/c the games don't sync bullets
 		this.serverResponder.removeBullet(opts);
 	};
 
@@ -986,7 +985,7 @@
 			})
 
 			// game
-			socket.on('createBullet', function (bulletOpts) {
+			socket.on('fireShip', function (bulletOpts) {
 				game.fireShip(null, bulletOpts);
 				sr.fireShip(socket, bulletOpts);
 			})
@@ -1076,8 +1075,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.broadcast('addAsteroid', asteroidOpts);
 	}
 
-	ServerResponder.prototype.fireShip = function (socket, data) {
-		this.relay(socket, 'fireShip', data);
+	ServerResponder.prototype.fireShip = function (socket, bulletOpts) {
+		this.relay(socket, 'fireShip', bulletOpts);
 	}
 
 	ServerResponder.prototype.addShip = function (socket, shipOpts) {

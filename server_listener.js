@@ -33,7 +33,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			})
 
 			// game
-			socket.on('createBullet', function (bulletOpts) {
+			socket.on('fireShip', function (bulletOpts) {
 				game.fireShip(null, bulletOpts);
 				sr.fireShip(socket, bulletOpts);
 			})

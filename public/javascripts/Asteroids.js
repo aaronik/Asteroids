@@ -882,9 +882,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.background = new global.Background(this);
 	};
 
-	GameMP.prototype.fireForeignShip = function (shipID) {
-		var ship = this.get(shipID);
-		var bullet = ship.fire();
+	GameMP.prototype.fireForeignShip = function (bulletOpts) {
+		var ship = this.get(bulletOpts.shipID);
+		var bullet = ship.fire(bulletOpts);
 		this.bullets.push(bullet);
 	};
 
@@ -892,14 +892,15 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var bullet = ship.fire();
 		this.bullets.push(bullet);
 
-		var opts = {
+		var bulletOpts = {
 			pos: bullet.pos,
 			vel: bullet.vel,
 			orientation: bullet.orientation,
+			id: bullet.id,
 			shipID: ship.id
 		}
 
-		this.socket.emit('createBullet', opts)
+		this.socket.emit('fireShip', bulletOpts)
 	}
 
 	GameMP.prototype.powerShip = function (ship) {
@@ -949,6 +950,18 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var ship = this.get(dampenOpts.shipID);
 
 		ship.dampen();
+	}
+
+	GameMP.prototype.removeBullet = function (bullet) {
+		this.bullets.remove(bullet);
+	};
+
+	GameMP.prototype.foreignRemoveBullet = function (bulletOpts) {
+		var id = bulletOpts.id;
+		var bullet = this.get(id);
+		console.log('removing bullet (from gamemp # foreignRemoveBullet)');
+		console.log(bullet);
+		this.removeBullet(bullet);
 	}
 
 	GameMP.prototype.draw = function() {
@@ -1188,16 +1201,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	GameMP.prototype.damageAsteroid = function(asteroid, damage) {
 		asteroid.health -= damage;
 	};
-
-	GameMP.prototype.removeBullet = function (bullet) {
-		this.bullets.remove(bullet);
-	};
-
-	GameMP.prototype.foreignRemoveBullet = function (bulletOpts) {
-		var id = bulletOpts.id;
-		var bullet = this.get(id);
-		this.bullets.remove(bullet);
-	}
 
 	// GameMP.prototype.repopulateAsteroids = function() {
 	// 		this.addAsteroids(5);
@@ -1517,9 +1520,9 @@ var Asteroids = (this.Asteroids || {});
 		}
 	}
 
-	Ship.prototype.fire = function() {
+	Ship.prototype.fire = function (bulletOpts) {
 		this.recoil();
-		return new global.Bullet(this);
+		return new global.Bullet(this, bulletOpts);
 	}
 
 	Ship.prototype.recoil = function() {
@@ -1719,7 +1722,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var pos = opts.pos || ship.pos.slice(0);
 		var color = opts.color || 'red';
 		this.damage = opts.damage || ship.damage;
-		this.id = opts.id || null;
+		this.id = opts.id || null; // assigned in moving_object.js
 
 		MovingObject.call(this, pos, vel, null, color)
 	}
@@ -2266,9 +2269,9 @@ var SocketListener = Asteroids.SocketListener = {};
 			game.explodeAsteroid(asteroid);
 		})
 
-		socket.on('fireShip', function (data) {
+		socket.on('fireShip', function (bulletOpts) {
 			debug('firing foreign ship')
-			game.fireForeignShip(data.shipID);
+			game.fireForeignShip(bulletOpts);
 		})
 
 		socket.on('addShip', function (shipOpts) {

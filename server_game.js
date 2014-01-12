@@ -48,10 +48,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.ships.remove(ship);
 	}
 
-	ServerGame.prototype.fireShip = function (ship, opts) {
-		var ship = ship || this.get(opts.shipID);
-		ship.fire();
-		var bullet = new global.Bullet(ship, opts);
+	ServerGame.prototype.fireShip = function (ship, bulletOpts) {
+		var ship = ship || this.get(bulletOpts.shipID);
+		ship.fire(bulletOpts);
+		var bullet = new global.Bullet(ship, bulletOpts);
 		this.bullets.push(bullet);
 	};
 
@@ -242,7 +242,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			id: bullet.id
 		}
 
-		// I like this b/c the games don't sync bullets
 		this.serverResponder.removeBullet(opts);
 	};
 

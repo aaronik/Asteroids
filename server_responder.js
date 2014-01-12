@@ -20,8 +20,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.broadcast('addAsteroid', asteroidOpts);
 	}
 
-	ServerResponder.prototype.fireShip = function (socket, data) {
-		this.relay(socket, 'fireShip', data);
+	ServerResponder.prototype.fireShip = function (socket, bulletOpts) {
+		this.relay(socket, 'fireShip', bulletOpts);
 	}
 
 	ServerResponder.prototype.addShip = function (socket, shipOpts) {
