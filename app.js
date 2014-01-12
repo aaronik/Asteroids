@@ -90,7 +90,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on('jrmpg', function (data) {
 		var gameID = sessions.randomSession();
 		if (!gameID) {
-			socket.emit('jrmpgFailure', { error: 'No games to join' });
+			socket.emit('jrmpgFailure', { error: 'Sorry, no games to join!' });
 			return
 		}
 		console.log('jrmpg called, gameID retrieved was ' + gameID);

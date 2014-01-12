@@ -12,6 +12,4 @@
 -objects with gravity
 
 --- multiplayer ---
--fix bullets changing color / not being the right color anyways / make them have nice colors
 -change shape of asteroids, ship?
--fix ships moving in draw queue problem
