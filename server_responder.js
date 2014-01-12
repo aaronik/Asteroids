@@ -8,10 +8,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	var Store = global.Store
 
-	var ServerResponder = global.ServerResponder = function (socket, io, gameID) {
+	var ServerResponder = global.ServerResponder = function (socket, io, gameID, sessions) {
 		this.sockets = [socket];
 		this.gameID = gameID;
 		this.io = io;
+		this.sessions = sessions;
 		// this.game assigned in server_game.js;
 	}
 
@@ -59,6 +60,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var fullStateArray = this.game.getFullState();
 		var fullStateObject = { fullStateArray: fullStateArray }
 		this.broadcast('fullState', fullStateObject);
+	}
+
+	ServerResponder.prototype.testSuccess = function() {
+		this.broadcast('testSuccess');
+	}
+
+	ServerResponder.prototype.requestSessionsStatus = function() {
+		this.broadcast('sessionsStatus', this.sessions.keys());
 	}
 
 

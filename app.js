@@ -57,7 +57,7 @@ io.sockets.on('connection', function (socket) {
 		var height = data.height;
 
 		sessions['serverListener' + gameID] = sl = new Asteroids.ServerListener(socket, io, gameID);
-		sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket, io, gameID);
+		sessions['serverResponder' + gameID] = sr = new Asteroids.ServerResponder(socket, io, gameID, sessions);
 		sessions['serverGame' + gameID] = new Asteroids.ServerGame(sl, sr, width, height);
 		sessions[gameID] = true;
 
@@ -90,7 +90,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on('jrmpg', function (data) {
 		var gameID = sessions.randomSession();
 		if (!gameID) {
-			socket.emit('couldntFindGames');
+			socket.emit('jrmpgFailure', { error: 'No games to join' });
 			return
 		}
 		console.log('jrmpg called, gameID retrieved was ' + gameID);
@@ -101,7 +101,7 @@ io.sockets.on('connection', function (socket) {
 		sessions['serverListener' + gameID].addSocket(socket);
 
 		// socket.set('gameID', gameID); // works?
-		socket.emit('jrmpgResponse', { gameID: gameID })
+		socket.emit('jrmpgSuccess', { gameID: gameID })
 		socket.broadcast.to(gameID).emit('foreignJoin')
 
 		setDecay(gameID);

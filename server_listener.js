@@ -20,23 +20,16 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		this.sockets.forEach(function(socket){
 
-			removeListeners(socket, [
-				'test',
-				'createBullet',
-				'addShip',
-				'powerShip',
-				'turnShip',
-				'dampenShip',
-				'requestFullState',
-				'shipState',
-				'pause',
-				'disconnect',
-				'connection'
-			])
+			socket.removeAllListeners();
 
 			socket.on('test', function (data) {
 				console.log('test call received');
-				that.broadcast('testSuccess');
+				sr.testSuccess();
+			})
+
+			socket.on('requestSessionsStatus', function() {
+				console.log('emitting sessions status');
+				sr.requestSessionsStatus();
 			})
 
 			// game
@@ -106,19 +99,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.sockets.remove(socket);
 		this.initialize();
 		this.game.removeShip(socket.shipID);
-	}
-
-	ServerListener.prototype.broadcast = function (event, object) {
-		this.io.sockets.in(this.gameID).emit(event, object);
 	};
-
-	function removeListeners(socket, listenerArray) {
-		listenerArray.forEach(function (listener) {
-			socket.removeListener(listener, function(){});
-		})
-	}
-
-
-
 
 })(Asteroids)

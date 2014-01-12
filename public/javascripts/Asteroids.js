@@ -830,6 +830,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.dropShadowColor = 'red';
 		this.level = 1;
 		this._counter = 0;
+		this.sendStateRate = 3;
 		//this.socket assigned in init.js;
 		//this.shipID assigned in addShip;
 	};
@@ -1302,7 +1303,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	// };
 
 	GameMP.prototype.detectSendState = function() {
-		if (this._counter % 3 == 0) this.sendState();
+		if (this._counter % this.sendStateRate == 0) this.sendState();
 	}
 
 	GameMP.prototype.detect = function() {
@@ -1923,13 +1924,15 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			}
 		})
 
-		socket.on('jrmpgResponse', function (data) {
+		socket.on('jrmpgSuccess', function (data) {
 			console.log('successfully joined room: ' + data.gameID);
 			game.gameID = data.gameID;
 		})
 
-		socket.on('couldntFindGames', function() {
-			console.log('Whoops!  The server couldn\'t find any games!')
+		socket.on('jrmpgFailure', function (data) {
+			console.log(data.error)
+			alert(data.error);
+			window.location = document.URL;
 		})
 	};
 

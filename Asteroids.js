@@ -973,23 +973,16 @@
 
 		this.sockets.forEach(function(socket){
 
-			removeListeners(socket, [
-				'test',
-				'createBullet',
-				'addShip',
-				'powerShip',
-				'turnShip',
-				'dampenShip',
-				'requestFullState',
-				'shipState',
-				'pause',
-				'disconnect',
-				'connection'
-			])
+			socket.removeAllListeners();
 
 			socket.on('test', function (data) {
 				console.log('test call received');
-				that.broadcast('testSuccess');
+				sr.testSuccess();
+			})
+
+			socket.on('requestSessionsStatus', function() {
+				console.log('emitting sessions status');
+				sr.requestSessionsStatus();
 			})
 
 			// game
@@ -1059,20 +1052,7 @@
 		this.sockets.remove(socket);
 		this.initialize();
 		this.game.removeShip(socket.shipID);
-	}
-
-	ServerListener.prototype.broadcast = function (event, object) {
-		this.io.sockets.in(this.gameID).emit(event, object);
 	};
-
-	function removeListeners(socket, listenerArray) {
-		listenerArray.forEach(function (listener) {
-			socket.removeListener(listener, function(){});
-		})
-	}
-
-
-
 
 })(Asteroids);// OK server_game.js holds all the state, server_listener.js listens for client speak, server_responder.js will give the clients what they ask for.  Not totally sure if this file will be necessary, it may be able to be combined into the server_game.  Either way, it'll interact heavily with the server_game.
 
@@ -1084,10 +1064,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	var Store = global.Store
 
-	var ServerResponder = global.ServerResponder = function (socket, io, gameID) {
+	var ServerResponder = global.ServerResponder = function (socket, io, gameID, sessions) {
 		this.sockets = [socket];
 		this.gameID = gameID;
 		this.io = io;
+		this.sessions = sessions;
 		// this.game assigned in server_game.js;
 	}
 
@@ -1135,6 +1116,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var fullStateArray = this.game.getFullState();
 		var fullStateObject = { fullStateArray: fullStateArray }
 		this.broadcast('fullState', fullStateObject);
+	}
+
+	ServerResponder.prototype.testSuccess = function() {
+		this.broadcast('testSuccess');
+	}
+
+	ServerResponder.prototype.requestSessionsStatus = function() {
+		this.broadcast('sessionsStatus', this.sessions.keys());
 	}
 
 
