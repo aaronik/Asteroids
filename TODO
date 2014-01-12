@@ -12,5 +12,6 @@
 -objects with gravity
 
 --- multiplayer ---
--weird bullet action, pause action starts not from host of game, but from last person who joins
--if no games exist, report so in the join random game function
+-fix bullets changing color / not being the right color anyways / make them have nice colors
+-change shape of asteroids, ship?
+-fix ships moving in draw queue problem

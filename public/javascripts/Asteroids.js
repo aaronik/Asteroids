@@ -846,22 +846,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.shipID = ship.id;
 		this.ships.push(ship);
 
-		var opts = {
-			id: ship.id,
-			pos: ship.pos,
-			vel: ship.vel,
-			orientation: ship.orientation,
-			rotateSpeed: ship.rotateSpeed,
-			impulse: ship.impulse,
-			dampenRate: ship.dampenRate,
-			fireFrequency: ship.fireFrequency,
-			health: ship.health,
-			damage: ship.damage,
-			kineticBullets: ship.kineticBullets,
-			bulletWeight: ship.bulletWeight
-		}
+		var shipOpts = ship.getState();
 
-		this.socket.emit('addShip', opts);
+		this.socket.emit('addShip', shipOpts);
 	};
 
 	GameMP.prototype.addForeignShip = function (shipOpts) {
@@ -892,13 +879,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var bullet = ship.fire();
 		this.bullets.push(bullet);
 
-		var bulletOpts = {
-			pos: bullet.pos,
-			vel: bullet.vel,
-			orientation: bullet.orientation,
-			id: bullet.id,
-			shipID: ship.id
-		}
+		var bulletOpts = bullet.getState();
 
 		this.socket.emit('fireShip', bulletOpts)
 	}
@@ -1379,9 +1360,27 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	}
 
 	GameMP.prototype.handleFullStateShip = function (stateObj) {
+		var game = this;
+
+		// handle all ships but our own, which we won't be updating
 		if (stateObj.id != this.shipID) {
 			this.ships.push(new global.Ship(stateObj))
 		}
+
+		// make sure all ships stay in same order for better drawing
+		var localShip = this.ships.shift();
+		var shipIDs = this.ships.map( function (ship) {
+			return ship.id
+		})
+
+		shipIDs.sort();
+		console.log(shipIDs)
+
+		this.ships = shipIDs.map( function (shipID) {
+			return game.get(shipID);
+		})
+
+		this.ships.unshift(localShip);
 	}
 
 	GameMP.prototype.handleFullStateLevel = function (stateObj) {
@@ -1720,16 +1719,17 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.orientation = opts.orientation || ship.orientation.slice(0);
 		var vel = opts.vel || ship.vel.add(ship.orientation.scale(10));
 		var pos = opts.pos || ship.pos.slice(0);
-		var color = opts.color || 'red';
+		this.color = opts.color || ship.borderColor || 'red';
 		this.damage = opts.damage || ship.damage;
 		this.id = opts.id || null; // assigned in moving_object.js
 
-		MovingObject.call(this, pos, vel, null, color)
+		MovingObject.call(this, pos, vel, null)
 	}
 
 	Store.inherits(Bullet, MovingObject)
 
 	Bullet.prototype.draw = function (ctx) {
+		console.log(this.color)
 		var start = this.pos;
 		var end = this.pos.add(this.orientation.scale(10))
 
@@ -1758,7 +1758,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			id: this.id,
 			orientation: this.orientation,
 			damage: this.damage,
-			color: this.color
+			color: this.color,
+			shipID: this.ship.id
 		}
 
 		return state;
@@ -1939,18 +1940,18 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	GameStarter.prototype.createSocket = function (callback) {
-		var socket = io.connect('/');
-		socket.on('connect', function(){
-			if (!this.started) {
-				this.started = true;
-				Asteroids.SocketListener.startListening(socket);
-				callback(socket);
-			}
-		});
+	// GameStarter.prototype.createSocket = function (callback) {
+	// 	var socket = io.connect('/');
+	// 	socket.on('connect', function(){
+	// 		if (!this.started) {
+	// 			this.started = true;
+	// 			Asteroids.SocketListener.startListening(socket);
+	// 			callback(socket);
+	// 		}
+	// 	});
 		
-		window.socket = socket;
-	};
+	// 	window.socket = socket;
+	// };
 
 	GameStarter.prototype.createCanvas = function() {
 		var canvasWrapper = document.createElement('div');
@@ -2037,7 +2038,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		ctx.fillText('Level:  ' + this.game.level, 20, startHeight);
 		ctx.fillText('Status:  ' + this.game.status, 20, h1);
 		ctx.fillText('Game:  ' + this.game.gameID, 20, h2);
-
 
 		for (var i = 0; i < this.game.ships.length; i++) {
 			var y = h2 + lineHeight + (i * lineHeight);

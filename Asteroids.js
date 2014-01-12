@@ -472,16 +472,17 @@
 		this.orientation = opts.orientation || ship.orientation.slice(0);
 		var vel = opts.vel || ship.vel.add(ship.orientation.scale(10));
 		var pos = opts.pos || ship.pos.slice(0);
-		var color = opts.color || 'red';
+		this.color = opts.color || ship.borderColor || 'red';
 		this.damage = opts.damage || ship.damage;
 		this.id = opts.id || null; // assigned in moving_object.js
 
-		MovingObject.call(this, pos, vel, null, color)
+		MovingObject.call(this, pos, vel, null)
 	}
 
 	Store.inherits(Bullet, MovingObject)
 
 	Bullet.prototype.draw = function (ctx) {
+		console.log(this.color)
 		var start = this.pos;
 		var end = this.pos.add(this.orientation.scale(10))
 
@@ -510,7 +511,8 @@
 			id: this.id,
 			orientation: this.orientation,
 			damage: this.damage,
-			color: this.color
+			color: this.color,
+			shipID: this.ship.id
 		}
 
 		return state;
