@@ -1,16 +1,15 @@
+-ship to be cool shape?
+-high scores DB for multiplayer games
+-high score personal cookies for single player game
 -harden MP from hacking.
  -socket.emit('createSession') w/o correct object and the server shuts down
 -add 'influence' to Vector library and slowly influence objects towards gravity or sinks, make stars start to go by
 -powerups (cone shoot, powerful shots, faster engine, better inertial dampeners
--gameover
 -points - steady increase w/ timer, maybe not points but cash - use cash to buy powerups?
 -enemy mothership
 -sound FX
 -cool things encountered - when all stars move in one direction but with a nudge, the effect is sweet.  When explodingtext is called but the screen is not cleared, it's sweet.
 - ctx.fillRect() and ctx.createRadialGradient do some cool stuff when creating many on top of eachtoerh in the same place.  Like a beacon.  
 -add dev_options to readout - will have asteroids array, noExplodeAsteroids array, bullets, what else?
--objects with gravity
 
 --- multiplayer ---
--asteroids to spin
--make sure all new relevant asteroid info is sent up to the server and interpreted correctly when coming down from said server

@@ -3,6 +3,7 @@ module.exports = function(grunt) {
 var jsClientSourceFiles = [ 
   'lib/javascripts/array.js',
   'lib/javascripts/store.js',
+  'lib/javascripts/cookie.js',
   'lib/javascripts/moving_object.js',
   'lib/javascripts/asteroid.js',
   'lib/javascripts/game.js',

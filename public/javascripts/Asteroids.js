@@ -18,6 +18,10 @@
   A.normalize = (A.normalize || function() {
     var mag = this.mag();
 
+    if (mag == 0) {
+      throw new Error('can\'t normalize zero vector');
+    }
+    
     return this.map(function(el){return el / mag});
   });
 
@@ -116,8 +120,31 @@
     return returnArray
   });
 
-  A.nudge = (A.nudge || function() {
-    return this.rotate((Math.random() / 8) * [-1, 1].sample());
+  A.nudge = (A.nudge || function (nudgeFactor) {
+    var nudgeFactor = nudgeFactor || 0.125;
+
+    return this.rotate(Math.random() * nudgeFactor * [-1, 1].sample());
+  });
+
+  A.direction = (A.direction || function (foreignLoc) {
+    return foreignLoc.subtract(this).normalize();
+  });
+
+  A.influence = (A.influence || function (direction, amount) {
+    // direction is a this.length dimensional vector / array
+
+    return this.add(direction.normalize().scale(amount));
+  });
+
+  A.gravitate = (A.gravitate || function (location, foreignMass, localMass) {
+    // call this on a velocity vector, influence it towards foreignMass at location
+
+    var G = 0.0000000000667;
+    var dist = this.distance(location);
+    var forceScalar = G * foreignMass * localMass / (dist * dist);
+    var forceVector = this.direction(location).scale(forceScalar);
+
+    return this.add(forceVector);
   });
   
 })(Array.prototype);
@@ -194,6 +221,32 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	// 	return string;
 	// }
 })(Asteroids)
+var Asteroids = this.Asteroids = (this.Asteroids || {});
+
+(function(global) {
+	var Cookies = global.Cookies = {
+		_getCookieObject: function() {
+			var kvo = {};
+			var kva;
+
+			document.cookie.split(';').forEach(function (kv) {
+				kva = kv.split('=');
+				kvo[kva[0]] = kva[1];
+			})
+
+			return kvo;
+		},
+
+		get: function (cookieName) {
+			return Cookies._getCookieObject()[cookieName];
+		},
+
+		set: function (cookieName, cookieValue) {
+			document.cookie = cookieName + "=" + cookieValue;
+		}
+	}
+
+})(Asteroids);
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function (global){
