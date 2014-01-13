@@ -59,7 +59,7 @@ footer {
 #session-request {
 	margin-left: auto;
 	margin-right: auto;
-	margin-top: 10%;
+	margin-top: 5%;
 	width: 15%;
 	height: 10%;
 	background-color: $background-color;
@@ -92,4 +92,20 @@ footer {
 canvas {
 	border: 13px dashed green;
 	transition: all 0.1s;
+}
+
+// Game Over
+#restart-screen-wrapper {
+	position: absolute;
+	top: 30%;
+	width: 100%;
+}
+
+#restart-screen {
+	width: 30%;
+}
+
+#restart-screen:hover {
+	box-shadow: inset 0px 0px 20px 10px red;
+	color: red;
 }

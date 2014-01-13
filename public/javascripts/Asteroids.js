@@ -442,14 +442,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			ep.draw(game.ctx);
 		})
 
-		// asteroids
-		this.asteroids.forEach(function(asteroid){
-			asteroid.draw(game.ctx);
-		})
-
 		// bullets
 		this.bullets.forEach(function(bullet){
 			bullet.draw(game.ctx);
+		})
+
+		// asteroids
+		this.asteroids.forEach(function(asteroid){
+			asteroid.draw(game.ctx);
 		})
 
 		// ship
@@ -613,7 +613,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		this.bullets.forEach(function(bullet){
 			game.asteroids.forEach(function(asteroid){
-				if (bullet.isCollidedWithAsteroid(asteroid)) {
+				if (bullet.isCollidedWithRadialObject(asteroid)) {
 					collisions.push([asteroid, bullet]);
 				}
 			})
@@ -970,9 +970,33 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	GameMP.prototype.foreignRemoveBullet = function (bulletOpts) {
 		var id = bulletOpts.id;
 		var bullet = this.get(id);
-		console.log('removing bullet (from gamemp # foreignRemoveBullet)');
-		console.log(bullet);
 		this.removeBullet(bullet);
+	}
+
+	GameMP.prototype.foreignHitShip = function (opts) {
+		var ship = this.get(opts.shipID);
+		var damage = opts.damage;
+
+		ship.health -= damage;
+	}
+
+	GameMP.prototype.foreignDestroyedShip = function (shipIDOpt) {
+		var ship = this.get(shipIDOpt.id);
+
+		if (this.shipID === ship.id) {
+			this.lost();
+		} else {
+			this.ships.remove(ship);
+			this.announce('+ 40!!');
+			this.ships[0].health += 40;
+		}
+	}
+
+	GameMP.prototype.lost = function() {
+		this.stop();
+		this.announce('You\'ve lost.', true);
+		this.pause = null;
+		global.Visuals.restartScreen();
 	}
 
 	GameMP.prototype.draw = function() {
@@ -989,14 +1013,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			ep.draw(game.ctx);
 		})
 
-		// asteroids
-		this.asteroids.forEach(function(asteroid){
-			asteroid.draw(game.ctx);
-		})
-
 		// bullets
 		this.bullets.forEach(function(bullet){
 			bullet.draw(game.ctx);
+		})
+
+		// asteroids
+		this.asteroids.forEach(function(asteroid){
+			asteroid.draw(game.ctx);
 		})
 
 		// ship
@@ -1160,7 +1184,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		this.bullets.forEach(function(bullet){
 			game.asteroids.forEach(function(asteroid){
-				if (bullet.isCollidedWithAsteroid(asteroid)) {
+				if (bullet.isCollidedWithRadialObject(asteroid)) {
 					asteroids.push(asteroid);
 				}
 			})
@@ -1175,7 +1199,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		this.bullets.forEach(function(bullet){
 			game.asteroids.forEach(function(asteroid){
-				if (bullet.isCollidedWithAsteroid(asteroid)) {
+				if (bullet.isCollidedWithRadialObject(asteroid)) {
 					bullets.push(bullet);
 				}
 			})
@@ -1392,7 +1416,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	GameMP.prototype.handleFullStateShip = function (stateObj) {
 		var game = this;
 
-		// handle all ships but our own, which we won't be updating
+		// our own ship must be updated differently to prevent choppiness
 		if (stateObj.id != this.shipID) {
 			this.ships.push(new global.Ship(stateObj))
 		}
@@ -1404,7 +1428,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 
 		shipIDs.sort();
-		console.log(shipIDs)
 
 		this.ships = shipIDs.map( function (shipID) {
 			return game.get(shipID);
@@ -1759,7 +1782,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	Store.inherits(Bullet, MovingObject)
 
 	Bullet.prototype.draw = function (ctx) {
-		console.log(this.color)
 		var start = this.pos;
 		var end = this.pos.add(this.orientation.scale(10))
 
@@ -1771,7 +1793,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		ctx.stroke();
 	}
 
-	Bullet.prototype.isCollidedWithAsteroid = function (asteroid) {
+	Bullet.prototype.isCollidedWithRadialObject = function (asteroid) {
 		if (this.pos.distance(asteroid.pos) <= asteroid.radius) {
 			return true;
 		} else {
@@ -1808,6 +1830,20 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		setTimeout(function(){
 			canvas.setAttribute('style', 'transition: all 0.1s');
 		}, 100)
+	};
+
+	Visuals.restartScreen = function() {
+		var that = this;
+
+		var wrapper = document.getElementById('restart-screen-wrapper');
+		var el = document.getElementById('restart-screen');
+
+		// make it visible
+		wrapper.setAttribute('style', 'display:block;');
+
+		el.onclick = function() {
+			window.location = document.URL;
+		}
 	};
 
 	Visuals.fadeOut = function (domEl, stepValue, callback) {
@@ -1970,19 +2006,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 	};
 
-	// GameStarter.prototype.createSocket = function (callback) {
-	// 	var socket = io.connect('/');
-	// 	socket.on('connect', function(){
-	// 		if (!this.started) {
-	// 			this.started = true;
-	// 			Asteroids.SocketListener.startListening(socket);
-	// 			callback(socket);
-	// 		}
-	// 	});
-		
-	// 	window.socket = socket;
-	// };
-
 	GameStarter.prototype.createCanvas = function() {
 		var canvasWrapper = document.createElement('div');
 		canvasWrapper.id = 'canvas-wrapper';
@@ -1997,10 +2020,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return canvas;
 	};
 
-	GameStarter.prototype.createGame = function (canvas) {
-		var game = new global.GameMP(canvas);
-		window.game = game;
-	}
+	// GameStarter.prototype.createGame = function (canvas) {
+	// 	var game = new global.GameMP(canvas);
+	// 	window.game = game;
+	// }
 
 	GameStarter.prototype.createRequestScreen = function() {
 		var that = this;
@@ -2324,6 +2347,16 @@ var SocketListener = Asteroids.SocketListener = {};
 
 		socket.on('dampenForeignShip', function (dampenOpts) {
 			game.dampenForeignShip(dampenOpts);
+		})
+
+		socket.on('foreignHitShip', function (opts) {
+			debug('foreignHitShip');
+			game.foreignHitShip(opts);
+		})
+
+		socket.on('destroyedShip', function (shipIDOpt) {
+			debug('destroyedShip');
+			game.foreignDestroyedShip(shipIDOpt);
 		})
 
 		socket.on('levelUp', function() {

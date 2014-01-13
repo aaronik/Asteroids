@@ -512,7 +512,6 @@
 	Store.inherits(Bullet, MovingObject)
 
 	Bullet.prototype.draw = function (ctx) {
-		console.log(this.color)
 		var start = this.pos;
 		var end = this.pos.add(this.orientation.scale(10))
 
@@ -524,7 +523,7 @@
 		ctx.stroke();
 	}
 
-	Bullet.prototype.isCollidedWithAsteroid = function (asteroid) {
+	Bullet.prototype.isCollidedWithRadialObject = function (asteroid) {
 		if (this.pos.distance(asteroid.pos) <= asteroid.radius) {
 			return true;
 		} else {
@@ -650,25 +649,25 @@
 		this.clearOOBBullets();
 	}
 
-	ServerGame.prototype.clearOOBAsteroids = function() { // substituted for wrap around
-		var posX;
-		var posY;
-		var as;
+	// ServerGame.prototype.clearOOBAsteroids = function() { // substituted for wrap around
+	// 	var posX;
+	// 	var posY;
+	// 	var as;
 
-		for(var i = 0; i < this.asteroids.length; i++){
-			as = this.asteroids[i];
+	// 	for(var i = 0; i < this.asteroids.length; i++){
+	// 		as = this.asteroids[i];
 
-			posX = as.pos[0];
-			posY = as.pos[1];
+	// 		posX = as.pos[0];
+	// 		posY = as.pos[1];
 
 
-			if ((posX - as.RADIUS > this.WIDTH || posX + as.RADIUS < 0) || 
-				(posY - as.RADIUS > this.HEIGHT || posY + as.RADIUS < 0)) {
-				this.asteroids.splice(i, 1);
-				this.addAsteroids(1);
-			}
-		}
-	};
+	// 		if ((posX - as.RADIUS > this.WIDTH || posX + as.RADIUS < 0) || 
+	// 			(posY - as.RADIUS > this.HEIGHT || posY + as.RADIUS < 0)) {
+	// 			this.asteroids.splice(i, 1);
+	// 			this.addAsteroids(1);
+	// 		}
+	// 	}
+	// };
 
 	ServerGame.prototype.clearOOBBullets = function() {
 		var bullet;
@@ -712,6 +711,8 @@
 	};
 
 	ServerGame.prototype.asteroidCollisionPairs = function() {
+		// when asteroids are collided with eachother
+
 		var collisions = [];
 
 		for (var i = 0; i < this.asteroids.length; i++) {
@@ -735,7 +736,7 @@
 
 		this.bullets.forEach(function(bullet){
 			game.asteroids.forEach(function(asteroid){
-				if (bullet.isCollidedWithAsteroid(asteroid)) {
+				if (bullet.isCollidedWithRadialObject(asteroid)) {
 					collisions.push([asteroid, bullet]);
 				}
 			})
@@ -818,10 +819,28 @@
 		ship.health -= asteroid.radius;
 	};
 
+	ServerGame.prototype.handleHitShip = function (ship, bullet) {
+		ship.health -= bullet.damage;
+		this.removeBullet(bullet);
+
+		var opts = {
+			shipID: ship.id,
+			damage: bullet.damage
+		}
+
+		this.serverResponder.hitShip(opts)
+	}
+
 	ServerGame.prototype.handleAsteroidBulletCollisions = function (as, bullet) {
 		this.damageAsteroid(as, bullet.damage);
 		this.removeBullet(bullet);
-	};
+	}
+
+	ServerGame.prototype.handleDestroyedShip = function (ship) {
+		this.ships.remove(ship);
+
+		this.serverResponder.handleDestroyedShip({ id: ship.id })
+	}
 
 	ServerGame.prototype.detectCollidingAsteroids = function() {
 		var game = this;
@@ -841,7 +860,7 @@
 		})
 	};
 
-	ServerGame.prototype.detectHitShip = function() {
+	ServerGame.prototype.detectCollidedShip = function() {
 		var game = this;
 		var ship;
 		var as;
@@ -856,6 +875,23 @@
 			}
 		}
 	};
+
+	ServerGame.prototype.detectHitShip = function() {
+		var ship;
+		var bullet;
+
+		for (var i = 0; i < this.bullets.length; i++) {
+			for (var j = 0; j < this.ships.length; j++) {
+				bullet = this.bullets[i];
+				ship = this.ships[j];
+
+				if (bullet.isCollidedWithRadialObject(ship) && bullet.ship.id != ship.id) {
+					this.handleHitShip(ship, bullet);
+					return
+				}
+			}
+		}
+	}
 
 	ServerGame.prototype.detectAsteroidBulletCollisions = function() {
 		var game = this;
@@ -874,15 +910,25 @@
 	// 	})
 	// };
 
-	ServerGame.prototype.detectDestroyedObjects = function() {
+	ServerGame.prototype.detectDestroyedAsteroids = function() {
 		var game = this;
 
-		this.asteroids.forEach(function(asteroid){
+		this.asteroids.forEach(function (asteroid) {
 			if (asteroid.health <= 0) {
 				game.explodeAsteroid(asteroid);
 			}
 		});
 	};
+
+	ServerGame.prototype.detectDestroyedShips = function() {
+		var game = this;
+
+		this.ships.forEach(function (ship) {
+			if (ship.health <= 0) {
+				game.handleDestroyedShip(ship);
+			}
+		})
+	}
 
 	ServerGame.prototype.detectLevelChangeReady = function() {
 		if (this.asteroids.length == 0) {
@@ -897,11 +943,13 @@
 	ServerGame.prototype.detect = function() {
 		this.detectCollidingAsteroids();
 		this.detectAsteroidBulletCollisions();
-		this.detectHitShip();
-		this.detectDestroyedObjects();
+		this.detectCollidedShip();
+		this.detectDestroyedAsteroids();
+		this.detectDestroyedShips();
 		// this.detectExplodedTexts();
 		this.detectLevelChangeReady();
 		this.detectSendFullState();
+		this.detectHitShip();
 	};
 
 	ServerGame.prototype.sendFullState = function() {
@@ -1155,6 +1203,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerResponder.prototype.requestSessionsStatus = function() {
 		this.broadcast('sessionsStatus', this.sessions.keys());
+	}
+
+	ServerResponder.prototype.hitShip = function (opts) {
+		this.broadcast('foreignHitShip', opts);
+	}
+
+	ServerResponder.prototype.handleDestroyedShip = function (shipIDOpt) {
+		this.broadcast('destroyedShip', shipIDOpt);
 	}
 
 

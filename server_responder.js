@@ -70,6 +70,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.broadcast('sessionsStatus', this.sessions.keys());
 	}
 
+	ServerResponder.prototype.hitShip = function (opts) {
+		this.broadcast('foreignHitShip', opts);
+	}
+
+	ServerResponder.prototype.handleDestroyedShip = function (shipIDOpt) {
+		this.broadcast('destroyedShip', shipIDOpt);
+	}
+
 
 	// private (esque)
 	ServerResponder.prototype.broadcast = function (event, object) {
