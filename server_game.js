@@ -2,6 +2,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
 
+	var Store = global.Store;
+
 	var ServerGame = global.ServerGame = function(serverListener, serverResponder, width, height) {
 		this.serverListener = serverListener;
 		this.serverResponder = serverResponder;
@@ -21,6 +23,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this._counter = 0;
 		this.initialize();
 	};
+
+	Store.inherits(ServerGame, global.GlobalGame);
 
 	ServerGame.prototype.addAsteroids = function (numAsteroids) {
 		var asteroidOpts;
