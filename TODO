@@ -12,4 +12,5 @@
 -objects with gravity
 
 --- multiplayer ---
-
+-asteroids to spin
+-make sure all new relevant asteroid info is sent up to the server and interpreted correctly when coming down from said server
