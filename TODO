@@ -1,4 +1,4 @@
--bring games to OO
+-asteroids' fragments, when the asteroid explodes, to go in similar directions
 -add black hole
 -make movingObjects function
 -ship to be cool shape?
@@ -6,7 +6,6 @@
 -high score personal cookies for single player game
 -harden MP from hacking.
  -socket.emit('createSession') w/o correct object and the server shuts down
--add 'influence' to Vector library and slowly influence objects towards gravity or sinks, make stars start to go by
 -powerups (cone shoot, powerful shots, faster engine, better inertial dampeners
 -points - steady increase w/ timer, maybe not points but cash - use cash to buy powerups?
 -enemy mothership
