@@ -31,7 +31,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 
 	ServerGame.prototype.addShip = function (shipOpts) {
+		console.log(shipOpts)
+		console.log('##############')
 		this.ships.push(new global.Ship(shipOpts));
+		console.log(this.ships)
 	};
 
 	ServerGame.prototype.updateShip = function (shipOpts) {
@@ -133,6 +136,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.explodeAsteroid(asteroid);
 		// global.Visuals.hit(game.canvas);
 		ship.health -= asteroid.radius;
+
+		console.log('HANDLECOLLIDEDSHIP HAS BEEN CALLED')
+
 	};
 
 	ServerGame.prototype.handleHitShip = function (ship, bullet) {
@@ -149,25 +155,12 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerGame.prototype.handleDestroyedShip = function (ship) {
 		this.serverResponder.handleDestroyedShip({ id: ship.id })
+		console.log('HANDLEDESTROYEDSHIP CALLED')
+		console.log('***********************8')
+		console.log(this.ships)
 
 		this.ships.remove(ship);
 	}
-
-	ServerGame.prototype.detectCollidedShip = function() {
-		var game = this;
-		var ship;
-		var as;
-
-		for (var i = 0; i < this.ships.length; i++) {
-			for (var j = 0; j < this.asteroids.length; j++) {
-				ship = this.ships[i]; as = this.asteroids[j];
-
-				if (ship.isCollidedWith(as)) {
-					game.handleCollidedShip(ship, as);
-				}
-			}
-		}
-	};
 
 	ServerGame.prototype.detectHitShip = function() {
 		var ship;
@@ -178,7 +171,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 				bullet = this.bullets[i];
 				ship = this.ships[j];
 
-				if (bullet.isCollidedWithRadialObject(ship) && bullet.ship.id != ship.id) {
+				if (bullet.isCollidedWith(ship) && bullet.ship.id != ship.id) {
 					this.handleHitShip(ship, bullet);
 					return
 				}

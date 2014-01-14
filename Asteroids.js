@@ -15,86 +15,6 @@
     }
   })
 
-  A.normalize = (A.normalize || function() {
-    var mag = this.mag();
-
-    if (mag == 0) {
-      throw new Error('can\'t normalize zero vector');
-    }
-    
-    return this.map(function(el){return el / mag});
-  });
-
-  A.rotate = (A.rotate || function (rads) {
-    if (this.length != 2) {
-      return false
-    }
-
-    var rotatedArr = [];
-    rotatedArr.push(Math.cos(rads)*this[0] + Math.sin(rads)*this[1]);
-    rotatedArr.push(Math.cos(rads)*this[1] - Math.sin(rads)*this[0]);
-
-    return rotatedArr;
-  });
-
-  A.scale = (A.scale || function (mag) {
-    return this.map(function(el){return el * mag});
-  });
-
-  A.add = (A.add || function (vector) {
-    var result = [];
-
-    for (var i = 0; i < vector.length; i++) {
-      if (!this[i]) {
-        result.push(vector[i])
-      } else {
-        result.push(this[i] + vector[i])
-      }
-    }
-
-    return result;
-
-    return result;
-  });
-
-  A.subtract = (A.subtract || function (vector) {
-    var result = [];
-
-    for (var i = 0; i < vector.length; i++) {
-      if (!this[i]) {
-        result.push(-vector[i])
-      } else {
-        result.push(this[i] - vector[i])
-      }
-    }
-
-    return result;
-  });
-
-  A.pow = (A.pow || function (scalar) {
-    return this.map(function(el){
-      return Math.pow(el, scalar);
-    })
-  });
-
-  A.mag = (A.mag || function() {
-    var squares = this.map(function(el){return el * el});
-    var sumOfSquares = squares.reduce(function(sum, el){return sum += el});
-    return Math.sqrt(sumOfSquares);
-  });
-
-  A.distance = (A.distance || function (vector) {
-    if (this.length != vector.length) {
-      return false
-    }
-
-    var distX = this[0] - vector[0];
-    var distY = this[1] - vector[1];
-
-    //dist = sqrt(distX^2 + distY^2)
-    return Math.sqrt((distX * distX) + (distY * distY));
-  });
-
   A.remove = (A.remove || function (el) {
     for (var i = 0; i < this.length; i++) {
       if (el === this[i]) {
@@ -119,25 +39,131 @@
 
     return returnArray
   });
+  
+})(Array.prototype);;(function(global) {
+	// Warning.  This is a naive approach to inheriting from Array.  The special length properties no longer work correctly.  See http://perfectionkills.com/how-ecmascript-5-still-does-not-allow-to-subclass-an-array/ for a more detailed explanation.
 
-  A.nudge = (A.nudge || function (maxRadians) {
+	var Vector = global.Vector = function (arr) {
+		if (arr && arr.constructor == Array) {
+			this.push.apply(this, arr);
+		} else {
+			this.push.apply(this, arguments);
+		}
+	}
+
+	// class inheritance //
+	var Surrogate = function(){};
+	Surrogate.prototype = Array.prototype;
+	Vector.prototype = new Surrogate;
+	///////////////////////
+
+	Vector.prototype.normalize = function() {
+    var mag = this.mag();
+
+    if (mag == 0) {
+      throw new Error('can\'t normalize zero vector');
+    }
+    
+    return this.map(function(el){return el / mag});
+  };
+
+  Vector.prototype.rotate = function (rads) {
+    if (this.length != 2) {
+      return false
+    }
+
+    var rotatedArr = new Vector;
+    rotatedArr.push(Math.cos(rads)*this[0] + Math.sin(rads)*this[1]);
+    rotatedArr.push(Math.cos(rads)*this[1] - Math.sin(rads)*this[0]);
+
+    return rotatedArr;
+  };
+
+  Vector.prototype.scale = function (mag) {
+    return new Vector(this.map(function(el){return el * mag}));
+  };
+
+  Vector.prototype.add = function (vector) {
+    var result = new Vector;
+
+    for (var i = 0; i < vector.length; i++) {
+      if (!this[i]) {
+        result.push(vector[i])
+      } else {
+        result.push(this[i] + vector[i])
+      }
+    }
+
+    return result;
+
+    return result;
+  };
+
+  Vector.prototype.subtract = function (vector) {
+    var result = new Vector;
+
+    for (var i = 0; i < vector.length; i++) {
+      if (!this[i]) {
+        result.push(-vector[i])
+      } else {
+        result.push(this[i] - vector[i])
+      }
+    }
+
+    return result;
+  };
+
+  Vector.prototype.pow = function (scalar) {
+    return this.map(function(el){
+      return Math.pow(el, scalar);
+    })
+  };
+
+  Vector.prototype.mag = function() {
+    var squares = this.map(function(el){return el * el});
+    var sumOfSquares = squares.reduce(function(sum, el){return sum += el});
+    return Math.sqrt(sumOfSquares);
+  };
+
+  Vector.prototype.distance = function (vector) {
+    if (this.length != vector.length) {
+      return false
+    }
+
+    var distX = this[0] - vector[0];
+    var distY = this[1] - vector[1];
+
+    //dist = sqrt(distX^2 + distY^2)
+    return Math.sqrt((distX * distX) + (distY * distY));
+  };
+
+  Vector.prototype.nudge = function (maxRadians) {
     // maxRadians is the max radians the vector will be nudged
-    var maxRadians = maxRadians || 0.125;
 
-    return this.rotate(Math.random() * maxRadians * [-1, 1].sample());
-  });
+    var maxRadians = maxRadians || Math.random() * 0.125;
 
-  A.direction = (A.direction || function (foreignLoc) {
+    return this.rotate(Math.random() * (maxRadians / 2) * [-1, 1].sample());
+  };
+
+  Vector.prototype.slinky = function (maxDegree) {
+    // stretch or shrink a vector at max maxDegree, randomly
+
+    var maxDegree = maxDegree || Math.random() * 1;
+
+    return this.scale(maxDegree + 1);
+  };
+
+  Vector.prototype.direction = function (foreignLoc) {
     return foreignLoc.subtract(this).normalize();
-  });
+  };
 
-  A.influence = (A.influence || function (direction, amount) {
+  Vector.prototype.influence = function (direction, amount) {
     // direction is a this.length dimensional vector / array
 
     return this.add(direction.normalize().scale(amount));
-  });
+  };
 
-  A.gravitate = (A.gravitate || function (location, foreignMass, localMass) {
+  Vector.prototype.gravitate = function (location, foreignMass, localMass) {
     // call this on a velocity vector, influence it towards foreignMass at location
 
     var G = 0.0000000000667;
@@ -146,9 +172,18 @@
     var forceVector = this.direction(location).scale(forceScalar);
 
     return this.add(forceVector);
-  });
-  
-})(Array.prototype);;var Asteroids = this.Asteroids = (this.Asteroids || {});
+  };
+
+  Vector.prototype.to_a = function() {
+    var arr = [];
+
+    for (var i = 0; i < this.length; i++) {
+      arr.push(this[i]);
+    }
+
+    return arr;
+  };
+})(this);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
 	var Store = global.Store = (global.Store || {});
@@ -163,7 +198,7 @@
 		var speedX = Math.random() * global.Asteroid.maxSpeed(radius) * [-1, 1].sample();
 		var speedY = Math.random() * global.Asteroid.maxSpeed(radius) * [-1, 1].sample();
 
-		return [speedX, speedY];
+		return new Vector(speedX, speedY);
 	};
 
 	Store.randomColor = function() {
@@ -197,7 +232,7 @@
 	};
 
 	Store.nudgers = function (count) {
-		var nudgers = [];
+		var nudgers = new Vector();
 		var nudger;
 
 		for (var i = 0; i < count; i++) {
@@ -228,13 +263,13 @@
 
 	MovingObject = global.MovingObject = function (pos, vel, radius) {
 		this.radius = radius;
-		this.pos = pos;
-		this.vel = vel;
+		this.pos = new Vector(pos);
+		this.vel = new Vector(vel);
 		this.id = this.id || Store.uid();
 	};
 
 	MovingObject.prototype.move = function() {
-		this.pos[0] += this.vel[0]; 
+		this.pos[0] += this.vel[0];
 		this.pos[1] += this.vel[1];
 	};
 
@@ -275,7 +310,7 @@
 		this.edgeCount = opts.edgeCount || Asteroid.EDGE_COUNTS.sample();
 		this.edgeNudgers = opts.edgeNudgers || Store.nudgers(this.edgeCount);
 		this.rotationRate = opts.rotationRate || Math.random() * 0.1;
-		this.orientation = opts.orientation || [0, 1];
+		this.orientation = opts.orientation ? new Vector(opts.orientation) : new Vector([0, 1]);
 
 		MovingObject.call(this, opts.pos, opts.vel, opts.radius);
 	};
@@ -322,7 +357,6 @@
 		// like ruby's 'super' but much less awesome
 		this.__proto__.__proto__.move.call(this);
 
-		this.orientationScalar += this.rotationRate;
 		this.orientation = this.orientation.rotate(this.rotationRate);
 	}
 
@@ -357,10 +391,11 @@
 		var color;
 		for (var i = 0; i < 3; i++) {
 			var pos = [];
-			pos[0] = this.pos[0]// + [1,2,3].sample() * this.radius;
-			pos[1] = this.pos[1]// + [1,2,3].sample() * this.radius;
+			pos[0] = this.pos[0];
+			pos[1] = this.pos[1];
 
 			vel = Store.randomVel(radius);
+			// vel = this.vel.nudge(1).slinky();
 			color = Store.randomColor();
 
 			var opts = { pos: pos, vel: vel, radius: radius, color: color }
@@ -374,14 +409,14 @@
 		var state = {
 			type: 'asteroid',
 			radius: this.radius,
-			pos: this.pos,
-			vel: this.vel,
+			pos: this.pos.to_a(),
+			vel: this.vel.to_a(),
 			id: this.id,
 			health: this.health,
 			color: this.color,
 			rotationRate: this.rotationRate,
 			edgeNudgers: this.edgeNudgers,
-			orientation: this.orientation,
+			orientation: this.orientation.to_a(),
 			edgeCount: this.edgeCount
 		}
 
@@ -399,7 +434,7 @@
 		var pos = opts.pos || [100, 100];
 		var vel = opts.vel || [0, 0];
 		var radius = opts.radius || 20 / 3;
-		this.orientation = opts.orientation || [0,-1];
+		this.orientation = opts.orientation ? new Vector(opts.orientation) : new Vector([0,-1]);
 		this.rotateSpeed = opts.rotateSpeed || 0.25;
 		this.impulse = opts.impulse || 0.4;
 		this.dampenRate = opts.dampenRate || 0.95;
@@ -499,10 +534,10 @@
 		var state = {
 			type: 'ship',
 			radius: this.radius,
-			pos: this.pos,
-			vel: this.vel,
+			pos: this.pos.to_a(),
+			vel: this.vel.to_a(),
 			id: this.id,
-			orientation: this.orientation,
+			orientation: this.orientation.to_a(),
 			rotateSpeed: this.rotateSpeed,
 			impulse: this.impulse,
 			dampenRate: this.dampenRate,
@@ -527,9 +562,9 @@
 	var Bullet = global.Bullet = function (ship, opts) {
 		var opts = opts || {};
 		this.ship = ship;
-		this.orientation = opts.orientation || ship.orientation.slice(0);
+		this.orientation = opts.orientation ? new Vector(opts.orientation) : ship.orientation.scale(1);
 		var vel = opts.vel || ship.vel.add(ship.orientation.scale(10));
-		var pos = opts.pos || ship.pos.slice(0);
+		var pos = opts.pos || ship.pos.scale(1);
 		this.color = opts.color || ship.borderColor || 'red';
 		this.damage = opts.damage || ship.damage;
 		this.id = opts.id || null; // assigned in moving_object.js
@@ -551,22 +586,14 @@
 		ctx.stroke();
 	}
 
-	Bullet.prototype.isCollidedWithRadialObject = function (asteroid) {
-		if (this.pos.distance(asteroid.pos) <= asteroid.radius) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	Bullet.prototype.getState = function() {
 		var state = {
 			type: 'bullet',
 			radius: this.radius,
-			pos: this.pos,
-			vel: this.vel,
+			pos: this.pos.to_a(),
+			vel: this.vel.to_a(),
 			id: this.id,
-			orientation: this.orientation,
+			orientation: this.orientation.to_a(),
 			damage: this.damage,
 			color: this.color,
 			shipID: this.ship.id
@@ -674,7 +701,7 @@
 
 		this.bullets.forEach(function(bullet){
 			game.asteroids.forEach(function(asteroid){
-				if (bullet.isCollidedWithRadialObject(asteroid)) {
+				if (bullet.isCollidedWith(asteroid)) {
 					collisions.push([asteroid, bullet]);
 				}
 			})
@@ -707,7 +734,7 @@
 
 		this.bullets.forEach(function(bullet){
 			game.asteroids.forEach(function(asteroid){
-				if (bullet.isCollidedWithRadialObject(asteroid)) {
+				if (bullet.isCollidedWith(asteroid)) {
 					bullets.push(bullet);
 				}
 			})
@@ -722,7 +749,7 @@
 
 		this.bullets.forEach(function(bullet){
 			game.asteroids.forEach(function(asteroid){
-				if (bullet.isCollidedWithRadialObject(asteroid)) {
+				if (bullet.isCollidedWith(asteroid)) {
 					bullets.push(bullet);
 				}
 			})
@@ -765,6 +792,18 @@
 				game.handleCollidingAsteroids(asteroidPair[0], asteroidPair[1]);
 			}
 		})
+	};
+
+	GlobalGame.prototype.detectCollidedShip = function() {
+		for (var i = 0; i < this.ships.length; i++) {
+			for (var j = 0; j < this.asteroids.length; j++) {
+				ship = this.ships[i]; as = this.asteroids[j];
+
+				if (ship.isCollidedWith(as)) {
+					this.handleCollidedShip(ship, as);
+				}
+			}
+		}
 	};
 
 	GlobalGame.prototype.detectHitAsteroids = function() {
@@ -856,7 +895,10 @@
 	};
 
 	ServerGame.prototype.addShip = function (shipOpts) {
+		console.log(shipOpts)
+		console.log('##############')
 		this.ships.push(new global.Ship(shipOpts));
+		console.log(this.ships)
 	};
 
 	ServerGame.prototype.updateShip = function (shipOpts) {
@@ -958,6 +1000,9 @@
 		this.explodeAsteroid(asteroid);
 		// global.Visuals.hit(game.canvas);
 		ship.health -= asteroid.radius;
+
+		console.log('HANDLECOLLIDEDSHIP HAS BEEN CALLED')
+
 	};
 
 	ServerGame.prototype.handleHitShip = function (ship, bullet) {
@@ -974,25 +1019,12 @@
 
 	ServerGame.prototype.handleDestroyedShip = function (ship) {
 		this.serverResponder.handleDestroyedShip({ id: ship.id })
+		console.log('HANDLEDESTROYEDSHIP CALLED')
+		console.log('***********************8')
+		console.log(this.ships)
 
 		this.ships.remove(ship);
 	}
-
-	ServerGame.prototype.detectCollidedShip = function() {
-		var game = this;
-		var ship;
-		var as;
-
-		for (var i = 0; i < this.ships.length; i++) {
-			for (var j = 0; j < this.asteroids.length; j++) {
-				ship = this.ships[i]; as = this.asteroids[j];
-
-				if (ship.isCollidedWith(as)) {
-					game.handleCollidedShip(ship, as);
-				}
-			}
-		}
-	};
 
 	ServerGame.prototype.detectHitShip = function() {
 		var ship;
@@ -1003,7 +1035,7 @@
 				bullet = this.bullets[i];
 				ship = this.ships[j];
 
-				if (bullet.isCollidedWithRadialObject(ship) && bullet.ship.id != ship.id) {
+				if (bullet.isCollidedWith(ship) && bullet.ship.id != ship.id) {
 					this.handleHitShip(ship, bullet);
 					return
 				}
@@ -1324,3 +1356,4 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 })(Asteroids)
 module.exports = Asteroids;
+global.Vector = this.Vector;

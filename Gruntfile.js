@@ -2,6 +2,7 @@ module.exports = function(grunt) {
 
 var jsClientSourceFiles = [ 
   'lib/javascripts/array.js',
+  'lib/javascripts/vector.js',
   'lib/javascripts/store.js',
   'lib/javascripts/cookie.js',
   'lib/javascripts/moving_object.js',
@@ -24,6 +25,7 @@ var jsClientSourceFiles = [
 
 var jsServerSourceFiles = [ 
   'lib/javascripts/array.js',
+  'lib/javascripts/vector.js',
   'lib/javascripts/store.js',
   'lib/javascripts/moving_object.js',
   'lib/javascripts/asteroid.js',
@@ -61,7 +63,7 @@ var jsServerSourceFiles = [
       serverJS: {
         options: {
           separator: ';',
-          footer: '\nmodule.exports = Asteroids;'
+          footer: '\nmodule.exports = Asteroids;\nglobal.Vector = this.Vector;'
         },
         src: jsServerSourceFiles,
         dest: '<%= pkg.name %>.js'
