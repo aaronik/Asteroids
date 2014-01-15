@@ -61,10 +61,10 @@
     var mag = this.mag();
 
     if (mag == 0) {
-      throw new Error('can\'t normalize zero vector');
+      return new Vector([0, 0]);
     }
     
-    return this.map(function(el){return el / mag});
+    return new Vector(this.map(function(el){return el / mag}));
   };
 
   Vector.prototype.rotate = function (rads) {
@@ -163,16 +163,29 @@
     return this.add(direction.normalize().scale(amount));
   };
 
-  Vector.prototype.gravitate = function (location, foreignMass, localMass) {
-    // call this on a velocity vector, influence it towards foreignMass at location
+  Vector.prototype.gravitate = function (location, foreignMass, time) {
+    // call on a pos
 
+    //dist = 1/2 g t^2
+    //g = GM / r^2
+
+    // take my pos, add dist?
     var G = 0.0000000000667;
-    var dist = this.distance(location);
-    var forceScalar = G * foreignMass * localMass / (dist * dist);
-    var forceVector = this.direction(location).scale(forceScalar);
-
-    return this.add(forceVector);
+    var g = (G * foreignMass) / this.distance(location);
+    var distance = 0.5 * g * Math.pow(time, 2);
+    return this.add(this.direction(location).scale(distance));
   };
+
+  // Vector.prototype.gravitate = function (location, foreignMass, localMass) {
+  //   // call this on a velocity vector, influence it towards foreignMass at location
+
+  //   var G = 0.0000000000667;
+  //   var dist = this.distance(location);
+  //   var forceScalar = G * foreignMass * localMass / (dist * dist);
+  //   var forceVector = this.direction(location).scale(forceScalar);
+
+  //   return this.add(forceVector);
+  // };
 
   Vector.prototype.to_a = function() {
     var arr = [];
@@ -309,7 +322,7 @@
 		this.id = opts.id || null;
 		this.edgeCount = opts.edgeCount || Asteroid.EDGE_COUNTS.sample();
 		this.edgeNudgers = opts.edgeNudgers || Store.nudgers(this.edgeCount);
-		this.rotationRate = opts.rotationRate || Math.random() * 0.1;
+		this.rotationRate = opts.rotationRate || Math.random() * 0.1 * [-1, 1].sample();
 		this.orientation = opts.orientation ? new Vector(opts.orientation) : new Vector([0, 1]);
 
 		MovingObject.call(this, opts.pos, opts.vel, opts.radius);
