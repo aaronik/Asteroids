@@ -164,29 +164,13 @@
     return this.add(direction.normalize().scale(amount));
   };
 
-  Vector.prototype.gravitate = function (location, foreignMass, time) {
-    // call on a pos
-
-    //dist = 1/2 g t^2
-    //g = GM / r^2
-
-    // take my pos, add dist?
+  Vector.prototype.gravity = function (location, foreignMass) {
     var G = 0.0000000000667;
-    var g = (G * foreignMass) / this.distance(location);
-    var distance = 0.5 * g * Math.pow(time, 2);
-    return this.add(this.direction(location).scale(distance));
-  };
-
-  // Vector.prototype.gravitate = function (location, foreignMass, localMass) {
-  //   // call this on a velocity vector, influence it towards foreignMass at location
-
-  //   var G = 0.0000000000667;
-  //   var dist = this.distance(location);
-  //   var forceScalar = G * foreignMass * localMass / (dist * dist);
-  //   var forceVector = this.direction(location).scale(forceScalar);
-
-  //   return this.add(forceVector);
-  // };
+    var dist = this.distance(location);
+    if (dist == 0) dist = 0.001;
+    var g = (G * foreignMass) / Math.pow(dist, 1);
+    return this.direction(location).scale(g);
+  }
 
   Vector.prototype.to_a = function() {
     var arr = [];
@@ -313,6 +297,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	MovingObject.prototype.move = function() {
 		this.pos[0] += this.vel[0];
 		this.pos[1] += this.vel[1];
+
+		var location = new Vector(500, 250);
+		this.vel = this.vel.add(this.pos.gravity(location, 100000000000));
 	};
 
 	MovingObject.prototype.isCollidedWith = function (otherObject) {
@@ -475,6 +462,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.asteroids = [];
 		this.noExplodeAsteroids = [];
 		this.bullets = [];
+		this.blackHoles = [];
 		this.FPS = 30;
 		this.repopulationRate = 30;
 		this.difficultyRate = 0.6;
@@ -517,11 +505,19 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 	};
 
-	GlobalGame.prototype.wrapMovingObjects = function() {
+	GlobalGame.prototype.movingObjects = function() {
+		return []
+			.concat(this.asteroids)
+				.concat(this.ships)
+					.concat(this.blackHoles);
+	}
+
+	GlobalGame.prototype.wrapMovingObjects = function (movingObjects) {
 		var game = this;
 
-		var movingObjects = [];
-		movingObjects = movingObjects.concat(game.asteroids).concat(game.ships);
+		if (!movingObjects) {
+			var movingObjects = this.movingObjects();
+		}
 
 		movingObjects.forEach(function(object){
 			if ( (object.pos[0] + object.radius) < 0) {
@@ -1599,8 +1595,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var opts = opts || {};
 		this.ship = ship;
 		this.orientation = opts.orientation ? new Vector(opts.orientation) : ship.orientation.scale(1);
-		var vel = opts.vel || ship.vel.add(ship.orientation.scale(10));
-		var pos = opts.pos || ship.pos.scale(1);
+		var vel = opts.vel ? new Vector(opts.vel) : ship.vel.add(ship.orientation.scale(10));
+		var pos = opts.pos ? new Vector(opts.pos) : ship.pos.scale(1);
 		this.color = opts.color || ship.borderColor || 'red';
 		this.damage = opts.damage || ship.damage;
 		this.id = opts.id || null; // assigned in moving_object.js
@@ -1637,6 +1633,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		return state;
 	}
+
+})(Asteroids);
+var Asteroids = this.Asteroids = (this.Asteroids || {});
+
+(function(global) {
 
 })(Asteroids);
 var Asteroids = this.Asteroids = (this.Asteroids || {});
@@ -1978,9 +1979,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	var ExhaustParticle = global.ExhaustParticle = function (options) {
 		this.ship = options.ship;
-		this.pos = this.ship.pos.slice(0);
-		this.radius = options.radius || 10;
+		this.pos = this.ship.pos.scale(1);
 		this.vel = this.ship.vel.add(this.ship.orientation.scale(-15).nudge());
+		this.radius = options.radius || 10;
 		// this.color = ['orange', 'red', 'yellow', 'orange', 'orage'].sample();
 		this.RGB = ['226,72,0','204,24,0','134,2,0','255,119,1'].sample();
 		this.health = 0.2;
@@ -2016,18 +2017,16 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.game = game;
 		this.numStars = 200;
 		this.stars = [];
+		this.starOptions = {
+			'height': this.game.HEIGHT,
+			'width': this.game.WIDTH
+		};
 		this.initialize();
 	}
 
 	Background.prototype.initialize = function () {
-		var stars = [];
-		var starOptions = {
-			'height': this.game.HEIGHT,
-			'width': this.game.WIDTH
-		}
-
 		for (var i = 0; i < this.numStars; i++) {
-			this.stars.push(new global.Star(starOptions))
+			this.stars.push(new global.Star(this.starOptions))
 		}
 	};
 
@@ -2038,9 +2037,51 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 
 	Background.prototype.move = function() {
+		this.detect();
+
 		this.stars.forEach(function(star){
 			star.move();
 		})
+	}
+
+	Background.prototype.detectOOBStars = function() {
+		var bg = this;
+
+		this.stars.forEach(function(star){
+			if ( (star.pos[0] + star.radius) < 0) {
+				star.die();
+			}
+
+			if ( (star.pos[1] + star.radius) < 0) {
+				star.die();
+			}
+
+			if ( (star.pos[0] - star.radius) > game.WIDTH) {
+				star.die();
+			}
+
+			if ( (star.pos[1] - star.radius) > game.HEIGHT) {
+				star.die();
+			}	
+		})
+	};
+
+	Background.prototype.detectDeadStars = function() {
+		var bg = this;
+
+		this.stars.forEach(function (star) {
+			if (!star.alive) bg.replaceStar(star);
+		})
+	};
+
+	Background.prototype.replaceStar = function (star) {
+		this.stars.remove(star);
+		this.stars.push(new global.Star(this.starOptions))
+	}
+
+	Background.prototype.detect = function() {
+		this.detectOOBStars();
+		this.detectDeadStars();
 	}
 })(Asteroids);
 var Asteroids = this.Asteroids = (this.Asteroids || {});
@@ -2053,12 +2094,18 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.height = height = options.height;
 		this.width = width = options.width;
 		this.radius = options.radius || 1;
-		this.vel = options.vel || Store.randomVel().scale(0.02);
-		this.pos = options.pos || [(Math.random() * width), (Math.random() * height)];
+		this.vel = options.vel ? new Vector(options.vel) : Store.randomVel().scale(0.02);
+		var posi = new Vector([(Math.random() * width), (Math.random() * height)]);
+		this.pos = options.pos ? new Vector(options.pos) : posi;
 		this.color = ['#8A2C1F', 'blue', 'grey', 'grey', 'grey', 'grey', 'grey'].sample();
+		this.alive = true;
 	};
 
 	Store.inherits(Star, MovingObject)
+
+	Star.prototype.die = function() {
+		this.alive = false;
+	}
 
 	Star.prototype.draw = function (ctx) {
 		ctx.fillStyle = this.color;

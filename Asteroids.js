@@ -163,29 +163,13 @@
     return this.add(direction.normalize().scale(amount));
   };
 
-  Vector.prototype.gravitate = function (location, foreignMass, time) {
-    // call on a pos
-
-    //dist = 1/2 g t^2
-    //g = GM / r^2
-
-    // take my pos, add dist?
+  Vector.prototype.gravity = function (location, foreignMass) {
     var G = 0.0000000000667;
-    var g = (G * foreignMass) / this.distance(location);
-    var distance = 0.5 * g * Math.pow(time, 2);
-    return this.add(this.direction(location).scale(distance));
-  };
-
-  // Vector.prototype.gravitate = function (location, foreignMass, localMass) {
-  //   // call this on a velocity vector, influence it towards foreignMass at location
-
-  //   var G = 0.0000000000667;
-  //   var dist = this.distance(location);
-  //   var forceScalar = G * foreignMass * localMass / (dist * dist);
-  //   var forceVector = this.direction(location).scale(forceScalar);
-
-  //   return this.add(forceVector);
-  // };
+    var dist = this.distance(location);
+    if (dist == 0) dist = 0.001;
+    var g = (G * foreignMass) / Math.pow(dist, 1);
+    return this.direction(location).scale(g);
+  }
 
   Vector.prototype.to_a = function() {
     var arr = [];
@@ -284,6 +268,9 @@
 	MovingObject.prototype.move = function() {
 		this.pos[0] += this.vel[0];
 		this.pos[1] += this.vel[1];
+
+		var location = new Vector(500, 250);
+		this.vel = this.vel.add(this.pos.gravity(location, 100000000000));
 	};
 
 	MovingObject.prototype.isCollidedWith = function (otherObject) {
@@ -576,8 +563,8 @@
 		var opts = opts || {};
 		this.ship = ship;
 		this.orientation = opts.orientation ? new Vector(opts.orientation) : ship.orientation.scale(1);
-		var vel = opts.vel || ship.vel.add(ship.orientation.scale(10));
-		var pos = opts.pos || ship.pos.scale(1);
+		var vel = opts.vel ? new Vector(opts.vel) : ship.vel.add(ship.orientation.scale(10));
+		var pos = opts.pos ? new Vector(opts.pos) : ship.pos.scale(1);
 		this.color = opts.color || ship.borderColor || 'red';
 		this.damage = opts.damage || ship.damage;
 		this.id = opts.id || null; // assigned in moving_object.js
@@ -618,11 +605,16 @@
 })(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global) {
+
+})(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
+
+(function(global) {
 	var GlobalGame = global.GlobalGame = function() {
 		this.ships = [];
 		this.asteroids = [];
 		this.noExplodeAsteroids = [];
 		this.bullets = [];
+		this.blackHoles = [];
 		this.FPS = 30;
 		this.repopulationRate = 30;
 		this.difficultyRate = 0.6;
@@ -665,11 +657,19 @@
 		}
 	};
 
-	GlobalGame.prototype.wrapMovingObjects = function() {
+	GlobalGame.prototype.movingObjects = function() {
+		return []
+			.concat(this.asteroids)
+				.concat(this.ships)
+					.concat(this.blackHoles);
+	}
+
+	GlobalGame.prototype.wrapMovingObjects = function (movingObjects) {
 		var game = this;
 
-		var movingObjects = [];
-		movingObjects = movingObjects.concat(game.asteroids).concat(game.ships);
+		if (!movingObjects) {
+			var movingObjects = this.movingObjects();
+		}
 
 		movingObjects.forEach(function(object){
 			if ( (object.pos[0] + object.radius) < 0) {

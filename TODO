@@ -1,6 +1,6 @@
--asteroids' fragments, when the asteroid explodes, to go in similar directions
+
 -add black hole
--make movingObjects function
+-gravity-point object seems to be pretty cool, could work with that
 -ship to be cool shape?
 -high scores DB for multiplayer games
 -high score personal cookies for single player game
