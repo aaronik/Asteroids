@@ -76,17 +76,29 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	}
 
 	ServerGame.prototype.move = function() {
-		this.asteroids.forEach(function(asteroid){
-			asteroid.move();
-		});
+		this.movingObjects().forEach(function (object) {
+			this.blackHoles.forEach(function (blackHole) {
+				object.gravitate(blackHole);
+			})
 
-		this.ships.forEach(function(ship){
-			ship.move();
-		});
+			object.move();
+		})
 
-		this.bullets.forEach(function(bullet){
-			bullet.move();
-		});
+		// this.asteroids.forEach(function (asteroid) {
+		// 	asteroid.move();
+		// });
+
+		// this.ships.forEach(function (ship) {
+		// 	ship.move();
+		// });
+
+		// this.bullets.forEach(function (bullet) {
+		// 	bullet.move();
+		// });
+
+		// this.blackHoles.forEach(function (blackHole) {
+		// 	blackHole.move();
+		// })
 	};
 
 	ServerGame.prototype.levelUp = function() {

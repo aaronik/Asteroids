@@ -268,8 +268,10 @@
 	MovingObject.prototype.move = function() {
 		this.pos[0] += this.vel[0];
 		this.pos[1] += this.vel[1];
+	};
 
-		var location = new Vector(500, 250);
+	MovingObject.prototype.gravitate = function (massiveObject) {
+		var location = massiveObject.pos;
 		this.vel = this.vel.add(this.pos.gravity(location, 100000000000));
 	};
 
@@ -431,8 +433,8 @@
 
 	var Ship = global.Ship = function (opts) {
 		if (!opts) var opts = {};
-		var pos = opts.pos || [100, 100];
-		var vel = opts.vel || [0, 0];
+		var pos = opts.pos || new Vector([100, 100]);
+		var vel = opts.vel || new Vector([0, 0]);
 		var radius = opts.radius || 20 / 3;
 		this.orientation = opts.orientation ? new Vector(opts.orientation) : new Vector([0,-1]);
 		this.rotateSpeed = opts.rotateSpeed || 0.25;
@@ -605,7 +607,25 @@
 })(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global) {
+	var Store = global.Store;
 
+	var BlackHole = global.BlackHole = function (opts) {
+		var opts = opts ? opts : {};
+		var pos = opts.pos || new Vector([100, 100]);
+		var vel = opts.vel || new Vector([-1, -1]);
+		var radius = opts.radius || 50;
+
+		MovingObject.call(this, pos, vel, radius);
+	}
+
+	Store.inherits(BlackHole, MovingObject);
+
+	BlackHole.prototype.draw = function (ctx) {
+		ctx.beginPath();
+		ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, false);
+		ctx.fillStyle = 'black';
+		ctx.fill();
+	}
 })(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global) {
@@ -953,17 +973,29 @@
 	}
 
 	ServerGame.prototype.move = function() {
-		this.asteroids.forEach(function(asteroid){
-			asteroid.move();
-		});
+		this.movingObjects().forEach(function (object) {
+			this.blackHoles.forEach(function (blackHole) {
+				object.gravitate(blackHole);
+			})
 
-		this.ships.forEach(function(ship){
-			ship.move();
-		});
+			object.move();
+		})
 
-		this.bullets.forEach(function(bullet){
-			bullet.move();
-		});
+		// this.asteroids.forEach(function (asteroid) {
+		// 	asteroid.move();
+		// });
+
+		// this.ships.forEach(function (ship) {
+		// 	ship.move();
+		// });
+
+		// this.bullets.forEach(function (bullet) {
+		// 	bullet.move();
+		// });
+
+		// this.blackHoles.forEach(function (blackHole) {
+		// 	blackHole.move();
+		// })
 	};
 
 	ServerGame.prototype.levelUp = function() {

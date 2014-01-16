@@ -297,8 +297,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	MovingObject.prototype.move = function() {
 		this.pos[0] += this.vel[0];
 		this.pos[1] += this.vel[1];
+	};
 
-		var location = new Vector(500, 250);
+	MovingObject.prototype.gravitate = function (massiveObject) {
+		var location = massiveObject.pos;
 		this.vel = this.vel.add(this.pos.gravity(location, 100000000000));
 	};
 
@@ -773,49 +775,69 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.background.draw(this.ctx);
 
 		// ship exhaust particles
-		this.exhaustParticles.forEach(function(ep){
+		this.exhaustParticles.forEach(function (ep) {
 			ep.draw(game.ctx);
 		})
 
 		// bullets
-		this.bullets.forEach(function(bullet){
+		this.bullets.forEach(function (bullet) {
 			bullet.draw(game.ctx);
 		})
 
 		// asteroids
-		this.asteroids.forEach(function(asteroid){
+		this.asteroids.forEach(function (asteroid) {
 			asteroid.draw(game.ctx);
 		})
 
 		// ship
-		this.ships.forEach(function(ship){
+		this.ships.forEach(function (ship) {
 			ship.draw(game.ctx);
+		})
+
+		this.blackHoles.forEach(function (blackHole) {
+			blackHole.draw(game.ctx);
 		})
 
 		// readout text
 		this.readout.draw(this.ctx);
 
 		// exploding texts
-		this.explodingTexts.forEach(function(txt){
+		this.explodingTexts.forEach(function (txt) {
 			txt.draw(game.ctx);
 		})
 	};
 
 	ClientGame.prototype.move = function() {
+		var game = this;
+
+		this.blackHoles.forEach(function (blackHole) {
+			game.movingObjects().forEach(function (object) {
+				object.gravitate(blackHole);
+			})
+
+			game.background.stars.forEach(function (star) {
+				star.gravitate(blackHole);
+			})
+		})
+
 		this.asteroids.forEach(function(asteroid){
 			asteroid.move();
 		});
 
-		this.ships.forEach(function(ship){
+		this.ships.forEach(function (ship) {
 			ship.move();
 		})
 
-		this.bullets.forEach(function(bullet){
+		this.bullets.forEach(function (bullet) {
 			bullet.move();
 		});
 
-		this.exhaustParticles.forEach(function(ep){
+		this.exhaustParticles.forEach(function (ep) {
 			ep.move();
+		})
+
+		this.blackHoles.forEach(function (blackHole) {
+			blackHole.move();
 		})
 
 		this.background.move();
@@ -1333,8 +1355,8 @@ var Asteroids = (this.Asteroids || {});
 
 	var Ship = global.Ship = function (opts) {
 		if (!opts) var opts = {};
-		var pos = opts.pos || [100, 100];
-		var vel = opts.vel || [0, 0];
+		var pos = opts.pos || new Vector([100, 100]);
+		var vel = opts.vel || new Vector([0, 0]);
 		var radius = opts.radius || 20 / 3;
 		this.orientation = opts.orientation ? new Vector(opts.orientation) : new Vector([0,-1]);
 		this.rotateSpeed = opts.rotateSpeed || 0.25;
@@ -1638,7 +1660,25 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global) {
+	var Store = global.Store;
 
+	var BlackHole = global.BlackHole = function (opts) {
+		var opts = opts ? opts : {};
+		var pos = opts.pos || new Vector([100, 100]);
+		var vel = opts.vel || new Vector([-1, -1]);
+		var radius = opts.radius || 50;
+
+		MovingObject.call(this, pos, vel, radius);
+	}
+
+	Store.inherits(BlackHole, MovingObject);
+
+	BlackHole.prototype.draw = function (ctx) {
+		ctx.beginPath();
+		ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, false);
+		ctx.fillStyle = 'black';
+		ctx.fill();
+	}
 })(Asteroids);
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
