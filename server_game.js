@@ -81,24 +81,24 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 				object.gravitate(blackHole);
 			})
 
-			object.move();
+			// object.move();
 		})
 
-		// this.asteroids.forEach(function (asteroid) {
-		// 	asteroid.move();
-		// });
+		this.asteroids.forEach(function (asteroid) {
+			asteroid.move();
+		});
 
-		// this.ships.forEach(function (ship) {
-		// 	ship.move();
-		// });
+		this.ships.forEach(function (ship) {
+			ship.move();
+		});
 
-		// this.bullets.forEach(function (bullet) {
-		// 	bullet.move();
-		// });
+		this.bullets.forEach(function (bullet) {
+			bullet.move();
+		});
 
-		// this.blackHoles.forEach(function (blackHole) {
-		// 	blackHole.move();
-		// })
+		this.blackHoles.forEach(function (blackHole) {
+			blackHole.move();
+		})
 	};
 
 	ServerGame.prototype.levelUp = function() {
@@ -106,6 +106,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		this.repopulateAsteroids();
 		this.modifyDifficulty();
+		this.blackHoles = [];
 
 		this.serverResponder.levelUp();
 	};
@@ -225,6 +226,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detectLevelChangeReady();
 		this.detectSendFullState();
 		this.detectHitShip();
+		this.detectAsteroidBlackHoleCollisions();
 	};
 
 	ServerGame.prototype.sendFullState = function() {

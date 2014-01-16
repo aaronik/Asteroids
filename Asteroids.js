@@ -272,7 +272,7 @@
 
 	MovingObject.prototype.gravitate = function (massiveObject) {
 		var location = massiveObject.pos;
-		this.vel = this.vel.add(this.pos.gravity(location, 100000000000));
+		this.vel = this.vel.add(this.pos.gravity(location, massiveObject.mass));
 	};
 
 	MovingObject.prototype.isCollidedWith = function (otherObject) {
@@ -614,6 +614,7 @@
 		var pos = opts.pos || new Vector([100, 100]);
 		var vel = opts.vel || new Vector([-1, -1]);
 		var radius = opts.radius || 50;
+		this.mass = 100000000000;
 
 		MovingObject.call(this, pos, vel, radius);
 	}
@@ -625,7 +626,12 @@
 		ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, false);
 		ctx.fillStyle = 'black';
 		ctx.fill();
-	}
+	};
+
+	BlackHole.prototype.grow = function (amt) {
+		this.radius += amt / 10;
+		this.mass += amt * 10;
+	};
 })(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global) {
@@ -815,7 +821,12 @@
 	GlobalGame.prototype.handleAsteroidBulletCollisions = function (as, bullet) {
 		this.damageAsteroid(as, bullet.damage);
 		this.removeBullet(bullet);
-	}
+	};
+
+	GlobalGame.prototype.handleAsteroidBlackHoleCollisions = function (as, blackHole) {
+		this.damageAsteroid(as, blackHole.radius);
+		blackHole.grow(as.radius);
+	};
 
 	GlobalGame.prototype.detectCollidingAsteroids = function() {
 		var game = this;
@@ -854,6 +865,18 @@
 			game.handleAsteroidBulletCollisions(col[0], col[1]);
 		})
 	};
+
+	GlobalGame.prototype.detectAsteroidBlackHoleCollisions = function() {
+		var game = this;
+
+		this.blackHoles.forEach(function (blackHole) {
+			game.asteroids.forEach(function (asteroid) {
+				if (asteroid.isCollidedWith(blackHole)) {
+					game.handleAsteroidBlackHoleCollisions(asteroid, blackHole);
+				}
+			})
+		})
+	}
 
 	GlobalGame.prototype.detectBulletHits = function() {
 		var game = this;
@@ -978,24 +1001,24 @@
 				object.gravitate(blackHole);
 			})
 
-			object.move();
+			// object.move();
 		})
 
-		// this.asteroids.forEach(function (asteroid) {
-		// 	asteroid.move();
-		// });
+		this.asteroids.forEach(function (asteroid) {
+			asteroid.move();
+		});
 
-		// this.ships.forEach(function (ship) {
-		// 	ship.move();
-		// });
+		this.ships.forEach(function (ship) {
+			ship.move();
+		});
 
-		// this.bullets.forEach(function (bullet) {
-		// 	bullet.move();
-		// });
+		this.bullets.forEach(function (bullet) {
+			bullet.move();
+		});
 
-		// this.blackHoles.forEach(function (blackHole) {
-		// 	blackHole.move();
-		// })
+		this.blackHoles.forEach(function (blackHole) {
+			blackHole.move();
+		})
 	};
 
 	ServerGame.prototype.levelUp = function() {
@@ -1003,6 +1026,7 @@
 
 		this.repopulateAsteroids();
 		this.modifyDifficulty();
+		this.blackHoles = [];
 
 		this.serverResponder.levelUp();
 	};
@@ -1122,6 +1146,7 @@
 		this.detectLevelChangeReady();
 		this.detectSendFullState();
 		this.detectHitShip();
+		this.detectAsteroidBlackHoleCollisions();
 	};
 
 	ServerGame.prototype.sendFullState = function() {
