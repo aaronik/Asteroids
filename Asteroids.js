@@ -195,7 +195,7 @@
 		var speedX = Math.random() * global.Asteroid.maxSpeed(radius) * [-1, 1].sample();
 		var speedY = Math.random() * global.Asteroid.maxSpeed(radius) * [-1, 1].sample();
 
-		return new Vector(speedX, speedY);
+		return [speedX, speedY];
 	};
 
 	Store.randomColor = function() {
@@ -611,15 +611,27 @@
 
 	var BlackHole = global.BlackHole = function (opts) {
 		var opts = opts ? opts : {};
-		var pos = opts.pos || new Vector([100, 100]);
-		var vel = opts.vel || new Vector([-1, -1]);
+		var pos = opts.pos ? new Vector(opts.pos) : [100, 100];
+		var vel = opts.vel ? new Vector(opts.vel) : Store.randomVel();
 		var radius = opts.radius || 50;
-		this.mass = 100000000000;
+		this.mass = opts.mass || 100000000000;
+		this.id = opts.id || null;
 
 		MovingObject.call(this, pos, vel, radius);
 	}
 
 	Store.inherits(BlackHole, MovingObject);
+
+	BlackHole.randomBlackHoleValues = function() {
+		var opts = {
+			pos: [100, 100],
+			vel: Store.randomVel(),
+			radius: 50,
+			mass: 100000000000
+		}
+
+		return opts;
+	};
 
 	BlackHole.prototype.draw = function (ctx) {
 		ctx.beginPath();
@@ -632,6 +644,19 @@
 		this.radius += amt / 10;
 		this.mass += amt * 10;
 	};
+
+	BlackHole.prototype.getState = function() {
+		var stateObj = {
+			type: 'blackHole',
+			id: this.id,
+			mass: this.mass,
+			radius: this.radius,
+			vel: this.vel.to_a(),
+			pos: this.pos.to_a()
+		}
+
+		return stateObj
+	}
 })(Asteroids);;var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global) {
@@ -645,7 +670,8 @@
 		this.repopulationRate = 30;
 		this.difficultyRate = 0.6;
 		this.level = 1;
-		this._counter = 0;
+		this._counter = 1;
+		this.asteroidKills = 1;
 	}
 
 	GlobalGame.prototype.clearOOBAsteroids = function() { // substituted for wrap around
@@ -687,6 +713,14 @@
 		return []
 			.concat(this.asteroids)
 				.concat(this.ships)
+					.concat(this.blackHoles)
+						.concat(this.bullets);
+	}
+
+	GlobalGame.prototype.nonBulletMovingObjects = function() {
+		return []
+			.concat(this.asteroids)
+				.concat(this.ships)
 					.concat(this.blackHoles);
 	}
 
@@ -694,7 +728,7 @@
 		var game = this;
 
 		if (!movingObjects) {
-			var movingObjects = this.movingObjects();
+			var movingObjects = this.nonBulletMovingObjects();
 		}
 
 		movingObjects.forEach(function(object){
@@ -805,8 +839,13 @@
 			this.changeAsteroidSpeed(this.difficultyRate);
 	};
 
-	GlobalGame.prototype.damageAsteroid = function(asteroid, damage) {
+	GlobalGame.prototype.damageAsteroid = function (asteroid, damage) {
 		asteroid.health -= damage;
+	};
+
+	GlobalGame.prototype.growBlackHole = function (blackHole, amt) {
+		blackHole.grow(amt);
+		console.log('growing black hole')
 	};
 
 	GlobalGame.prototype.changeAsteroidSpeed = function (amnt) {
@@ -821,11 +860,7 @@
 	GlobalGame.prototype.handleAsteroidBulletCollisions = function (as, bullet) {
 		this.damageAsteroid(as, bullet.damage);
 		this.removeBullet(bullet);
-	};
-
-	GlobalGame.prototype.handleAsteroidBlackHoleCollisions = function (as, blackHole) {
-		this.damageAsteroid(as, blackHole.radius);
-		blackHole.grow(as.radius);
+		this.ticAsteroidKills();
 	};
 
 	GlobalGame.prototype.detectCollidingAsteroids = function() {
@@ -892,8 +927,15 @@
 		}
 	};
 
+	GlobalGame.prototype.detectAddBlackHoleReady = function() {
+		if (this.asteroidKills % 25 == 0) {
+			this.addBlackHole();
+			this.ticAsteroidKills();
+		}
+	};
+
 	GlobalGame.prototype.get = function (objID) {
-		var objects = this.asteroids.concat(this.bullets).concat(this.ships);
+		var objects = this.movingObjects();
 		var matchingObj;
 
 		objects.forEach(function (obj) {
@@ -904,6 +946,14 @@
 		})
 
 		return matchingObj;
+	};
+
+	GlobalGame.prototype.tic = function() {
+		this._counter += 1;
+	}
+
+	GlobalGame.prototype.ticAsteroidKills = function() {
+		this.asteroidKills += 1;
 	}
 
 	GlobalGame.prototype.stop = function() {
@@ -948,6 +998,14 @@
 			this.asteroids.push(new global.Asteroid(asteroidOpts));
 			this.serverResponder.sendAsteroid(asteroidOpts);
 		}
+	};
+
+	ServerGame.prototype.addBlackHole = function() {
+		var blackHoleOpts = global.BlackHole.randomBlackHoleValues();
+
+		this.blackHoles.push(new global.BlackHole(blackHoleOpts));
+
+		this.serverResponder.addBlackHole(blackHoleOpts);
 	};
 
 	ServerGame.prototype.addShip = function (shipOpts) {
@@ -996,8 +1054,10 @@
 	}
 
 	ServerGame.prototype.move = function() {
+		var game = this;
+
 		this.movingObjects().forEach(function (object) {
-			this.blackHoles.forEach(function (blackHole) {
+			game.blackHoles.forEach(function (blackHole) {
 				object.gravitate(blackHole);
 			})
 
@@ -1088,12 +1148,21 @@
 
 	ServerGame.prototype.handleDestroyedShip = function (ship) {
 		this.serverResponder.handleDestroyedShip({ id: ship.id })
-		console.log('HANDLEDESTROYEDSHIP CALLED')
-		console.log('***********************8')
-		console.log(this.ships)
 
 		this.ships.remove(ship);
 	}
+
+	ServerGame.prototype.handleAsteroidBlackHoleCollisions = function (as, blackHole) {
+		this.damageAsteroid(as, blackHole.radius);
+		this.growBlackHole(blackHole, as.radius);
+
+		var amtOpts = {
+			id: blackHole.id,
+			amt: as.radius
+		}
+
+		this.serverResponder.growBlackHole(amtOpts);
+	};
 
 	ServerGame.prototype.detectHitShip = function() {
 		var ship;
@@ -1147,14 +1216,11 @@
 		this.detectSendFullState();
 		this.detectHitShip();
 		this.detectAsteroidBlackHoleCollisions();
+		this.detectAddBlackHoleReady();
 	};
 
 	ServerGame.prototype.sendFullState = function() {
 		this.serverResponder.sendFullState();
-	}
-
-	ServerGame.prototype.tic = function() {
-		this._counter += 1;
 	}
 
 	ServerGame.prototype.step = function() {
@@ -1186,7 +1252,7 @@
 	};
 
 	ServerGame.prototype.getFullState = function() {
-		var objs = this.asteroids.concat(this.ships)//.concat(this.bullets)
+		var objs = this.nonBulletMovingObjects();
 		var states = objs.map(function (obj) {
 			return obj.getState();
 		})
@@ -1304,11 +1370,7 @@
 		this.game.removeShip(socket.shipID);
 	};
 
-})(Asteroids);// OK server_game.js holds all the state, server_listener.js listens for client speak, server_responder.js will give the clients what they ask for.  Not totally sure if this file will be necessary, it may be able to be combined into the server_game.  Either way, it'll interact heavily with the server_game.
-
-// Also one thing to remember is that every event is going to have to have the gameID in it.
-
-var Asteroids = this.Asteroids = (this.Asteroids || {});
+})(Asteroids);var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){
 
@@ -1324,6 +1386,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerResponder.prototype.sendAsteroid = function (asteroidOpts) {
 		this.broadcast('addAsteroid', asteroidOpts);
+	}
+
+	ServerResponder.prototype.addBlackHole = function (bhOpts) {
+		this.broadcast('addBlackHole', bhOpts);
 	}
 
 	ServerResponder.prototype.fireShip = function (socket, bulletOpts) {
@@ -1382,6 +1448,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerResponder.prototype.handleDestroyedShip = function (shipIDOpt) {
 		this.broadcast('destroyedShip', shipIDOpt);
+	}
+
+	ServerResponder.prototype.growBlackHole = function (amtOpts) {
+		this.broadcast('growBlackHole', amtOpts);
 	}
 
 

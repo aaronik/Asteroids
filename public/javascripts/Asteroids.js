@@ -197,7 +197,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var speedX = Math.random() * global.Asteroid.maxSpeed(radius) * [-1, 1].sample();
 		var speedY = Math.random() * global.Asteroid.maxSpeed(radius) * [-1, 1].sample();
 
-		return new Vector(speedX, speedY);
+		return [speedX, speedY];
 	};
 
 	Store.randomColor = function() {
@@ -469,7 +469,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.repopulationRate = 30;
 		this.difficultyRate = 0.6;
 		this.level = 1;
-		this._counter = 0;
+		this._counter = 1;
+		this.asteroidKills = 1;
 	}
 
 	GlobalGame.prototype.clearOOBAsteroids = function() { // substituted for wrap around
@@ -511,6 +512,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		return []
 			.concat(this.asteroids)
 				.concat(this.ships)
+					.concat(this.blackHoles)
+						.concat(this.bullets);
+	}
+
+	GlobalGame.prototype.nonBulletMovingObjects = function() {
+		return []
+			.concat(this.asteroids)
+				.concat(this.ships)
 					.concat(this.blackHoles);
 	}
 
@@ -518,7 +527,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		var game = this;
 
 		if (!movingObjects) {
-			var movingObjects = this.movingObjects();
+			var movingObjects = this.nonBulletMovingObjects();
 		}
 
 		movingObjects.forEach(function(object){
@@ -629,8 +638,13 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			this.changeAsteroidSpeed(this.difficultyRate);
 	};
 
-	GlobalGame.prototype.damageAsteroid = function(asteroid, damage) {
+	GlobalGame.prototype.damageAsteroid = function (asteroid, damage) {
 		asteroid.health -= damage;
+	};
+
+	GlobalGame.prototype.growBlackHole = function (blackHole, amt) {
+		blackHole.grow(amt);
+		console.log('growing black hole')
 	};
 
 	GlobalGame.prototype.changeAsteroidSpeed = function (amnt) {
@@ -645,11 +659,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	GlobalGame.prototype.handleAsteroidBulletCollisions = function (as, bullet) {
 		this.damageAsteroid(as, bullet.damage);
 		this.removeBullet(bullet);
-	};
-
-	GlobalGame.prototype.handleAsteroidBlackHoleCollisions = function (as, blackHole) {
-		this.damageAsteroid(as, blackHole.radius);
-		blackHole.grow(as.radius);
+		this.ticAsteroidKills();
 	};
 
 	GlobalGame.prototype.detectCollidingAsteroids = function() {
@@ -716,8 +726,15 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 	};
 
+	GlobalGame.prototype.detectAddBlackHoleReady = function() {
+		if (this.asteroidKills % 25 == 0) {
+			this.addBlackHole();
+			this.ticAsteroidKills();
+		}
+	};
+
 	GlobalGame.prototype.get = function (objID) {
-		var objects = this.asteroids.concat(this.bullets).concat(this.ships);
+		var objects = this.movingObjects();
 		var matchingObj;
 
 		objects.forEach(function (obj) {
@@ -728,6 +745,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		})
 
 		return matchingObj;
+	};
+
+	GlobalGame.prototype.tic = function() {
+		this._counter += 1;
+	}
+
+	GlobalGame.prototype.ticAsteroidKills = function() {
+		this.asteroidKills += 1;
 	}
 
 	GlobalGame.prototype.stop = function() {
@@ -773,6 +798,12 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ClientGame.prototype.addBackground = function() {
 		this.background = new global.Background(this);
+	};
+
+	ClientGame.prototype.addBlackHole = function (bhOpts) {
+		if (!bhOpts) var bhOpts = global.BlackHole.randomBlackHoleValues();
+		this.blackHoles.push(new global.BlackHole(bhOpts));
+		this.announce('black hole');
 	};
 
 	ClientGame.prototype.lost = function() {
@@ -998,9 +1029,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		ship.health -= asteroid.radius;
 	};
 
+	Game.prototype.handleAsteroidBlackHoleCollisions = function (as, blackHole) {
+		this.damageAsteroid(as, blackHole.radius);
+		this.growBlackHole(blackHole, as.radius);
+	};
+
 	Game.prototype.handleDestroyedShip = function (ship) {
 		this.lost();
-	}
+	};
 
 	Game.prototype.detectDestroyedShips = function() {
 		var game = this;
@@ -1040,6 +1076,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detectExplodedTexts();
 		this.detectLevelChangeReady();
 		this.detectAsteroidBlackHoleCollisions();
+		this.detectAddBlackHoleReady();
 	};
 
 	Game.prototype.step = function() {
@@ -1050,6 +1087,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detect();
 		this.draw();
 		this.move();
+		this.tic();
 	};
 
 	Game.prototype.pause = function() {
@@ -1111,6 +1149,18 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 		this.addReadout();
 	};
+
+	GameMP.prototype.foreignAddBlackHole = function (bhOpts) {
+		this.addBlackHole(bhOpts);
+	};
+
+	GameMP.prototype.foreignGrowBlackHole = function (amtOpts) {
+		var blackHole = this.get(amtOpts.id);
+		console.log('growing the following black hole')
+		console.log(blackHole)
+		var amt = amtOpts.amt;
+		this.growBlackHole(blackHole, amt)
+	}
 
 	GameMP.prototype.fireForeignShip = function (bulletOpts) {
 		var ship = this.get(bulletOpts.shipID);
@@ -1271,7 +1321,6 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detectExplodedTexts();
 		this.detectSendState();
 		this.detectStarBlackHoleCollisions();
-		this.detectAsteroidBlackHoleCollisions();
 		// this.detectLevelChangeReady();
 	};
 
@@ -1285,6 +1334,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.asteroids = [];
 		// this.bullets = [];
 		this.ships = [this.ships[0]];
+		this.blackHoles = [];
 	};
 
 	GameMP.prototype.handleFullState = function (fullStateObject) {
@@ -1297,6 +1347,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 			switch (stateObj.type) {
 				case 'asteroid':
 					game.handleFullStateAsteroid(stateObj);
+					break;
+				case 'blackHole':
+					game.handleFullStateBlackHole(stateObj);
 					break;
 				case 'bullet':
 					game.handleFullStateBullet(stateObj);
@@ -1312,11 +1365,15 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	}
 
 	GameMP.prototype.handleFullStateAsteroid = function (stateObj) {
-		this.asteroids.push(new global.Asteroid(stateObj))
+		this.asteroids.push(new global.Asteroid(stateObj));
+	}
+
+	GameMP.prototype.handleFullStateBlackHole = function (stateObj) {
+		this.blackHoles.push(new global.BlackHole(stateObj));
 	}
 
 	GameMP.prototype.handleFullStateBullet = function (stateObj) {
-		this.bullets.push(new global.Bullet(null, stateObj))
+		this.bullets.push(new global.Bullet(null, stateObj));
 	}
 
 	GameMP.prototype.handleFullStateShip = function (stateObj) {
@@ -1704,15 +1761,27 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	var BlackHole = global.BlackHole = function (opts) {
 		var opts = opts ? opts : {};
-		var pos = opts.pos || new Vector([100, 100]);
-		var vel = opts.vel || new Vector([-1, -1]);
+		var pos = opts.pos ? new Vector(opts.pos) : [100, 100];
+		var vel = opts.vel ? new Vector(opts.vel) : Store.randomVel();
 		var radius = opts.radius || 50;
-		this.mass = 100000000000;
+		this.mass = opts.mass || 100000000000;
+		this.id = opts.id || null;
 
 		MovingObject.call(this, pos, vel, radius);
 	}
 
 	Store.inherits(BlackHole, MovingObject);
+
+	BlackHole.randomBlackHoleValues = function() {
+		var opts = {
+			pos: [100, 100],
+			vel: Store.randomVel(),
+			radius: 50,
+			mass: 100000000000
+		}
+
+		return opts;
+	};
 
 	BlackHole.prototype.draw = function (ctx) {
 		ctx.beginPath();
@@ -1725,6 +1794,19 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.radius += amt / 10;
 		this.mass += amt * 10;
 	};
+
+	BlackHole.prototype.getState = function() {
+		var stateObj = {
+			type: 'blackHole',
+			id: this.id,
+			mass: this.mass,
+			radius: this.radius,
+			vel: this.vel.to_a(),
+			pos: this.pos.to_a()
+		}
+
+		return stateObj
+	}
 })(Asteroids);
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
@@ -2180,7 +2262,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.height = height = options.height;
 		this.width = width = options.width;
 		this.radius = options.radius || 1;
-		this.vel = options.vel ? new Vector(options.vel) : Store.randomVel().scale(0.02);
+		this.vel = options.vel ? new Vector(options.vel) : new Vector(Store.randomVel()).scale(0.02);
 		var posi = new Vector([(Math.random() * width), (Math.random() * height)]);
 		this.pos = options.pos ? new Vector(options.pos) : posi;
 		this.color = ['#8A2C1F', 'blue', 'grey', 'grey', 'grey', 'grey', 'grey'].sample();
@@ -2270,6 +2352,16 @@ var SocketListener = Asteroids.SocketListener = {};
 		socket.on('addAsteroid', function (asteroidOpts) {
 			debug('received asteroid')
 			game.addAsteroid(asteroidOpts);
+		})
+
+		socket.on('addBlackHole', function (bhOpts) {
+			debug('received black hole');
+			game.foreignAddBlackHole(bhOpts);
+		})
+
+		socket.on('growBlackHole', function (amtOpts) {
+			debug('grow black hole')
+			game.foreignGrowBlackHole(amtOpts);
 		})
 
 		socket.on('explodeAsteroid', function (asteroidOpts) {

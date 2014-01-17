@@ -30,6 +30,14 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		}
 	};
 
+	ServerGame.prototype.addBlackHole = function() {
+		var blackHoleOpts = global.BlackHole.randomBlackHoleValues();
+
+		this.blackHoles.push(new global.BlackHole(blackHoleOpts));
+
+		this.serverResponder.addBlackHole(blackHoleOpts);
+	};
+
 	ServerGame.prototype.addShip = function (shipOpts) {
 		console.log(shipOpts)
 		console.log('##############')
@@ -76,8 +84,10 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	}
 
 	ServerGame.prototype.move = function() {
+		var game = this;
+
 		this.movingObjects().forEach(function (object) {
-			this.blackHoles.forEach(function (blackHole) {
+			game.blackHoles.forEach(function (blackHole) {
 				object.gravitate(blackHole);
 			})
 
@@ -168,12 +178,21 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 	ServerGame.prototype.handleDestroyedShip = function (ship) {
 		this.serverResponder.handleDestroyedShip({ id: ship.id })
-		console.log('HANDLEDESTROYEDSHIP CALLED')
-		console.log('***********************8')
-		console.log(this.ships)
 
 		this.ships.remove(ship);
 	}
+
+	ServerGame.prototype.handleAsteroidBlackHoleCollisions = function (as, blackHole) {
+		this.damageAsteroid(as, blackHole.radius);
+		this.growBlackHole(blackHole, as.radius);
+
+		var amtOpts = {
+			id: blackHole.id,
+			amt: as.radius
+		}
+
+		this.serverResponder.growBlackHole(amtOpts);
+	};
 
 	ServerGame.prototype.detectHitShip = function() {
 		var ship;
@@ -227,14 +246,11 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detectSendFullState();
 		this.detectHitShip();
 		this.detectAsteroidBlackHoleCollisions();
+		this.detectAddBlackHoleReady();
 	};
 
 	ServerGame.prototype.sendFullState = function() {
 		this.serverResponder.sendFullState();
-	}
-
-	ServerGame.prototype.tic = function() {
-		this._counter += 1;
 	}
 
 	ServerGame.prototype.step = function() {
@@ -266,7 +282,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	};
 
 	ServerGame.prototype.getFullState = function() {
-		var objs = this.asteroids.concat(this.ships)//.concat(this.bullets)
+		var objs = this.nonBulletMovingObjects();
 		var states = objs.map(function (obj) {
 			return obj.getState();
 		})
