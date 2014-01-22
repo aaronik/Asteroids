@@ -2148,7 +2148,7 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 	var ExhaustParticle = global.ExhaustParticle = function (options) {
 		this.ship = options.ship;
 		this.pos = this.ship.pos.scale(1);
-		this.vel = this.ship.vel.add(this.ship.orientation.scale(-15).nudge());
+		this.vel = this.ship.vel.add(this.ship.orientation.scale(-15).nudge(0.15));
 		this.radius = options.radius || 10;
 		// this.color = ['orange', 'red', 'yellow', 'orange', 'orage'].sample();
 		this.RGB = ['226,72,0','204,24,0','134,2,0','255,119,1'].sample();
