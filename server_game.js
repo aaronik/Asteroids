@@ -247,6 +247,8 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 		this.detectHitShip();
 		this.detectAsteroidBlackHoleCollisions();
 		this.detectAddBlackHoleReady();
+		this.detectShipBlackHoleCollisions();
+		this.detectBulletBlackHoleCollisions();
 	};
 
 	ServerGame.prototype.sendFullState = function() {

@@ -783,6 +783,21 @@
 		return collisions;
 	};
 
+	GlobalGame.prototype.collidedBullets = function() {
+		var game = this;
+		var bullets = [];
+
+		this.bullets.forEach(function(bullet){
+			game.asteroids.forEach(function(asteroid){
+				if (bullet.isCollidedWith(asteroid)) {
+					bullets.push(bullet);
+				}
+			})
+		})
+
+		return bullets;
+	};
+
 	GlobalGame.prototype.depopulateNoExplodeAsteroids = function() {
 		var game = this;
 
@@ -799,36 +814,6 @@
 				game.noExplodeAsteroids.remove(as1);
 			}
 		})
-	};
-
-	GlobalGame.prototype.collidedBullets = function() {
-		var game = this;
-		var bullets = [];
-
-		this.bullets.forEach(function(bullet){
-			game.asteroids.forEach(function(asteroid){
-				if (bullet.isCollidedWith(asteroid)) {
-					bullets.push(bullet);
-				}
-			})
-		})
-
-		return bullets;
-	};
-
-	GlobalGame.prototype.collidedBullets = function() {
-		var game = this;
-		var bullets = [];
-
-		this.bullets.forEach(function(bullet){
-			game.asteroids.forEach(function(asteroid){
-				if (bullet.isCollidedWith(asteroid)) {
-					bullets.push(bullet);
-				}
-			})
-		})
-
-		return bullets;
 	};
 
 	GlobalGame.prototype.repopulateAsteroids = function() {
@@ -861,6 +846,38 @@
 		this.damageAsteroid(as, bullet.damage);
 		this.removeBullet(bullet);
 		this.ticAsteroidKills();
+	};
+
+	GlobalGame.prototype.handleShipBlackHoleCollisions = function (ship) {
+		this.handleDestroyedShip(ship);
+	};
+
+	GlobalGame.prototype.handleBulletBlackHoleCollisions = function (bullet) {
+		this.removeBullet(bullet);
+	};
+
+	GlobalGame.prototype.detectShipBlackHoleCollisions = function() {
+		var game = this;
+
+		this.ships.forEach(function (ship) {
+			game.blackHoles.forEach(function (bh) {
+				if (ship.isCollidedWith(bh)) {
+					game.handleShipBlackHoleCollisions(ship);
+				}
+			})
+		})
+	};
+
+	GlobalGame.prototype.detectBulletBlackHoleCollisions = function() {
+		var game = this;
+
+		this.bullets.forEach(function (bullet) {
+			game.blackHoles.forEach(function (bh) {
+				if (bullet.isCollidedWith(bh)) {
+					game.handleBulletBlackHoleCollisions(bullet);
+				}
+			})
+		})
 	};
 
 	GlobalGame.prototype.detectCollidingAsteroids = function() {
@@ -1217,6 +1234,8 @@
 		this.detectHitShip();
 		this.detectAsteroidBlackHoleCollisions();
 		this.detectAddBlackHoleReady();
+		this.detectShipBlackHoleCollisions();
+		this.detectBulletBlackHoleCollisions();
 	};
 
 	ServerGame.prototype.sendFullState = function() {

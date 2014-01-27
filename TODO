@@ -1,5 +1,4 @@
-
--add black hole
+-server should terminate running games with no connection instead of blindly timing out
 -gravity-point object seems to be pretty cool, could work with that
 -ship to be cool shape?
 -high scores DB for multiplayer games
