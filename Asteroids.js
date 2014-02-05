@@ -1244,10 +1244,10 @@
 
 	ServerGame.prototype.step = function() {
 		// this.clearOOBAsteroids();
+		this.detect();
 		this.clearOOBObjects();
 		this.depopulateNoExplodeAsteroids();
 		this.wrapMovingObjects();
-		this.detect();
 		// this.draw();
 		this.move();
 		this.tic();

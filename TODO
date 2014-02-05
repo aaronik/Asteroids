@@ -1,3 +1,4 @@
+-game box should show up and display disconnected while multiplayer game is waiting
 -server should terminate running games with no connection instead of blindly timing out
 -gravity-point object seems to be pretty cool, could work with that
 -ship to be cool shape?
