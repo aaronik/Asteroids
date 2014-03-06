@@ -20,6 +20,11 @@ app.use(express.session());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
+process.on('uncaughtException', function (error) {
+	console.warn 'OUUUCHHHHH... Handling an uncaught exception!!!';
+	console.error error.stack;
+})
+
 app.get('/', routes.index);
 
 var server = http.createServer(app).listen(app.get('port'), function(){
