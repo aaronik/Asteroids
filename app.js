@@ -35,18 +35,6 @@ var io = require('socket.io').listen(server);
 var Asteroids = require('./Asteroids.js');
 var sessions = new Asteroids.Sessions(); // this guy will aid us in requestSessionsStatus
 
-// if (app.get('env') != 'development') {
-
-// 	// unfortunately heroku lacks support for true sockets
-// 	io.configure(function () {
-// 		io.set("transports", ["xhr-polling"]);
-// 		io.set("polling duration", 10);
-// 	});
-
-// } else {
-// 	console.log('development environment detected, using true bidirectional sockets');
-// }
-
 // Begin socket listeners
 io.sockets.on('connection', function (socket) {
 	socket.emit('connectionSuccessful');

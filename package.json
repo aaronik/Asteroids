@@ -2,7 +2,7 @@
   "author": "Aaron Sullivan <AaSullivan1618@gmail.com> (github.com/aaronik)",
   "name": "Asteroids",
   "description": "clone of one of the most classic of all games",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "homepage": "git://github.com/aaronik/asteroids",
   "dependencies": {
     "express": "3.x",

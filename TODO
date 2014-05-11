@@ -13,16 +13,23 @@
  -Maybe use stars moving in one direction with nudge as paralax?
 - ctx.fillRect() and ctx.createRadialGradient do some cool stuff when creating many on top of eachtoerh in the same place.  Like a beacon.  
 -add dev_options to readout - will have asteroids array, noExplodeAsteroids array, bullets, what else?
--make a separate 'detect' class
--Would the game become deterministic if there was only one master timer, say on the server?  
+-Would the game become deterministic if there was only one master timer, say on the server?
 
 ### Better Multiplayer ###
 
 -Asteroids should not be jumpy
- -Maybe when asteroid info / 'full state' is passed down it shouldn't update the asteroid entirely.  Only specific aspects.  I.E. The orientation need not be changed.  Which means either asteroids should not be replaced, or aspects of the old asteroids should be pulled out and put into the new ones.  
+	 -Maybe when asteroid info / 'full state' is passed down it shouldn't update the asteroid entirely.  Only specific aspects.  I.E. The orientation need not be changed.  Which means either asteroids should not be replaced, or aspects of the old asteroids should be pulled out and put into the new ones.  
 
- Strategies for moving forward:
- 1) Change so that asteroids are not replaced, and destroy signals are sent down from server.
- 2) Adapt current system to pull in the state that should be saved.
+	 Strategies for moving forward:
+	 1) Change so that asteroids are not replaced, and destroy signals are sent down from server.
+	 2) Adapt current system to pull in the state that should be saved.
 
- 1 is good for speed, but not as robust.  Does it need to be?  2 is going to slow things down, but possibly imperceptibly.  Also more robust if a signal does not make it to the client, but will that ever happen?  Maybe the server should send down the full state and the client should just do what it will with it.
+	 1 is good for speed, but not as robust.  Does it need to be?  2 is going to slow things down, but possibly imperceptibly.  Also more robust if a signal does not make it to the client, but will that ever happen?  Maybe the server should send down the full state and the client should just do what it will with it.
+
+-Timers
+	-Could be one universal timer, on server, and it either pushes everything or requests tick on client side.  Then flying your own ship would not be as smooth.
+	-Could build an accurate timer. (Hard - need ~30 ms precision)
+
+-Websocket Libraries
+	-ws familiar with it (now) but it has nothing going for it
+	-Socket.io auto downgrade from websocket to xhr to flash, etc.  Built in rooms.
