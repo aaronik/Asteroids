@@ -1949,16 +1949,13 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 				break;
 			case 'hmpg':
 				this.hostMultiPlayerGame();
-				// this.notAvailable();
 				break;
 			case 'jmpg':
 				this.createRequestScreen();
 				// this.joinMultiPlayerGame();
-				// this.notAvailable();
 				break;
 			case 'jrmpg':
 				this.joinRandomMultiPlayerGame();
-				// this.notAvailable();
 				break;
 		}
 	};

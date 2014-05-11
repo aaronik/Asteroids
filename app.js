@@ -21,8 +21,8 @@ app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
 process.on('uncaughtException', function (error) {
-	console.warn 'OUUUCHHHHH... Handling an uncaught exception!!!';
-	console.error error.stack;
+	console.warn('OUUUCHHHHH... Handling an uncaught exception!!!');
+	console.error(error.stack);
 })
 
 app.get('/', routes.index);
@@ -35,17 +35,17 @@ var io = require('socket.io').listen(server);
 var Asteroids = require('./Asteroids.js');
 var sessions = new Asteroids.Sessions(); // this guy will aid us in requestSessionsStatus
 
-if (app.get('env') != 'development') {
+// if (app.get('env') != 'development') {
 
-	// unfortunately heroku lacks support for true sockets
-	io.configure(function () {
-		io.set("transports", ["xhr-polling"]);
-		io.set("polling duration", 10);
-	});
+// 	// unfortunately heroku lacks support for true sockets
+// 	io.configure(function () {
+// 		io.set("transports", ["xhr-polling"]);
+// 		io.set("polling duration", 10);
+// 	});
 
-} else {
-	console.log('development environment detected, using true bidirectional sockets');
-}
+// } else {
+// 	console.log('development environment detected, using true bidirectional sockets');
+// }
 
 // Begin socket listeners
 io.sockets.on('connection', function (socket) {
