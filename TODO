@@ -33,3 +33,15 @@
 -Websocket Libraries
 	-ws familiar with it (now) but it has nothing going for it
 	-Socket.io auto downgrade from websocket to xhr to flash, etc.  Built in rooms.
+
+* WebRTC
+	* Totally could make this happen.
+	* Heroku app is STUN server (facilitate connections)
+	* Same app contains persistant memory (which isn't even a thing yet :D) maybe with MongoDB?  Or redis, or even MySQL?  Maybe that last one would be good b/c free and I don't get it yet.
+	* One master with master clock, time can be treated as discrete and ticks on slaves will be signaled by master -- one client fails, whole game goes down.  Not an option.
+	* All are equal, totally distributed, decentralized network.  Each client emits every event to every client.  How to achieve deterministic state?  Who has final say?  
+			* Maybe the client with the fastest tick speeds over the course of a period of time like 0.5 seconds or 2 seconds or something?
+				* Each client will wait the 0.5 seconds for requests to come in.  Each request will have a { tickNumber: 234, timeStamp: 3423428 } and the latest timestamp after that period of time passes will be chosen.  PROBLEMS: how will that 0.5 seconds be determined?  Oh that's an imprecise timer, that can be done accurately.  Ok, now that that one is taken, what info will be in it?  
+		* Clients can fail and the game would survive.  Must be this way.
+		* Games each have their own timer, so time is continuous.
+		* Each client is in charge of their own ship still!
