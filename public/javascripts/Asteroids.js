@@ -2097,10 +2097,9 @@ var Asteroids = this.Asteroids = (this.Asteroids || {});
 })(Asteroids)
 
 window.onload = function() {
-
 	// let's handle that index page
 	var bs = document.getElementsByClassName('button');
-	Asteroids.Store.assignOnclickToNodeList(bs, 
+	Asteroids.Store.assignOnclickToNodeList(bs,
 		function(data){
 			// handle what should actually happen
 
@@ -2114,13 +2113,14 @@ window.onload = function() {
 				Asteroids.Visuals.fade(mainWrapper, 1, 0, -0.2, function(){
 					document.getElementById('main-wrapper').remove();
 
-					new Asteroids.GameStarter(data.toElement.id)
+					new Asteroids.GameStarter(data.target.id)
 				});
 			}, 300)
 		}
 	);
-	
+
 }
+
 var Asteroids = this.Asteroids = (this.Asteroids || {});
 
 (function(global){

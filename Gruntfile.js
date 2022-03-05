@@ -1,54 +1,54 @@
 module.exports = function(grunt) {
 
-var jsClientSourceFiles = [ 
-  'lib/javascripts/array.js',
-  'lib/javascripts/vector.js',
-  'lib/javascripts/store.js',
-  'lib/javascripts/cookie.js',
-  'lib/javascripts/moving_object.js',
-  'lib/javascripts/asteroid.js',
-  'lib/javascripts/global_game.js',
-  'lib/javascripts/client_game.js',
-  'lib/javascripts/game.js',
-  'lib/javascripts/game_mp.js',
-  'lib/javascripts/ship.js',
-  'lib/javascripts/key_listener.js',
-  'lib/javascripts/bullet.js',
-  'lib/javascripts/black_hole.js',
-  'lib/javascripts/visuals.js',
-  'lib/javascripts/init.js',
-  'lib/javascripts/text.js',
-  'lib/javascripts/exhaust_particle.js',
-  'lib/javascripts/background.js',
-  'lib/javascripts/star.js',
-  'lib/javascripts/client_listener.js'
-];
+  var jsClientSourceFiles = [
+    'lib/javascripts/array.js',
+    'lib/javascripts/vector.js',
+    'lib/javascripts/store.js',
+    'lib/javascripts/cookie.js',
+    'lib/javascripts/moving_object.js',
+    'lib/javascripts/asteroid.js',
+    'lib/javascripts/global_game.js',
+    'lib/javascripts/client_game.js',
+    'lib/javascripts/game.js',
+    'lib/javascripts/game_mp.js',
+    'lib/javascripts/ship.js',
+    'lib/javascripts/key_listener.js',
+    'lib/javascripts/bullet.js',
+    'lib/javascripts/black_hole.js',
+    'lib/javascripts/visuals.js',
+    'lib/javascripts/init.js',
+    'lib/javascripts/text.js',
+    'lib/javascripts/exhaust_particle.js',
+    'lib/javascripts/background.js',
+    'lib/javascripts/star.js',
+    'lib/javascripts/client_listener.js'
+  ];
 
-var jsServerSourceFiles = [ 
-  'lib/javascripts/array.js',
-  'lib/javascripts/vector.js',
-  'lib/javascripts/store.js',
-  'lib/javascripts/moving_object.js',
-  'lib/javascripts/asteroid.js',
-  // 'lib/javascripts/game.js',
-  // 'lib/javascripts/game_mp.js',
-  'lib/javascripts/ship.js',
-  'lib/javascripts/bullet.js',
-  'lib/javascripts/black_hole.js',
-  'lib/javascripts/global_game.js',
-  'server_game.js',
-  'server_listener.js',
-  'server_responder.js',
-  'server_sessions.js'
-  // 'lib/javascripts/key_listener.js',
-  // 'lib/javascripts/visuals.js',
-  // 'lib/javascripts/init.js',
-  // 'lib/javascripts/text.js',
-  // 'lib/javascripts/exhaust_particle.js',
-  // 'lib/javascripts/background.js',
-  // 'lib/javascripts/star.js',
-  // 'lib/javascripts/client_listener.js'
-];
+  var jsServerSourceFiles = [
+    'lib/javascripts/array.js',
+    'lib/javascripts/vector.js',
+    'lib/javascripts/store.js',
+    'lib/javascripts/moving_object.js',
+    'lib/javascripts/asteroid.js',
+    // 'lib/javascripts/game.js',
+    // 'lib/javascripts/game_mp.js',
+    'lib/javascripts/ship.js',
+    'lib/javascripts/bullet.js',
+    'lib/javascripts/black_hole.js',
+    'lib/javascripts/global_game.js',
+    'server_game.js',
+    'server_listener.js',
+    'server_responder.js',
+    'server_sessions.js'
+    // 'lib/javascripts/key_listener.js',
+    // 'lib/javascripts/visuals.js',
+    // 'lib/javascripts/init.js',
+    // 'lib/javascripts/text.js',
+    // 'lib/javascripts/exhaust_particle.js',
+    // 'lib/javascripts/background.js',
+    // 'lib/javascripts/star.js',
+    // 'lib/javascripts/client_listener.js'
+  ];
 
 
   grunt.initConfig({
@@ -72,9 +72,12 @@ var jsServerSourceFiles = [
       }
     },
     sass: {
+      // options: {
+      //   implementation: sass
+      // },
       dist: {
         files: {
-            '<%= cssDistDir %><%= pkg.name %>.css': '<%= cssDir %>main.scss'
+          '<%= cssDistDir %><%= pkg.name %>.css': '<%= cssDir %>main.scss'
         }
       }
     },
@@ -136,5 +139,5 @@ var jsServerSourceFiles = [
     'build',
     'concurrent'
   ]);
-  
+
 };

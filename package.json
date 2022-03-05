@@ -16,15 +16,17 @@
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-cli": "~0.1.11",
-    "grunt-contrib-uglify": "~0.2.7",
-    "grunt-contrib-cssmin": "~0.7.0",
-    "grunt-contrib-watch": "~0.5.3",
-    "grun": "~0.2.0",
+    "grunt-concurrent": "~0.4.2",
     "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-cssmin": "~0.7.0",
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-contrib-watch": "~0.5.3",
     "grunt-nodemon": "~0.1.2",
-    "grunt-concurrent": "~0.4.2"
+    "nodemon": "^2.0.15"
   },
   "scripts": {
+    "build:local": "grunt",
+    "build:watch": "nodemon -e js --exec 'npm run build'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
