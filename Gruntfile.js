@@ -130,8 +130,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask('build', [
     'concat',
-    'sass',
     'uglify',
+    'sass',
     'cssmin'
   ]);
 
