@@ -1,45 +1,52 @@
 {
-  "author": "Aaron Sullivan <AaSullivan1618@gmail.com> (github.com/aaronik)",
-  "name": "Asteroids",
-  "description": "clone of one of the most classic of all games",
+  "name": "asteroids",
   "version": "0.1.0",
-  "homepage": "git://github.com/aaronik/asteroids",
+  "private": true,
   "dependencies": {
-    "ejs": "*",
-    "express": "3.x",
-    "grunt-sass": "^3.1.0",
-    "socket.io": "~0.9.16"
-  },
-  "readmeFilename": "README.md",
-  "gitHead": "92037fec3b5b51c870428dac0f570a15f798eeb4",
-  "main": "app.js",
-  "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-cli": "~0.1.11",
-    "grunt-concurrent": "~0.4.2",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-cssmin": "~0.7.0",
-    "grunt-contrib-uglify": "~0.2.7",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-nodemon": "~0.1.2",
-    "nodemon": "^2.0.15"
+    "@browser-network/crypto": "^0.0.3",
+    "@browser-network/database": "../browser-network/database",
+    "@browser-network/network": "../browser-network/network",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.11.56",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.1",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.8.2",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "run": "node app.js",
-    "build:local": "grunt",
-    "build:watch": "nodemon -e js --exec 'npm run build'",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "release": "npm run build && npm run deploy && rm -rf build",
+    "deploy": "gh-pages -d build"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/Aaronik/Asteroids.git"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
-  "keywords": [
-    "Asteroids",
-    "Game"
-  ],
-  "license": "BSD",
-  "engines": {
-    "node": "12.16.x"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "gh-pages": "^4.0.0"
   }
 }
