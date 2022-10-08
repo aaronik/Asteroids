@@ -8,6 +8,7 @@ type ExplodingTextOptions = {
   growRate?: number
   alpha?: number
   alphaChangeRate?: number
+  onComplete?: () => void
 }
 
 export default class ExplodingText {
@@ -18,6 +19,7 @@ export default class ExplodingText {
   growRate: number
   alpha: number
   alphaChangeRate: number
+  onComplete?: () => void
 
 	constructor(options: ExplodingTextOptions) {
 		this.game = options.game
@@ -27,6 +29,7 @@ export default class ExplodingText {
 		this.growRate = options.growRate || 10
 		this.alpha = options.alpha || 1
 		this.alphaChangeRate = options.alphaChangeRate || 0.02
+    this.onComplete = options.onComplete
 
 		this.initialize()
 	}
@@ -38,11 +41,10 @@ export default class ExplodingText {
 			const timer = setInterval(() => {
 				if (this.alpha <= 0) {
           clearInterval(timer)
-          game.explodingTexts.remove(this)
+          game.handleExplodedText(this)
           game.draw()
         }
         else {
-          console.log('game drawing, alpha:', this.alpha)
           game.draw()
         }
 			}, this.game.FPS)

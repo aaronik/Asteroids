@@ -1,4 +1,4 @@
-import MultiPlayerGameHost from "./game/multiplayerGameHost"
+import MultiPlayerGameHost from "./game/multiPlayerGameHost"
 import Asteroid, { AsteroidOptions } from "./lib/asteroid"
 import BlackHole, { BlackHoleOptions } from "./lib/blackHole"
 import Bullet, { BulletOptions } from "./lib/bullet"
@@ -105,9 +105,6 @@ export type AsteroidsMessage = { appId: AppId } & ({
 } | {
   type: 'hitShip'
   data: HitShipOptions
-} | {
-  type: 'destroyedShip'
-  data: string // ship id
 } | {
   type: 'levelUp'
 } | {

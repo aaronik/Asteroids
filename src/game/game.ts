@@ -15,6 +15,7 @@ import KeyListener from "../lib/keyListener"
 import { Direction } from "../types"
 import { isAnyCombinationOf } from "../util"
 import MassiveObject from "../lib/massiveObject"
+import { router } from "../App"
 
 export default abstract class Game {
   FPS = 30
@@ -146,7 +147,9 @@ export default abstract class Game {
 
   lost() {
     this.stop()
-    this.announce('You\'ve lost.', true)
+    this.announce('You\'ve lost.', true, () => {
+      router.navigate('/lost')
+    })
   }
 
   draw() {
@@ -169,12 +172,16 @@ export default abstract class Game {
     })
 
     // ship
-    { // -- rigamorole so our ship is drawn on top of others
-      const { shipId, ...rest } = this.ships
-      Object.values(rest).forEach(ship => {
-        ship.draw(game.ctx)
+    { // -- rigamorole so our ship is drawn on top of others, unless we've lost
+      let ourShip: Ship
+      Object.values(this.ships).forEach(ship => {
+        if (ship.id === this.ship.id) {
+          ourShip = ship
+        } else {
+          ship.draw(game.ctx)
+        }
+        ourShip?.draw(game.ctx)
       })
-      this.ship.draw(game.ctx)
     }
 
     // asteroids
@@ -215,11 +222,10 @@ export default abstract class Game {
     this.background.move()
   }
 
-  announce(txt: string, independentTimer: boolean = false) {
+  announce(txt: string, independentTimer: boolean = false, onComplete?: () => void) {
     const explodingTextOptions = {
-      game: this,
-      txt: txt,
-      independentTimer: independentTimer
+      txt, independentTimer, onComplete,
+      game: this
     }
 
     this.explodingTexts.push(new ExplodingText(explodingTextOptions))
@@ -251,6 +257,7 @@ export default abstract class Game {
 
   handleExplodedText(txt: ExplodingText) {
     this.explodingTexts.remove(txt)
+    txt.onComplete?.()
   }
 
   handleStarBlackHoleCollisions(star: Star) {
@@ -346,6 +353,7 @@ export default abstract class Game {
 
   detect() {
     this.detectExplodedTexts()
+    this.detectDestroyedShips()
 
     // TODO we can get rid of all the handle functions in here too by inlining these
     // ops. I think it'll be cleaner. Maybe could have a helper function to get the
@@ -580,6 +588,7 @@ export default abstract class Game {
   }
 
   stop() {
+    console.log('game.stop from game')
     clearInterval(this.mainTimer)
     delete this.mainTimer
   }

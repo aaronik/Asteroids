@@ -13,7 +13,7 @@ export default class SinglePlayerGame extends Game {
 	}
 
 	handleDestroyedShip() {
-		// this.lost()
+		this.lost()
 	}
 
 	detect() {

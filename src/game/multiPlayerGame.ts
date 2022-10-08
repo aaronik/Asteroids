@@ -6,8 +6,9 @@ import CustomArray from "../lib/array"
 import BlackHole, { BlackHoleOptions } from "../lib/blackHole"
 import Bullet, { BulletOptions } from "../lib/bullet"
 import { APP_ID, network } from '../network'
-import { AsteroidsMessage, GrowBlackHoleOptions, HitShipOptions, ShipFullState, Direction } from "../types"
+import { GrowBlackHoleOptions, HitShipOptions, ShipFullState, Direction } from "../types"
 import ExhaustParticle from "../lib/exhaustParticle"
+import MultiPlayerListener from "../lib/multiplayerListener"
 
 const SHIP_STATE_SEND_RATE = 30
 const generateStatusString = () => {
@@ -17,17 +18,20 @@ const generateStatusString = () => {
 export default class MultiPlayerGame extends Game {
   gameId: string
   status: string = generateStatusString()
+  multiPlayerListener: MultiPlayerListener
+  type: 'host' | 'guest'
 
   constructor(gameId: string, canvasEl: HTMLCanvasElement) {
     super(canvasEl)
     this.gameId = gameId
-    //this.ship assigned in addShip
+    this.multiPlayerListener = new MultiPlayerListener(this)
+    //this.ship assigned in addShip // TODO Why? Cleaning this up may clean up ships in general
 
     // TODO remove
     network.on('message', (mes) => {
       if (mes.appId !== APP_ID(this)) return console.count('received other app message: ' + mes.appId)
 
-      const message = mes as AsteroidsMessage
+      // const message = mes as AsteroidsMessage
 
       // mes.appId
       // message.appId
@@ -49,6 +53,11 @@ export default class MultiPlayerGame extends Game {
     //   // console.groupEnd()
     // })
 
+  }
+
+  teardown() {
+    super.teardown()
+    this.multiPlayerListener.stopListening()
   }
 
   recalculateStatus() {
@@ -175,12 +184,6 @@ export default class MultiPlayerGame extends Game {
     const ship = this.get(opts.shipId) as Ship
     const damage = opts.damage
     ship.health -= damage
-  }
-
-  // TODO Do we want this? Can't it just be handled by detecting destroyed ships?
-  foreignDestroyedShip(shipId: string) {
-    const ship = this.get(shipId) as Ship
-    this.handleDestroyedShip(ship)
   }
 
   handleDestroyedShip(ship: Ship) {

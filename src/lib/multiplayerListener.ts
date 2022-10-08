@@ -1,115 +1,138 @@
-import MultiplayerGameHost from '../game/multiplayerGameHost'
-import MultiPlayerGameGuest from '../game/multiplayerGameGuest'
+import type MultiPlayerGame from '../game/multiPlayerGame'
+import type MultiPlayerGameHost from '../game/multiPlayerGameHost'
+import type MultiPlayerGameGuest from '../game/multiPlayerGameGuest'
 import Asteroid from './asteroid'
 import { APP_ID, db, network } from '../network'
 import { AsteroidsMessage } from '../types'
-import MultiPlayerGameHost from '../game/multiplayerGameHost'
 import { neverGonnaGiveYouUp } from '../util'
+import { router } from '../App'
+import type { Message } from '@browser-network/network'
 
-type MultiplayerGame = MultiplayerGameHost | MultiPlayerGameGuest
+const debugFlag = false
+const debug = (...logs: any[]) => { if (debugFlag) console.log(...logs) }
 
-// TODO Introduce teardown functionality here too
-export default class MultiplayerListener {
-  static startListening(game: MultiplayerGame) {
-    var debugFlag = false
+// TODO Either this should be instantiable and made from game's constructor, or
+// KeyListener should be floating around too and made Singleton.
+export default class MultiPlayerListener {
+  game: MultiPlayerGame
 
-    const debug = (...logs: any[]) => { if (debugFlag) console.log(...logs) }
+  constructor(game: MultiPlayerGame) {
+    this.game = game
+    this.startListening()
+  }
 
-    if (game instanceof MultiPlayerGameGuest) {
-      // TODO unsubscribe fro this on game teardown
-      // TODO Here can handle when host leaves
-      db.onChange(() => {
-        const ourGame = db.getAll().find(wrapped => wrapped?.state?.gameId === game.gameId)
-        if (ourGame?.state) game.handleFullStateUpdate(ourGame.state)
-      })
+  startListening() {
+    db.onChange(this.onChange)
+    network.on('message', this.onMessage)
+    network.on('add-connection', () => this.updateGameStatus(this.game))
+    network.on('destroy-connection', () => this.updateGameStatus(this.game))
+  }
+
+  stopListening() {
+    db.removeChangeHandler(this.onChange)
+    network.on('message', this.onMessage)
+    network.removeListener('add-connection', this.updateGameStatus)
+    network.removeListener('destroy-connection', this.updateGameStatus)
+  }
+
+  private onChange = () => {
+    if (this.game.type !== 'guest') return
+
+    console.log('db onchange handler from MultiPlayerListener!')
+
+    const ourGame = db.getAll().find(wrapped => wrapped?.state?.gameId === this.game.gameId)
+
+    // when host leaves
+    if (!ourGame) {
+      this.stopListening()
+      router.navigate('/nohost')
     }
 
-    const updateGameStatus = (game: MultiplayerGame) => game.recalculateStatus()
-    network.on('add-connection', () => updateGameStatus(game))
-    network.on('destroy-connection', () => updateGameStatus(game))
+    if (ourGame?.state) (this.game as MultiPlayerGameGuest).handleFullStateUpdate(ourGame.state)
+  }
 
-    network.on('message', (mes) => {
-      if (mes.appId !== APP_ID(game)) return
-      const message = mes as AsteroidsMessage
+  private updateGameStatus(game: MultiPlayerGame) {
+    game.recalculateStatus()
+  }
 
-      switch (message.type) {
-        case 'addAsteroid':
-          debug('received asteroid:')
-          game.addAsteroid(message.data)
-          break
-        case 'addBlackHole':
-          debug('received black hole')
-          if (game instanceof MultiPlayerGameGuest)
-            game.foreignAddBlackHole(message.data)
-          break
-        case 'growBlackHole':
-          debug('grow black hole')
-          if (game instanceof MultiPlayerGameGuest)
-            game.foreignGrowBlackHole(message.data)
-          break
-        case 'explodeAsteroid':
-          debug('explodeAsteroid')
-          const asteroid = game.get(message.data) // asteroid id
-          if (asteroid) game.explodeAsteroid(asteroid as Asteroid)
-          break
-        case 'addShip':
-          debug('add foreign ship')
-          game.addForeignShip(message.data) // ship opts
-          break
-        case 'fireShip':
-          debug('firing foreign ship')
-          game.fireForeignShip(message.data) // bullet opts
-          break
-        case 'removeBullet':
-          debug('remove bullet')
-          if (game instanceof MultiPlayerGameGuest)
-            game.foreignRemoveBullet(message.data) // bullet opts
-          break
-        case 'powerShip':
-          debug('power foreign ship')
-          game.setRepetativeAction(message.data, 'up')
-          break
-        case 'turnShip':
-          debug('turn foreign ship')
-          game.setRepetativeAction(message.data.shipId, message.data.dir)
-          break
-        case 'dampenShip':
-          debug('dampen foreign ship')
-          game.setRepetativeAction(message.data.shipId, 'down')
-          break
-        case 'hitShip':
-          debug('hitShip')
-          game.foreignHitShip(message.data) // opts
-          break
-        case 'destroyedShip':
-          debug('destroyedShip')
-          game.foreignDestroyedShip(message.data) // shipId
-          break
-        case 'levelUp':
-          debug('foreign level up')
-          game.levelUp()
-          break
-        case 'pause':
-          debug('foreign pause')
-          if (game instanceof MultiPlayerGameHost) game.foreignPause()
-          break
-        case 'shipState':
-          debug('foreign shipState')
-          game.handleForeignShipState(message.data)
-          break
-        case 'setAction':
-          game.setRepetativeAction(message.data.shipId, message.data.dir)
-          debug('setAction by anonha', message.data)
-          break
-        case 'unsetAction':
-          game.unsetRepetativeAction(message.data.shipId, message.data.dir)
-          debug('unsetAction by anonha', message.data)
-          break
+  private onMessage = (mes: Message & AsteroidsMessage) => {
+    const game = this.game
 
-        default: neverGonnaGiveYouUp(message)
-      }
-    })
+    if (mes.appId !== APP_ID(game)) return
+    const message = mes as AsteroidsMessage
 
+    switch (message.type) {
+      case 'addAsteroid':
+        debug('received asteroid:')
+        game.addAsteroid(message.data)
+        break
+      case 'addBlackHole':
+        debug('received black hole')
+        if (game.type === 'guest')
+          game.foreignAddBlackHole(message.data)
+        break
+      case 'growBlackHole':
+        debug('grow black hole')
+        if (game.type === 'guest')
+          game.foreignGrowBlackHole(message.data)
+        break
+      case 'explodeAsteroid':
+        debug('explodeAsteroid')
+        const asteroid = game.get(message.data) // asteroid id
+        if (asteroid) game.explodeAsteroid(asteroid as Asteroid)
+        break
+      case 'addShip':
+        debug('add foreign ship')
+        game.addForeignShip(message.data) // ship opts
+        break
+      case 'fireShip':
+        debug('firing foreign ship')
+        game.fireForeignShip(message.data) // bullet opts
+        break
+      case 'removeBullet':
+        debug('remove bullet')
+        if (game.type === 'guest')
+          game.foreignRemoveBullet(message.data) // bullet opts
+        break
+      case 'powerShip':
+        debug('power foreign ship')
+        game.setRepetativeAction(message.data, 'up')
+        break
+      case 'turnShip':
+        debug('turn foreign ship')
+        game.setRepetativeAction(message.data.shipId, message.data.dir)
+        break
+      case 'dampenShip':
+        debug('dampen foreign ship')
+        game.setRepetativeAction(message.data.shipId, 'down')
+        break
+      case 'hitShip':
+        debug('hitShip')
+        game.foreignHitShip(message.data) // opts
+        break
+      case 'levelUp':
+        debug('foreign level up')
+        game.levelUp()
+        break
+      case 'pause':
+        debug('foreign pause')
+        if (game.type === 'host') (game as MultiPlayerGameHost).foreignPause()
+        break
+      case 'shipState':
+        debug('foreign shipState')
+        game.handleForeignShipState(message.data)
+        break
+      case 'setAction':
+        game.setRepetativeAction(message.data.shipId, message.data.dir)
+        debug('setAction by anonha', message.data)
+        break
+      case 'unsetAction':
+        game.unsetRepetativeAction(message.data.shipId, message.data.dir)
+        debug('unsetAction by anonha', message.data)
+        break
+
+      default: neverGonnaGiveYouUp(message)
+    }
   }
 
 }

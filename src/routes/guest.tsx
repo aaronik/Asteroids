@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react'
 import Canvas from '../components/canvas'
 import GetMultiplayerGameId from '../components/getMultiId'
 import { HEIGHT, WIDTH } from '../constants'
-import gameManager from '../lib/gameManager'
+import MultiPlayerGameGuest from '../game/multiPlayerGameGuest'
 
 export default function JoinMultiPlayerGame() {
 
   const [gameId, setGameId] = useState('')
+  const [game, setGame] = useState<MultiPlayerGameGuest>()
 
   const onCanvas = (canvas: HTMLCanvasElement) => {
-    gameManager.joinMultiPlayerGame(canvas, gameId)
+    const g = new MultiPlayerGameGuest(gameId, canvas)
+    setGame(g)
   }
 
   const onGameId = (gameId: string) => {
@@ -18,9 +20,10 @@ export default function JoinMultiPlayerGame() {
 
   useEffect(() => {
     return () => {
-      if (gameId) gameManager.clean()
+      if (!gameId) return
+      game?.teardown()
     }
-  }, [])
+  }, [gameId, game])
 
   if (!gameId) return (
     <GetMultiplayerGameId onGameId={onGameId} />

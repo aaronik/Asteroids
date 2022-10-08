@@ -25,6 +25,9 @@ export const db = new Db<MultiPlayerGameData | null>({
   appId: 'asteroids-dbdb'
 })
 
+// @ts-ignore
+window.db = db
+
 /**
 * @description Return an id that's unique per game.
 * Meant to be used to keep messages unique if there are multiple

@@ -11,6 +11,11 @@ import ExhaustParticle from "../lib/exhaustParticle"
 
 export default class MultiPlayerGameGuest extends MultiPlayerGame {
 
+  constructor(gameId: string, canvasEl: HTMLCanvasElement) {
+    super(gameId, canvasEl)
+    this.type = 'guest'
+  }
+
   handleFullStateUpdate(data: MultiPlayerGameData) {
     this.handleFullState(data.objectState)
 

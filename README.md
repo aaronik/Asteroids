@@ -1,6 +1,6 @@
 ## Asteroids
 
-https://asteroids.aaronik.com
+http://asteroids.aaronik.com
 
 This game is (obviously) a clone of the original Asteroids game from the 18th
 century.  Scholars maintain it was first played by monks, each frame being

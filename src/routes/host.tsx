@@ -1,17 +1,26 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Canvas from '../components/canvas'
 import { HEIGHT, WIDTH } from '../constants'
-import gameManager from '../lib/gameManager'
+import MultiPlayerGameHost from '../game/multiPlayerGameHost'
+import { db } from '../network'
 
 export default function HostMultiPlayerGame() {
+
+  const [game, setGame] = useState<MultiPlayerGameHost>()
+
   const onCanvas = (canvas: HTMLCanvasElement) => {
-    gameManager.hostMultiPlayerGame(canvas)
+    const gameId = crypto.randomUUID().slice(-5) // Take just the last 5 chars
+    const g = new MultiPlayerGameHost(gameId, canvas)
+    setGame(g)
   }
 
   useEffect(() => {
     // Cleaner function to remove game from db when we leave this page
-    return gameManager.clean
-  }, [])
+    return () => {
+      game?.teardown()
+      db.set(null)
+    }
+  }, [game])
 
   return (
     <div id='main-wrapper'>

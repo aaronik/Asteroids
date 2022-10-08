@@ -1,17 +1,19 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Canvas from '../components/canvas'
 import { HEIGHT, WIDTH } from '../constants'
-import gameManager from '../lib/gameManager'
+import SinglePlayerGame from '../game/singlePlayerGame'
 
-export default function SinglePlayerGame() {
+export default function SinglePlayerGameRoute() {
+
+  const [game, setGame] = useState<SinglePlayerGame>()
+
   const onCanvas = (canvas: HTMLCanvasElement) => {
-    gameManager.startSinglePlayerGame(canvas)
+    setGame(new SinglePlayerGame(canvas))
   }
 
   useEffect(() => {
-    // Cleaner function to remove game from db when we leave this page
-    return gameManager.clean
-  }, [])
+    return () => game?.teardown()
+  }, [game])
 
   return (
     <div id='main-wrapper'>

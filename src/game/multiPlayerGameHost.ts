@@ -13,6 +13,7 @@ export default class MultiPlayerGameHost extends MultiPlayerGame {
 
   constructor(gameId: string, canvasEl: HTMLCanvasElement) {
     super(gameId, canvasEl)
+    this.type = 'host'
 
     // This registers ourselves as being an active game on the network as well
     this.sendFullState()
@@ -88,15 +89,16 @@ export default class MultiPlayerGameHost extends MultiPlayerGame {
   }
 
   handleDestroyedShip(ship: Ship) {
-    super.handleDestroyedShip(ship)
-
-    // Testing out not sending this. Just letting everyone's game
-    // figure out the destroyed ships.
-    // network.broadcast({
-    //   type: 'destroyedShip',
-    //   data: ship.id,
-    //   appId: APP_ID(this)
-    // })
+    if (this.ship.id === ship.id) {
+      delete this.ships[ship.id]
+      this.announce('You\'ve lost!')
+      this.announce('Don\'t leave!')
+      this.announce('You\'re the host!')
+    } else {
+      delete this.ships[ship.id]
+      this.announce('+ 40!!')
+      this.ship.health += 40
+    }
   }
 
   detectSendState() {
@@ -105,7 +107,6 @@ export default class MultiPlayerGameHost extends MultiPlayerGame {
 
   detect() {
     super.detect()
-    // this.detectDestroyedShips()
     this.detectDestroyedObjects()
     this.detectAddBlackHoleReady()
     this.detectLevelChangeReady()

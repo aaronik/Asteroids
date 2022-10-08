@@ -3,8 +3,10 @@ import HostMultiPlayerGame from "./routes/host";
 import Menu from "./routes/menu";
 import MultiPlayerGameGuest from "./routes/guest";
 import SinglePlayerGame from "./routes/single";
+import NoHost from "./routes/noHost";
+import Lost from "./routes/lost";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: '/',
     element: <Menu />
@@ -14,12 +16,20 @@ const router = createBrowserRouter([
     element: <SinglePlayerGame />
   },
   {
-    path: 'host',
+    path: '/host',
     element: <HostMultiPlayerGame />
   },
   {
-    path: 'guest',
+    path: '/guest',
     element: <MultiPlayerGameGuest />
+  },
+  {
+    path: '/nohost',
+    element: <NoHost />
+  },
+  {
+    path: '/lost',
+    element: <Lost />
   },
 ])
 

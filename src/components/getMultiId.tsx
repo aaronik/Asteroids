@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { db } from '../network'
 import { getActiveGameIds } from '../util'
 
@@ -10,9 +10,17 @@ export default function GetMultiplayerGameId(props: GetMultiplayerGameIdProps) {
 
   const [activeGameIds, setActiveGameIds] = useState<string[]>(getActiveGameIds())
 
-  db.onChange(() => {
+  const getAndSetActiveGameIds = () => {
     setActiveGameIds(getActiveGameIds())
-  })
+  }
+
+  useEffect(() => {
+    db.onChange(getAndSetActiveGameIds)
+
+    return () => {
+      db.removeChangeHandler(getAndSetActiveGameIds)
+    }
+  }, [])
 
   if (activeGameIds.length === 0) {
     return (

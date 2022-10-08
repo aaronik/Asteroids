@@ -7,19 +7,11 @@ type Game = {
   pause: () => void
   FPS: number
   ship: Ship
-  // turnShip: (dir: LateralDirection, percentage: number) => void
-  // powerShip: () => void
-  // dampenShip: () => void
   unsetRepetativeAction: (shipId: string, dir: Direction) => void
   setRepetativeAction: (shipId: string, dir: Direction) => void
   fireShip: () => void
 }
 
-// TODO: The problem with how this works now is that it's murder on the network
-// and other users. Practically, two ships can hardly play before the computer starts cookin.
-// Another way to structure this which would drastically improve network usage is instead of
-// repeating the call over and over, on key down we can, say, set isTurning to true and on key up
-// to false. Then on every step we can check each ship to see if it's turning
 export default class KeyListener {
   timers: { [Property in TimerAction ]?: NodeJS.Timer } = {}
   game: Game
