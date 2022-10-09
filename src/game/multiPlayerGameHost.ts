@@ -89,9 +89,9 @@ export default class MultiPlayerGameHost extends MultiPlayerGame {
     })
   }
 
-  handleDestroyedShip(ship: Ship) {
+  handleDestroyedShip = (ship: Ship) => {
     delete this.ships[ship.id]
-    if (this.ship.id === ship.id) {
+    if (this.shipId === ship.id) {
       this.announce('You\'ve lost!')
 
       if (Object.keys(this.ships).length === 0) {
@@ -102,7 +102,7 @@ export default class MultiPlayerGameHost extends MultiPlayerGame {
       this.announce('You\'re the host!')
     } else {
       this.announce('+ 40!!')
-      this.ship.health += 40
+      this.ships[this.shipId].health += 40
     }
   }
 

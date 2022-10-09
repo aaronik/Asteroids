@@ -27,7 +27,7 @@ export default abstract class Game {
   ctx: CanvasRenderingContext2D
   readout: Readout
   background: Background
-  ship: Ship
+  shipId: string
   ships: InternalList<Ship> = {}
   exhaustParticles: InternalList<ExhaustParticle> = {}
   explodingTexts: InternalList<ExplodingText> = {}
@@ -94,7 +94,7 @@ export default abstract class Game {
         })
       }
     })
-    this.ship = ship
+    this.shipId = ship.id
     this.ships[ship.id] = ship
     return ship
   }
@@ -132,7 +132,7 @@ export default abstract class Game {
   }
 
   fireShip() {
-    const bullet = this.ship.fire()
+    const bullet = this.ships[this.shipId].fire()
     this.bullets[bullet.id] = bullet
     return bullet
   }
@@ -144,7 +144,7 @@ export default abstract class Game {
 
     this.blackHoles = {}
 
-    this.ship.health += 100
+    this.ships[this.shipId].health += 100
     this.announce('+100 health')
   }
 
@@ -178,7 +178,7 @@ export default abstract class Game {
     { // -- rigamorole so our ship is drawn on top of others, unless we've lost
       let ourShip: Ship
       Object.values(this.ships).forEach(ship => {
-        if (ship.id === this.ship.id) {
+        if (ship.id === this.shipId) {
           ourShip = ship
         } else {
           ship.draw(game.ctx)
@@ -267,13 +267,13 @@ export default abstract class Game {
 
   handleShipAsteroidCollision(ship: Ship, asteroid: Asteroid) {
     this.explodeAsteroid(asteroid)
-    if (ship.id === this.ship.id) Visuals.hit(this.canvas)
+    if (ship.id === this.shipId) Visuals.hit(this.canvas)
     ship.health -= asteroid.radius
   }
 
   handleShipBulletCollisions(ship: Ship, bullet: Bullet) {
     if (ship.id === bullet.ship.id) return // No friendly fire
-    if (ship.id === this.ship.id) Visuals.hit(this.canvas)
+    if (ship.id === this.shipId) Visuals.hit(this.canvas)
     ship.health -= bullet.damage
     delete this.bullets[bullet.id]
   }
@@ -512,7 +512,7 @@ export default abstract class Game {
   }
 
   handleShipBlackHoleCollisions(ship: Ship, bh: BlackHole) {
-    if (ship.id === this.ship.id) Visuals.hit(this.canvas)
+    if (ship.id === this.shipId) Visuals.hit(this.canvas)
     ship.health -= bh.mass
     this.growBlackHole(bh, ship.radius)
   }

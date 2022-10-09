@@ -16,6 +16,16 @@ export default class MultiPlayerGameGuest extends MultiPlayerGame {
     this.type = 'guest'
   }
 
+  handleDestroyedShip = (ship: Ship) => {
+    if (this.shipId === ship.id) {
+      this.lost()
+    } else {
+      delete this.ships[ship.id]
+      this.announce('+ 40!!')
+      this.ships[this.shipId].health += 40
+    }
+  }
+
   handleFullStateUpdate(data: MultiPlayerGameData) {
     this.handleFullState(data.objectState)
 
@@ -89,7 +99,7 @@ export default class MultiPlayerGameGuest extends MultiPlayerGame {
   }
 
   handleFullStateShip(ship: ShipFullState) {
-    if (ship.id === this.ship.id) return // we don't want the host to update our ship
+    if (ship.id === this.shipId) return // we don't want the host to update our ship
 
     const opts = {
       ...ship,

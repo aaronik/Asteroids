@@ -21,6 +21,7 @@ export default class MultiPlayerGame extends Game {
   status: string = generateStatusString()
   multiPlayerListener: MultiPlayerListener
   type: 'host' | 'guest'
+  handleDestroyedShip: (ship: Ship) => void
 
   constructor(gameId: string, canvasEl: HTMLCanvasElement) {
     super(canvasEl)
@@ -128,6 +129,7 @@ export default class MultiPlayerGame extends Game {
       data: shipOpts
     })
 
+
     return ship
   }
 
@@ -171,7 +173,7 @@ export default class MultiPlayerGame extends Game {
       pos: new Vector(rawBulletOpts.pos),
       vel: new Vector(rawBulletOpts.vel),
       orientation: new Vector(rawBulletOpts.orientation),
-      ship: this.ship
+      ship: this.ships[this.shipId]
     }
 
     network.broadcast({
@@ -196,16 +198,6 @@ export default class MultiPlayerGame extends Game {
     ship.health -= damage
   }
 
-  handleDestroyedShip(ship: Ship) {
-    if (this.ship.id === ship.id) {
-      this.lost()
-    } else {
-      delete this.ships[ship.id]
-      this.announce('+ 40!!')
-      this.ship.health += 40
-    }
-  }
-
   clearState() {
     this.asteroids = {}
     // this.bullets = {}
@@ -214,9 +206,10 @@ export default class MultiPlayerGame extends Game {
   }
 
   sendShipState() {
+    if (!this.ships[this.shipId]) return // ex. when the host is dead
     network.broadcast({
       type: 'shipState',
-      data: this.ship.getState(),
+      data: this.ships[this.shipId].getState(),
       appId: APP_ID(this)
     })
   }
@@ -235,7 +228,7 @@ export default class MultiPlayerGame extends Game {
 
     }
 
-    if (shipState.id !== this.ship.id) {
+    if (shipState.id !== this.shipId) {
       const ship = new Ship(shipState)
       this.ships[ship.id] = ship
     }

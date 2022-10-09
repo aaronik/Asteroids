@@ -26,7 +26,7 @@ export default function JoinMultiPlayerGame() {
 
       network.broadcast({
         type: 'guestLeaving',
-        data: game?.ship.id,
+        data: game?.shipId,
         appId: APP_ID(game)
       })
     }
