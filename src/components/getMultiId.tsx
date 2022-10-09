@@ -6,7 +6,7 @@ type GetMultiplayerGameIdProps = {
   onGameId: (gameId: string) => void
 }
 
-export default function GetMultiplayerGameId(props: GetMultiplayerGameIdProps) {
+export default function GetMultiPlayerGameId(props: GetMultiplayerGameIdProps) {
 
   const [activeGameIds, setActiveGameIds] = useState<string[]>(getActiveGameIds())
 

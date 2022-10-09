@@ -8,8 +8,6 @@ import { router } from "../App"
 
 const SEND_FULL_STATE_RATE: number = 30
 
-// TODO Handle when a host leaves or dies.. or when anybody leaves
-
 export default class MultiPlayerGameHost extends MultiPlayerGame {
 
   constructor(gameId: string, canvasEl: HTMLCanvasElement) {
@@ -122,7 +120,7 @@ export default class MultiPlayerGameHost extends MultiPlayerGame {
   sendFullState() {
     db.set({
       gameId: this.gameId,
-      created: Date.now(),
+      created: Date.now(), // TODO This can't be right
       width: this.WIDTH,
       height: this.HEIGHT,
       paused: this.isPaused(),

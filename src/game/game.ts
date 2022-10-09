@@ -23,6 +23,7 @@ export default abstract class Game {
   DIFFICULTY_INCREASE_RATE = 1.5
   BLACK_HOLE_DELAY = 20 // seconds
 
+  // TODO add `created` field
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   readout: Readout
