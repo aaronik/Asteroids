@@ -106,6 +106,9 @@ export type AsteroidsMessage = { appId: AppId } & ({
   type: 'hitShip'
   data: HitShipOptions
 } | {
+  type: 'guestLeaving'
+  data: string // shipId
+} | {
   type: 'levelUp'
 } | {
   type: 'pause'

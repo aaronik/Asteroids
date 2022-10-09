@@ -4,6 +4,7 @@ import Ship from "../lib/ship"
 import BlackHole, { BlackHoleOptions } from "../lib/blackHole"
 import Bullet from "../lib/bullet"
 import { APP_ID, db, network } from '../network'
+import { router } from "../App"
 
 const SEND_FULL_STATE_RATE: number = 30
 
@@ -89,13 +90,17 @@ export default class MultiPlayerGameHost extends MultiPlayerGame {
   }
 
   handleDestroyedShip(ship: Ship) {
+    delete this.ships[ship.id]
     if (this.ship.id === ship.id) {
-      delete this.ships[ship.id]
       this.announce('You\'ve lost!')
+
+      if (Object.keys(this.ships).length === 0) {
+        return router.navigate('/lost')
+      }
+
       this.announce('Don\'t leave!')
       this.announce('You\'re the host!')
     } else {
-      delete this.ships[ship.id]
       this.announce('+ 40!!')
       this.ship.health += 40
     }

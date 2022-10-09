@@ -130,6 +130,10 @@ export default class MultiPlayerListener {
         game.unsetRepetativeAction(message.data.shipId, message.data.dir)
         debug('unsetAction by anonha', message.data)
         break
+      case 'guestLeaving':
+        game.handleDestroyedShip(game.ships[message.data])
+        debug('unsetAction by anonha', message.data)
+        break
 
       default: neverGonnaGiveYouUp(message)
     }

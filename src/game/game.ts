@@ -267,12 +267,13 @@ export default abstract class Game {
 
   handleShipAsteroidCollision(ship: Ship, asteroid: Asteroid) {
     this.explodeAsteroid(asteroid)
-    Visuals.hit(this.canvas)
+    if (ship.id === this.ship.id) Visuals.hit(this.canvas)
     ship.health -= asteroid.radius
   }
 
   handleShipBulletCollisions(ship: Ship, bullet: Bullet) {
     if (ship.id === bullet.ship.id) return // No friendly fire
+    if (ship.id === this.ship.id) Visuals.hit(this.canvas)
     ship.health -= bullet.damage
     delete this.bullets[bullet.id]
   }
@@ -511,6 +512,7 @@ export default abstract class Game {
   }
 
   handleShipBlackHoleCollisions(ship: Ship, bh: BlackHole) {
+    if (ship.id === this.ship.id) Visuals.hit(this.canvas)
     ship.health -= bh.mass
     this.growBlackHole(bh, ship.radius)
   }

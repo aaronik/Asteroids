@@ -14,6 +14,8 @@ const generateStatusString = () => {
   return `connected to ${network.activeConnections().length} peers`
 }
 
+// TODO:
+// * When host dies, guest gets repeated +40
 export default class MultiPlayerGame extends Game {
   gameId: string
   status: string = generateStatusString()
@@ -28,7 +30,12 @@ export default class MultiPlayerGame extends Game {
 
     // TODO remove
     network.on('message', (mes) => {
-      if (mes.appId !== APP_ID(this)) return console.count('received other app message: ' + mes.appId)
+      if (mes.appId !== APP_ID(this)) {
+        console.count('received other app message: ' + mes.appId)
+        console.groupCollapsed(mes)
+        console.groupEnd()
+        return
+      }
 
       // const message = mes as AsteroidsMessage
 

@@ -23,6 +23,7 @@ export type ShipOptions = {
   bulletWeight?: number
   mass?: number
   actions?: { [dir in Direction]?: true }
+  baseSideDivider?: number
   addExhaustParticles: (particles: ExhaustParticle[]) => void
 }
 
@@ -44,12 +45,13 @@ export default class Ship extends MassiveObject {
   bulletWeight: number
   mass: number
   actions: { [dir in Direction]?: true } = {}
+  baseSideDivider: number // Give each ship its own little dimensions
   addExhaustParticles: (particles: ExhaustParticle[]) => void
 
-	constructor(opts: ShipOptions) {
-		const pos = opts.pos ? new Vector(opts.pos) : new Vector([100, 100])
-		const vel = opts.vel ? new Vector(opts.vel) : new Vector([0, 0])
-		const radius = opts.radius || 20 / 3
+  constructor(opts: ShipOptions) {
+    const pos = opts.pos ? new Vector(opts.pos) : new Vector([100, 100])
+    const vel = opts.vel ? new Vector(opts.vel) : new Vector([0, 0])
+    const radius = opts.radius || 10
     const mass = opts.mass || 20000
 
     super(pos, vel, radius, mass)
@@ -59,22 +61,23 @@ export default class Ship extends MassiveObject {
     this.radius = radius
     this.mass = mass
 
-		this.orientation = opts.orientation ? new Vector(opts.orientation) : new Vector([0,-1])
-		this.rotateSpeed = opts.rotateSpeed || 0.25
-		this.impulse = opts.impulse || 0.4
-		this.dampenRate = opts.dampenRate || 0.95
-		this.fireFrequency = opts.fireFrequency || 200
-		this.health = opts.health || 40
-		this.damage = opts.damage || 15
-		this.id = opts.id ? opts.id : Store.uid()
-		this.borderColor = opts.borderColor || Store.randomColor()
-		this.fillColor = opts.fillColor || Store.randomColor()
+    this.baseSideDivider = opts.baseSideDivider || [15, 20, 25, 30, 35][Math.floor(Math.random() * 5)]
+    this.orientation = opts.orientation ? new Vector(opts.orientation) : new Vector([0, -1])
+    this.rotateSpeed = opts.rotateSpeed || 0.25
+    this.impulse = opts.impulse || 0.4
+    this.dampenRate = opts.dampenRate || 0.95
+    this.fireFrequency = opts.fireFrequency || 200
+    this.health = opts.health || 40
+    this.damage = opts.damage || 15
+    this.id = opts.id ? opts.id : Store.uid()
+    this.borderColor = opts.borderColor || Store.randomColor()
+    this.fillColor = opts.fillColor || Store.randomColor()
     this.addExhaustParticles = opts.addExhaustParticles
     this.actions = opts.actions || {}
 
-		this.kineticBullets = true
-		this.bulletWeight = 0.5
-	}
+    this.kineticBullets = true
+    this.bulletWeight = 0.5
+  }
 
   setAction(dir: Direction) {
     this.actions[dir] = true
@@ -84,60 +87,60 @@ export default class Ship extends MassiveObject {
     delete this.actions[dir]
   }
 
-	private power () {
-		this.vel = this.vel.add(this.orientation.scale(this.impulse))
+  private power() {
+    this.vel = this.vel.add(this.orientation.scale(this.impulse))
     this.addExhaustParticles(this.releaseExhaust())
-	}
+  }
 
-	private turn (direction: 'left' | 'right', percentage: number) {
+  private turn(direction: 'left' | 'right', percentage: number) {
     let mod: number
 
-		if (direction === 'left') {
-			mod = 1
-		} else {
-			mod = -1
-		}
+    if (direction === 'left') {
+      mod = 1
+    } else {
+      mod = -1
+    }
 
-		this.orientation = this.orientation.rotate(mod * this.rotateSpeed * percentage)
-	}
+    this.orientation = this.orientation.rotate(mod * this.rotateSpeed * percentage)
+  }
 
-	private dampen () {
-		let dampenRate = this.dampenRate
+  private dampen() {
+    let dampenRate = this.dampenRate
 
-		if (this.vel.mag() < 3) {
-			// this.vel = [0, 0]
-			// dampenRate = 0.5 // This made stopping way faster once you were slowed down
-			this.vel = this.vel.scale(dampenRate)
-		} else {
-			dampenRate = this.dampenRate
-			this.vel = this.vel.scale(dampenRate)
-		}
-	}
+    if (this.vel.mag() < 3) {
+      // this.vel = [0, 0]
+      // dampenRate = 0.5 // This made stopping way faster once you were slowed down
+      this.vel = this.vel.scale(dampenRate)
+    } else {
+      dampenRate = this.dampenRate
+      this.vel = this.vel.scale(dampenRate)
+    }
+  }
 
-	fire (bulletOpts?: BulletOptions) {
-		this.recoil()
-		return new Bullet(bulletOpts || { ship: this })
-	}
+  fire(bulletOpts?: BulletOptions) {
+    this.recoil()
+    return new Bullet(bulletOpts || { ship: this })
+  }
 
-	recoil() {
-		if (this.kineticBullets) {
-			this.vel = this.vel.subtract(this.orientation.scale(this.bulletWeight))
-		}
-	}
+  recoil() {
+    if (this.kineticBullets) {
+      this.vel = this.vel.subtract(this.orientation.scale(this.bulletWeight))
+    }
+  }
 
-	releaseExhaust (count: number = 2): ExhaustParticle[] {
-		const exhaustParticleOptions = {
-			ship: this
-		}
+  releaseExhaust(count: number = 2): ExhaustParticle[] {
+    const exhaustParticleOptions = {
+      ship: this
+    }
 
-		const particles = []
+    const particles = []
 
-		for (let i = 0; i < count; i++) {
-			particles.push(new ExhaustParticle(exhaustParticleOptions))
-		}
+    for (let i = 0; i < count; i++) {
+      particles.push(new ExhaustParticle(exhaustParticleOptions))
+    }
 
-		return particles
-	}
+    return particles
+  }
 
   step() {
     for (let dir in this.actions) {
@@ -151,51 +154,52 @@ export default class Ship extends MassiveObject {
   }
 
   // We take a pos and orientation here so that readout can draw us in the right place
-	draw = (ctx: CanvasRenderingContext2D, pos?: Vector, or?: Vector) => {
-		const height = this.radius * 3
-		const base = 0.3
-		or = or ? new Vector(or) : this.orientation
+  draw = (ctx: CanvasRenderingContext2D, pos?: Vector, or?: Vector) => {
+    const height = this.radius * 2
+    const base = this.radius / this.baseSideDivider
+    or = or ? new Vector(or) : this.orientation
     pos = pos ? new Vector(pos) : this.pos
 
-		const pt1 = pos.add(or.scale(height / 1.5))
-		const pt2 = pt1.add(or.scale(-height).rotate(base))
-		const pt3 = pt1.add(or.scale(-height).rotate(-base))
-		const pt4 = pt1
+    const pt1 = pos.add(or.scale(height / 1.5))
+    const pt2 = pt1.add(or.scale(-height).rotate(base))
+    const pt3 = pt1.add(or.scale(-height).rotate(-base))
+    const pt4 = pt1
 
-		ctx.fillStyle = this.fillColor
-		ctx.strokeStyle = this.borderColor
-		ctx.lineWidth = 3
-		ctx.beginPath()
-		ctx.moveTo(pt1[0], pt1[1])
-		ctx.lineTo(pt2[0], pt2[1])
-		ctx.lineTo(pt3[0], pt3[1])
-		ctx.lineTo(pt4[0], pt4[1])
-		ctx.closePath()
-		ctx.stroke()
-		ctx.fill()
-	}
+    ctx.fillStyle = this.fillColor
+    ctx.strokeStyle = this.borderColor
+    ctx.lineWidth = 3
+    ctx.beginPath()
+    ctx.moveTo(pt1[0], pt1[1])
+    ctx.lineTo(pt2[0], pt2[1])
+    ctx.lineTo(pt3[0], pt3[1])
+    ctx.lineTo(pt4[0], pt4[1])
+    ctx.closePath()
+    ctx.stroke()
+    ctx.fill()
+  }
 
-	getState = () => {
-		const state = {
-			type: 'ship' as 'ship',
-			radius: this.radius,
-			pos: this.pos.to_a(),
-			vel: this.vel.to_a(),
-			id: this.id,
-			orientation: this.orientation.to_a(),
-			rotateSpeed: this.rotateSpeed,
-			impulse: this.impulse,
-			dampenRate: this.dampenRate,
-			fireFrequency: this.fireFrequency,
-			health: this.health,
-			damage: this.damage,
-			kineticBullets: this.kineticBullets,
-			bulletWeight: this.bulletWeight,
-			borderColor: this.borderColor,
-			fillColor: this.fillColor,
-      actions: this.actions
-		}
+  getState = () => {
+    const state = {
+      type: 'ship' as 'ship',
+      radius: this.radius,
+      pos: this.pos.to_a(),
+      vel: this.vel.to_a(),
+      id: this.id,
+      orientation: this.orientation.to_a(),
+      rotateSpeed: this.rotateSpeed,
+      impulse: this.impulse,
+      dampenRate: this.dampenRate,
+      fireFrequency: this.fireFrequency,
+      health: this.health,
+      damage: this.damage,
+      kineticBullets: this.kineticBullets,
+      bulletWeight: this.bulletWeight,
+      borderColor: this.borderColor,
+      fillColor: this.fillColor,
+      actions: this.actions,
+      baseSideDivider: this.baseSideDivider
+    }
 
-		return state
-	}
+    return state
+  }
 }

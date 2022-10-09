@@ -3,6 +3,7 @@ import Canvas from '../components/canvas'
 import GetMultiplayerGameId from '../components/getMultiId'
 import { HEIGHT, WIDTH } from '../constants'
 import MultiPlayerGameGuest from '../game/multiPlayerGameGuest'
+import { APP_ID, network } from '../network'
 
 export default function JoinMultiPlayerGame() {
 
@@ -20,8 +21,14 @@ export default function JoinMultiPlayerGame() {
 
   useEffect(() => {
     return () => {
-      if (!gameId) return
-      game?.teardown()
+      if (!gameId || !game) return
+      game.teardown()
+
+      network.broadcast({
+        type: 'guestLeaving',
+        data: game?.ship.id,
+        appId: APP_ID(game)
+      })
     }
   }, [gameId, game])
 
