@@ -12,6 +12,9 @@ type ExplodingTextOptions = {
   onComplete?: () => void
 }
 
+// TODO Fix alpha decay rate when game timer has stopped. Currently it stops
+// decaying and just shows up big and white and it slows its growth a lot making
+// the game look laggy even though it's just a weird logarithmic thing
 export default class ExplodingText {
   id: string
   game: Game

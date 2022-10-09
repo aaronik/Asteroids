@@ -21,7 +21,7 @@ type InternalList<T> = { [id: string]: T }
 export default abstract class Game {
   FPS = 30
   DIFFICULTY_INCREASE_RATE = 1.5
-  BLACK_HOLE_DELAY = 20 // seconds
+  BLACK_HOLE_DELAY = 10 // seconds
 
   // TODO add `created` field
   canvas: HTMLCanvasElement

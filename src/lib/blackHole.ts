@@ -12,14 +12,14 @@ export type BlackHoleOptions = {
 
 const randValues = {
   pos: new Vector([100, 100]),
-  vel: Store.randomVel(5),
-  radius: 25,
+  vel: new Vector([2, 2]), // TODO Scale this with level?
+  radius: 50,
   mass: 1000 * 1000 * 1000 * 1000 * 100
 }
 
 export default class BlackHole extends MassiveObject {
   mass: number
-  accretionDisk: number = 1
+  accretionDisk: number = 30
 
   constructor(opts: BlackHoleOptions = randValues) {
     const pos = opts.pos ? new Vector(opts.pos) : randValues.pos
@@ -50,7 +50,7 @@ export default class BlackHole extends MassiveObject {
   draw = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     const [x, y] = this.pos
     const r = this.radius
-    const b = this.radius + this.accretionDisk
+    const b = this.radius + this.accretionDisk + 1 // Otherwise it disappears for some reason
 
     const gradient = ctx.createRadialGradient(x, y, r, x, y, b)
 
@@ -64,8 +64,8 @@ export default class BlackHole extends MassiveObject {
   }
 
   grow(amt: number) {
-    this.radius += amt / 100
-    this.accretionDisk += amt / 10
+    this.radius += amt / 300
+    this.accretionDisk += amt / 25
     this.mass += amt * 200
   }
 

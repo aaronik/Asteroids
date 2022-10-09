@@ -16,7 +16,7 @@ export default class Background {
 
 	constructor(game: HeightWidth) {
 		this.game = game
-		this.numStars = 200
+		this.numStars = Math.floor((game.WIDTH * game.HEIGHT) / 300)
 		this.starOptions = {
 			height: game.HEIGHT,
 			width: game.WIDTH

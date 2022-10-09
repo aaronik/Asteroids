@@ -61,7 +61,7 @@ export default class Ship extends MassiveObject {
     this.radius = radius
     this.mass = mass
 
-    this.baseSideDivider = opts.baseSideDivider || [15, 20, 25, 30, 35][Math.floor(Math.random() * 5)]
+    this.baseSideDivider = opts.baseSideDivider || [14,30,40,50,60,70][Math.floor(Math.random() * 6)]
     this.orientation = opts.orientation ? new Vector(opts.orientation) : new Vector([0, -1])
     this.rotateSpeed = opts.rotateSpeed || 0.25
     this.impulse = opts.impulse || 0.4

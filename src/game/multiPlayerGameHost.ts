@@ -19,7 +19,7 @@ export default class MultiPlayerGameHost extends MultiPlayerGame {
   }
 
   initialize() {
-    this.addAsteroids(this.level)
+    this.addAsteroids(this.level * 3)
     super.initialize()
   }
 
@@ -70,7 +70,7 @@ export default class MultiPlayerGameHost extends MultiPlayerGame {
 
   levelUp() {
     super.levelUp()
-    this.addAsteroids(this.level)
+    this.addAsteroids(this.level * 3)
     network.broadcast({
       type: 'levelUp',
       appId: APP_ID(this)
