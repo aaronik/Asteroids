@@ -2,7 +2,6 @@ import Store from "./store"
 import Vector from "./vector"
 import Bullet, { BulletOptions } from './bullet'
 import ExhaustParticle from './exhaustParticle'
-import CustomArray from './array'
 import MassiveObject from "./massiveObject"
 import { Direction } from "../types"
 
@@ -126,12 +125,12 @@ export default class Ship extends MassiveObject {
 		}
 	}
 
-	releaseExhaust (count: number = 2): CustomArray<ExhaustParticle> {
+	releaseExhaust (count: number = 2): ExhaustParticle[] {
 		const exhaustParticleOptions = {
 			ship: this
 		}
 
-		const particles = new CustomArray<ExhaustParticle>()
+		const particles = []
 
 		for (let i = 0; i < count; i++) {
 			particles.push(new ExhaustParticle(exhaustParticleOptions))
@@ -151,7 +150,8 @@ export default class Ship extends MassiveObject {
     }
   }
 
-	draw (ctx: CanvasRenderingContext2D, pos?: Vector, or?: Vector) {
+  // We take a pos and orientation here so that readout can draw us in the right place
+	draw = (ctx: CanvasRenderingContext2D, pos?: Vector, or?: Vector) => {
 		const height = this.radius * 3
 		const base = 0.3
 		or = or ? new Vector(or) : this.orientation

@@ -1,4 +1,3 @@
-import MassiveObject from "./massiveObject"
 import Store from "./store"
 import Vector from "./vector"
 
@@ -11,6 +10,7 @@ export default class MovingObject {
   id: string
 
   getState: () => any
+  draw: (ctx: CanvasRenderingContext2D, ...args: any[]) => void
 
   constructor(pos: Vector, vel: Vector, radius: number) {
     this.radius = radius

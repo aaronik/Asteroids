@@ -1,5 +1,4 @@
 import ExhaustParticle from "../lib/exhaustParticle"
-import CustomArray from '../lib/array'
 import Readout from '../lib/readout'
 import ExplodingText from '../lib/explodingText'
 import Background from '../lib/background'
@@ -17,6 +16,8 @@ import { isAnyCombinationOf } from "../util"
 import MassiveObject from "../lib/massiveObject"
 import { router } from "../App"
 
+type InternalList<T> = { [id: string]: T }
+
 export default abstract class Game {
   FPS = 30
   DIFFICULTY_INCREASE_RATE = 1.5
@@ -27,15 +28,13 @@ export default abstract class Game {
   readout: Readout
   background: Background
   ship: Ship
-  ships: {
-    [shipId: string]: Ship
-  } = {}
-  exhaustParticles: CustomArray<ExhaustParticle> = new CustomArray()
-  explodingTexts: CustomArray<ExplodingText> = new CustomArray()
-  asteroids: CustomArray<Asteroid> = new CustomArray()
-  noExplodeAsteroids: CustomArray<Asteroid> = new CustomArray()
-  bullets: CustomArray<Bullet> = new CustomArray()
-  blackHoles: CustomArray<BlackHole> = new CustomArray()
+  ships: InternalList<Ship> = {}
+  exhaustParticles: InternalList<ExhaustParticle> = {}
+  explodingTexts: InternalList<ExplodingText> = {}
+  asteroids: InternalList<Asteroid> = {}
+  noExplodeAsteroids: InternalList<Asteroid> = {}
+  bullets: InternalList<Bullet> = {}
+  blackHoles: InternalList<BlackHole> = {}
   level: number = 1
   _counter: number = 1 // tics since last levelUp
   asteroidKills: number = 1
@@ -89,7 +88,11 @@ export default abstract class Game {
   addShip() {
     const ship = new Ship({
       pos: new Vector([this.WIDTH / 2, this.HEIGHT / 2]),
-      addExhaustParticles: (particles: ExhaustParticle[]) => this.exhaustParticles.push(...particles)
+      addExhaustParticles: (particles: ExhaustParticle[]) => {
+        particles.forEach(particle => {
+          this.exhaustParticles[particle.id] = particle
+        })
+      }
     })
     this.ship = ship
     this.ships[ship.id] = ship
@@ -99,7 +102,7 @@ export default abstract class Game {
   // This game will never request asteroids, just get them from the host.
   addAsteroid(asteroidOpts: AsteroidOptions) {
     const asteroid = new Asteroid(asteroidOpts)
-    this.asteroids.push(asteroid)
+    this.asteroids[asteroid.id] = asteroid
     return asteroid
   }
 
@@ -112,7 +115,7 @@ export default abstract class Game {
 
   addBlackHole(bhOpts?: BlackHoleOptions): BlackHole {
     const bh = new BlackHole(bhOpts)
-    this.blackHoles.push(bh)
+    this.blackHoles[bh.id] = bh
     this.announce('black hole')
     return bh
   }
@@ -130,7 +133,7 @@ export default abstract class Game {
 
   fireShip() {
     const bullet = this.ship.fire()
-    this.bullets.push(bullet)
+    this.bullets[bullet.id] = bullet
     return bullet
   }
 
@@ -139,7 +142,7 @@ export default abstract class Game {
     this._counter = 0
     this.announce('Level ' + this.level)
 
-    this.blackHoles = new CustomArray<BlackHole>()
+    this.blackHoles = {}
 
     this.ship.health += 100
     this.announce('+100 health')
@@ -162,12 +165,12 @@ export default abstract class Game {
     this.background.draw(this.ctx)
 
     // ship exhaust particles
-    this.exhaustParticles.forEach(ep => {
+    Object.values(this.exhaustParticles).forEach(ep => {
       ep.draw(game.ctx, this.WIDTH, this.HEIGHT)
     })
 
     // bullets
-    this.bullets.forEach(function(bullet) {
+    Object.values(this.bullets).forEach(function(bullet) {
       bullet.draw(game.ctx)
     })
 
@@ -185,33 +188,27 @@ export default abstract class Game {
     }
 
     // asteroids
-    this.asteroids.forEach(function(asteroid) {
+    Object.values(this.asteroids).forEach(function(asteroid) {
       asteroid.draw(game.ctx)
     })
 
     // back hole
-    this.blackHoles.forEach(function(blackHole) {
+    Object.values(this.blackHoles).forEach(function(blackHole) {
       blackHole.draw(game.ctx, game.WIDTH, game.HEIGHT)
     })
+
 
     // readout text
     this.readout.draw(this.ctx)
 
     // exploding texts
-    this.explodingTexts[0]?.draw(this.ctx)
+    Object.values(this.explodingTexts)[0]?.draw(this.ctx)
   }
 
   gravitate() {
-    // We want to leave out no collide asteroids so they'll actually
-    // depart from each other
-    const noCollideList = this.noExplodeAsteroids.reduce((list, asteroid) => {
-      list[asteroid.id] = true
-      return list
-    }, {} as { [id: string]: true })
-
     this.massiveObjects().forEach(o1 => {
       this.massiveObjects().forEach(o2 => {
-        if (o1.id === o2.id || (noCollideList[o1.id] && noCollideList[o2.id])) return
+        if (o1.id === o2.id || (this.noExplodeAsteroids[o1.id] && this.noExplodeAsteroids[o2.id])) return
         o1.gravitate(o2)
       })
     })
@@ -228,7 +225,8 @@ export default abstract class Game {
       game: this
     }
 
-    this.explodingTexts.push(new ExplodingText(explodingTextOptions))
+    const et = new ExplodingText(explodingTextOptions)
+    this.explodingTexts[et.id] = et
   }
 
   /**
@@ -240,23 +238,22 @@ export default abstract class Game {
   }
 
   clearOOBExhaustParticles() {
-    for (let i = 0; i < this.exhaustParticles.length; i++) {
-      const ep = this.exhaustParticles[i]
+    Object.values(this.exhaustParticles).forEach(ep => {
       const posX = ep.pos[0]
       const posY = ep.pos[1]
 
       if (posX < 0 || posY < 0 || posX > this.WIDTH || posY > this.HEIGHT) {
-        this.exhaustParticles.splice(i, 1)
+        delete this.exhaustParticles[ep.id]
       }
-    }
+    })
   }
 
   removeBullet(bullet: Bullet) {
-    this.bullets.remove(bullet)
+    delete this.bullets[bullet.id]
   }
 
   handleExplodedText(txt: ExplodingText) {
-    this.explodingTexts.remove(txt)
+    delete this.explodingTexts[txt.id]
     txt.onComplete?.()
   }
 
@@ -265,7 +262,7 @@ export default abstract class Game {
   }
 
   handleExhaustParticleBlackHoleCollision(ep: ExhaustParticle) {
-    this.exhaustParticles.remove(ep)
+    delete this.exhaustParticles[ep.id]
   }
 
   handleShipAsteroidCollision(ship: Ship, asteroid: Asteroid) {
@@ -277,21 +274,11 @@ export default abstract class Game {
   handleShipBulletCollisions(ship: Ship, bullet: Bullet) {
     if (ship.id === bullet.ship.id) return // No friendly fire
     ship.health -= bullet.damage
-    this.bullets.remove(bullet)
-  }
-
-  getMovingObjects() {
-    return [
-      ...Object.values(this.ships),
-      ...this.asteroids,
-      ...this.bullets,
-      ...this.exhaustParticles,
-      ...this.blackHoles,
-    ]
+    delete this.bullets[bullet.id]
   }
 
   getCollidedObjects() {
-    const all = this.getMovingObjects()
+    const all = this.movingObjects()
     const collisions: [MovingObject, MovingObject][] = []
 
     while (all.length > 0) {
@@ -315,14 +302,14 @@ export default abstract class Game {
   }
 
   detectLevelChangeReady() {
-    if (this.asteroids.length === 0) {
+    if (Object.keys(this.asteroids).length === 0) {
       this.levelUp()
     }
   }
 
   detectAddBlackHoleReady() {
     const ticsUntilBlackHole = (this.BLACK_HOLE_DELAY * 1000) / this.FPS
-    if (this._counter >= ticsUntilBlackHole && !this.blackHoles.length) {
+    if (this._counter >= ticsUntilBlackHole && !Object.keys(this.blackHoles).length) {
       this.addBlackHole()
     }
   }
@@ -330,7 +317,7 @@ export default abstract class Game {
   detectExplodedTexts() {
     var game = this
 
-    this.explodingTexts.forEach(function(txt) {
+    Object.values(this.explodingTexts).forEach(function(txt) {
       if (txt.alpha <= 0) {
         game.handleExplodedText(txt)
       }
@@ -338,17 +325,15 @@ export default abstract class Game {
   }
 
   detectDestroyedObjects() {
-    this.asteroids.forEach((asteroid) => {
+    Object.values(this.asteroids).forEach((asteroid) => {
       if (asteroid.health <= 0) {
         this.explodeAsteroid(asteroid)
       }
     })
 
-    for (let i = 0; i < this.exhaustParticles.length; i++) {
-      if (this.exhaustParticles[i].health <= 0) {
-        this.exhaustParticles.splice(i, 1)
-      }
-    }
+    Object.values(this.exhaustParticles).forEach(ep => {
+      if (ep.health <= 0) delete this.exhaustParticles[ep.id]
+    })
   }
 
   detect() {
@@ -413,65 +398,41 @@ export default abstract class Game {
     })
   }
 
-  clearOOBAsteroids() { // substituted for wrap around
-    let posX
-    let posY
-    let as
-
-    for (let i = 0; i < this.asteroids.length; i++) {
-      as = this.asteroids[i]
-
-      posX = as.pos[0]
-      posY = as.pos[1]
-
-      if ((posX - as.radius > this.WIDTH || posX + as.radius < 0) ||
-        (posY - as.radius > this.HEIGHT || posY + as.radius < 0)) {
-        this.asteroids.splice(i, 1)
-        this.addAsteroids(1)
-      }
-    }
-  }
-
   clearOOBBullets() {
-    let bullet
-    let posX
-    let posY
-
-    for (let i = 0; i < this.bullets.length; i++) {
-      bullet = this.bullets[i]
-      posX = bullet.pos[0]
-      posY = bullet.pos[1]
+    Object.values(this.bullets).forEach(bullet => {
+      const posX = bullet.pos[0]
+      const posY = bullet.pos[1]
 
       if (posX < 0 || posY < 0 || posX > this.WIDTH || posY > this.HEIGHT) {
-        this.bullets.splice(i, 1)
+        delete this.bullets[bullet.id]
       }
-    }
+    })
   }
 
-  movingObjects(): CustomArray<MovingObject> {
-    return new CustomArray<MovingObject>(
+  movingObjects(): MovingObject[] {
+    return new Array<MovingObject>(
       ...Object.values(this.ships),
-      ...this.asteroids,
-      ...this.blackHoles,
-      ...this.bullets,
-      ...this.exhaustParticles,
+      ...Object.values(this.asteroids),
+      ...Object.values(this.blackHoles),
+      ...Object.values(this.bullets),
+      ...Object.values(this.exhaustParticles),
     )
   }
 
-  massiveObjects(): CustomArray<MassiveObject> {
-    return new CustomArray<MassiveObject>(
+  massiveObjects(): MassiveObject[] {
+    return new Array<MassiveObject>(
       ...Object.values(this.ships),
-      ...this.asteroids,
-      ...this.blackHoles,
-      ...this.bullets,
+      ...Object.values(this.asteroids),
+      ...Object.values(this.blackHoles),
+      ...Object.values(this.bullets),
     )
   }
 
   wrappableMovingObjects() {
-    return new CustomArray<MovingObject>(
-      ...this.asteroids,
+    return new Array<MovingObject>(
+      ...Object.values(this.asteroids),
       ...Object.values(this.ships),
-      ...this.blackHoles
+      ...Object.values(this.blackHoles),
     )
   }
 
@@ -503,8 +464,8 @@ export default abstract class Game {
   depopulateNoExplodeAsteroids() {
     const game = this
 
-    this.noExplodeAsteroids.forEach(function(as1) {
-      const alone = game.noExplodeAsteroids.every(function(as2) {
+    Object.values(this.noExplodeAsteroids).forEach(function(as1) {
+      const alone = Object.values(game.noExplodeAsteroids).every(function(as2) {
         if (as1 === as2) {
           return true
         }
@@ -513,17 +474,19 @@ export default abstract class Game {
       })
 
       if (alone) {
-        game.noExplodeAsteroids.remove(as1)
+        delete game.noExplodeAsteroids[as1.id]
       }
     })
   }
 
   explodeAsteroid(asteroid: Asteroid) {
-    this.asteroids.remove(asteroid)
+    delete this.asteroids[asteroid.id]
     const newAsteroidsOptions = asteroid.explode()
     const newAsteroids = newAsteroidsOptions.map(op => new Asteroid(op))
-    this.noExplodeAsteroids = new CustomArray(...this.noExplodeAsteroids.concat(newAsteroids))
-    this.asteroids = new CustomArray(...this.asteroids.concat(newAsteroids))
+    newAsteroids.forEach(as => {
+      this.asteroids[as.id] = as
+      this.noExplodeAsteroids[as.id] = as
+    })
   }
 
   growBlackHole(blackHole: BlackHole, amt: number) {
@@ -535,8 +498,8 @@ export default abstract class Game {
   }
 
   handleCollidingAsteroids(as1: Asteroid, as2: Asteroid) {
-    const as1Clear = !this.noExplodeAsteroids.includes(as1)
-    const as2Clear = !this.noExplodeAsteroids.includes(as2)
+    const as1Clear = !this.noExplodeAsteroids[as1.id]
+    const as2Clear = !this.noExplodeAsteroids[as2.id]
     if (as1Clear) as1.health -= as2.radius
     if (as2Clear) as2.health -= as1.radius
   }
@@ -582,7 +545,7 @@ export default abstract class Game {
     this.move()
     this.gravitate()
     Object.values(this.ships).forEach(ship => ship.step())
-    this.blackHoles.forEach(bh => bh.step())
+    Object.values(this.blackHoles).forEach(bh => bh.step())
     this.draw()
     this.tic()
   }

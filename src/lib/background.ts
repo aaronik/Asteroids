@@ -1,4 +1,3 @@
-import CustomArray from './array'
 import Star from "./star"
 
 type HeightWidth = { HEIGHT: number, WIDTH: number }
@@ -9,7 +8,7 @@ type HeightWidth = { HEIGHT: number, WIDTH: number }
 export default class Background {
   game: HeightWidth
   numStars: number
-  stars: CustomArray<Star>
+  stars: { [id: string]: Star } = {}
   starOptions: {
     height: number
     width: number
@@ -18,7 +17,6 @@ export default class Background {
 	constructor(game: HeightWidth) {
 		this.game = game
 		this.numStars = 200
-		this.stars = new CustomArray()
 		this.starOptions = {
 			height: game.HEIGHT,
 			width: game.WIDTH
@@ -28,12 +26,13 @@ export default class Background {
 
 	initialize () {
 		for (var i = 0; i < this.numStars; i++) {
-			this.stars.push(new Star(this.starOptions))
+      const star = new Star(this.starOptions)
+			this.stars[star.id] = star
 		}
 	}
 
 	draw (ctx: CanvasRenderingContext2D) {
-		this.stars.forEach(function(star){
+		Object.values(this.stars).forEach(function(star){
 			star.draw(ctx)
 		})
 	}
@@ -41,13 +40,13 @@ export default class Background {
 	move() {
 		this.detect()
 
-		this.stars.forEach(function(star){
+		Object.values(this.stars).forEach(function(star){
 			star.move()
 		})
 	}
 
 	detectOOBStars() {
-		this.stars.forEach((star) => {
+		Object.values(this.stars).forEach((star) => {
 			if ( (star.pos[0] + star.radius) < 0) {
 				star.die()
 			}
@@ -69,14 +68,15 @@ export default class Background {
 	detectDeadStars() {
 		var bg = this
 
-		this.stars.forEach(function (star) {
+		Object.values(this.stars).forEach(function (star) {
 			if (!star.alive) bg.replaceStar(star)
 		})
 	}
 
 	replaceStar (star: Star) {
-		this.stars.remove(star)
-		this.stars.push(new Star(this.starOptions))
+    delete this.stars[star.id]
+    const newStar = new Star(this.starOptions)
+    this.stars[newStar.id] = newStar
 	}
 
 	detect() {

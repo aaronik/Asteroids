@@ -2,7 +2,6 @@ import Game from "./game"
 import Asteroid, { AsteroidOptions } from '../lib/asteroid'
 import Ship, { ShipOptions } from "../lib/ship"
 import Vector from "../lib/vector"
-import CustomArray from "../lib/array"
 import BlackHole, { BlackHoleOptions } from "../lib/blackHole"
 import Bullet, { BulletOptions } from "../lib/bullet"
 import { APP_ID, network } from '../network'
@@ -67,7 +66,7 @@ export default class MultiPlayerGame extends Game {
   // This game will never request asteroids, just get them from the host.
   addAsteroid(asteroidOpts: AsteroidOptions) {
     const asteroid = new Asteroid(asteroidOpts)
-    this.asteroids.push(asteroid)
+    this.asteroids[asteroid.id] = asteroid
     return asteroid
   }
 
@@ -128,7 +127,11 @@ export default class MultiPlayerGame extends Game {
   addForeignShip(shipOpts: Omit<ShipOptions, 'addExhaustParticles'>) {
     const opts = {
       ...shipOpts,
-      addExhaustParticles: (ps: ExhaustParticle[]) => this.exhaustParticles.push(...ps)
+      addExhaustParticles: (ps: ExhaustParticle[]) => {
+        ps.forEach(p => {
+          this.exhaustParticles[p.id] = p
+        })
+      }
     }
     const ship = new Ship(opts)
     this.ships[ship.id] = ship
@@ -148,7 +151,7 @@ export default class MultiPlayerGame extends Game {
   fireForeignShip(bulletOpts: BulletOptions) {
     const ship = this.get(bulletOpts.ship.id) as Ship
     const bullet = ship.fire(bulletOpts)
-    this.bullets.push(bullet)
+    this.bullets[bullet.id] = bullet
   }
 
   fireShip() {
@@ -197,10 +200,10 @@ export default class MultiPlayerGame extends Game {
   }
 
   clearState() {
-    this.asteroids = new CustomArray<Asteroid>()
-    // this.bullets = new CustomArray<Bullet>()
+    this.asteroids = {}
+    // this.bullets = {}
     // this.ships = { [this.ship.id]: this.ship }
-    this.blackHoles = new CustomArray<BlackHole>()
+    this.blackHoles = {}
   }
 
   sendShipState() {
@@ -217,7 +220,12 @@ export default class MultiPlayerGame extends Game {
       pos: new Vector(stateObj.pos),
       vel: new Vector(stateObj.vel),
       orientation: new Vector(stateObj.orientation),
-      addExhaustParticles: (ps: ExhaustParticle[]) => this.exhaustParticles.push(...ps)
+      addExhaustParticles: (ps: ExhaustParticle[]) => {
+        ps.forEach(p => {
+          this.exhaustParticles[p.id] = p
+        })
+      }
+
     }
 
     if (shipState.id !== this.ship.id) {

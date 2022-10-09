@@ -37,7 +37,7 @@ export default class Bullet extends MassiveObject {
     this.mass = 0.1 // in kg
 	}
 
-	draw(ctx: CanvasRenderingContext2D) {
+	draw = (ctx: CanvasRenderingContext2D) => {
 		var start = this.pos
 		var end = this.pos.add(this.orientation.scale(10))
 

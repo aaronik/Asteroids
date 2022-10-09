@@ -1,7 +1,7 @@
-import CustomArray from './array'
+import { randomUnit } from '../util'
 
 // TODO maybe there's an existing implementation of this
-export default class Vector extends CustomArray<number> {
+export default class Vector extends Array<number> {
   constructor(coords: number[] | Vector = []) {
     super(...coords)
   }
@@ -90,8 +90,7 @@ export default class Vector extends CustomArray<number> {
    * @param {number} maxRadians maximum number of radians about which to rotate the vec
    */
   nudge(maxRadians: number = Math.random() * 0.125) {
-    const unit = new CustomArray(-1, 1)
-    return this.rotate(Math.random() * (maxRadians / 2) * unit.sample())
+    return this.rotate(Math.random() * (maxRadians / 2) * randomUnit())
   }
 
   /**

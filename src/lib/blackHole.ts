@@ -47,7 +47,7 @@ export default class BlackHole extends MassiveObject {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  draw = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     const [x, y] = this.pos
     const r = this.radius
     const b = this.radius + this.accretionDisk

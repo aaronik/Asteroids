@@ -1,4 +1,5 @@
 import Game from "../game/game"
+import Store from "./store"
 
 type ExplodingTextOptions = {
   game: Game
@@ -12,6 +13,7 @@ type ExplodingTextOptions = {
 }
 
 export default class ExplodingText {
+  id: string
   game: Game
   independentTimer: boolean
   txt: string
@@ -22,6 +24,7 @@ export default class ExplodingText {
   onComplete?: () => void
 
 	constructor(options: ExplodingTextOptions) {
+    this.id = Store.uid()
 		this.game = options.game
 		this.independentTimer = options.independentTimer
 		this.txt = options.txt || 'default text'

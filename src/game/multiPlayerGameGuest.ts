@@ -60,7 +60,8 @@ export default class MultiPlayerGameGuest extends MultiPlayerGame {
       orientation: new Vector(stateObj.orientation),
     }
 
-    this.asteroids.push(new Asteroid(state))
+    const as = new Asteroid(state)
+    this.asteroids[as.id] = as
   }
 
   handleFullStateBlackHole(stateObj: BlackHoleFullState) {
@@ -70,7 +71,8 @@ export default class MultiPlayerGameGuest extends MultiPlayerGame {
       vel: new Vector(stateObj.vel),
     }
 
-    this.blackHoles.push(new BlackHole(state))
+    const bh = new BlackHole(state)
+    this.blackHoles[bh.id] = bh
   }
 
   handleFullStateBullet(stateObj: BulletFullState) {
@@ -82,7 +84,8 @@ export default class MultiPlayerGameGuest extends MultiPlayerGame {
       ship: this.get(stateObj.shipId) as Ship
     }
 
-    this.bullets.push(new Bullet(state))
+    const bullet = new Bullet(state)
+    this.bullets[bullet.id] = bullet
   }
 
   handleFullStateShip(ship: ShipFullState) {
@@ -93,7 +96,11 @@ export default class MultiPlayerGameGuest extends MultiPlayerGame {
       pos: new Vector(ship.pos),
       vel: new Vector(ship.vel),
       orientation: new Vector(ship.orientation),
-      addExhaustParticles: (ps: ExhaustParticle[]) => this.exhaustParticles.push(...ps)
+      addExhaustParticles: (ps: ExhaustParticle[]) => {
+        ps.forEach(p => {
+          this.exhaustParticles[p.id] = p
+        })
+      }
     }
     this.ships[ship.id] = new Ship(opts)
   }

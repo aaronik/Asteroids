@@ -1,7 +1,7 @@
 import Store from './store'
 import Vector from './vector'
-import CustomArray from './array'
 import MassiveObject from './massiveObject'
+import { randomUnit } from '../util'
 
 export type AsteroidOptions = {
   radius: number
@@ -16,8 +16,8 @@ export type AsteroidOptions = {
 }
 
 export default class Asteroid extends MassiveObject {
-  static EDGE_COUNTS = new Vector([7, 8, 9, 10, 11, 12, 13, 14, 15])
-	static RADII = new Vector([40, 25, 10])
+  static EDGE_COUNTS = [7, 8, 9, 10, 11, 12, 13, 14, 15]
+	static RADII = [40, 25, 10]
 
   color: string
   health: number
@@ -33,34 +33,20 @@ export default class Asteroid extends MassiveObject {
 
     super(opts.pos, opts.vel, opts.radius, mass)
 
-    const unit = new Vector([-1, 1])
+    const edgeCount = opts.edgeCount ||
+      Asteroid.EDGE_COUNTS[Math.floor(Math.random() * Asteroid.EDGE_COUNTS.length)]
 
     this.mass = mass
+		this.edgeCount = edgeCount
     this.pos = new Vector(opts.pos)
     this.vel = new Vector(opts.vel)
     this.radius = opts.radius
 		this.color = opts.color || Store.randomColor()
 		this.health = opts.radius
 		this.id = opts.id || Store.uid()
-		this.edgeCount = opts.edgeCount || Asteroid.EDGE_COUNTS.sample() as number
 		this.edgeNudgers = opts.edgeNudgers || Store.nudgers(this.edgeCount)
-		this.rotationRate = opts.rotationRate || Math.random() * 0.1 * (unit.sample() as number)
+		this.rotationRate = opts.rotationRate || Math.random() * 0.1 * (randomUnit())
 		this.orientation = opts.orientation ? new Vector(opts.orientation) : new Vector([0, 1])
-	}
-
-  /**
-  * @description Gives you the max speed an asteroid can have, based on the
-  * size of the radius. The idea is that small asteroids can go faster
-  * than large asteroids, which gives the game a cool effect IMO even though
-  * it does not adhere to the reality of physics lol
-  *
-  * @param {string} radius - the size of the asteroid who's max speed we're
-  * interested in
-  */
-	static maxSpeed(radius: number) {
-		radius = radius || this.RADII[0]
-
-		return Math.log(radius)
 	}
 
 	static randomAsteroid(dimX: number, dimY: number) {
@@ -88,7 +74,7 @@ export default class Asteroid extends MassiveObject {
 		this.orientation = this.orientation.rotate(this.rotationRate)
 	}
 
-	draw(ctx: CanvasRenderingContext2D) {
+	draw = (ctx: CanvasRenderingContext2D) => {
 		var toLine
 		ctx.beginPath()
 		var start = this.pos.add(this.orientation.rotate(0).scale(this.radius * this.edgeNudgers[0]))
@@ -113,7 +99,7 @@ export default class Asteroid extends MassiveObject {
 			return []
 		}
 
-		var newAsteroidOpts = new CustomArray<AsteroidOptions>()
+		var newAsteroidOpts = []
 
     // TODO offer variable number of units to explode into
 		for (var i = 0; i < 3; i++) {

@@ -30,3 +30,10 @@ export const getActiveGameIds = (): string[] => {
 */
 export const neverGonnaGiveYouUp = (_: never) => {}
 
+/**
+* @description Gives back either 1 or -1, with 50/50 chance of either
+*/
+export const randomUnit = (): 1 | -1 => {
+  if (Math.random() < 0.5) return -1
+  else return 1
+}

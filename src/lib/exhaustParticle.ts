@@ -1,7 +1,6 @@
 import MovingObject from "./movingObject"
 import Ship from "./ship"
 import Vector from "./vector"
-import CustomArray from "./array"
 
 type ExhaustParticleOptions = {
   ship: Ship
@@ -29,13 +28,13 @@ export default class ExhaustParticle extends MovingObject {
 		this.pos = pos
 		this.vel = vel
 		this.radius = radius
-		this.RGB = new CustomArray('226,72,0','204,24,0','134,2,0','255,119,1').sample() as string
+		this.RGB = ['226,72,0','204,24,0','134,2,0','255,119,1'][Math.floor(Math.random() * 4)]
 		this.health = 0.2
 		this.decayRate = 0.01
 	}
 
   // unlike the other moving objects, to draw, this one needs to know these things
-	draw (ctx: CanvasRenderingContext2D, width: number, height: number) {
+	draw = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
 		var x = this.pos[0]
 		var y = this.pos[1]
 
