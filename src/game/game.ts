@@ -18,6 +18,8 @@ import { router } from "../App"
 
 type InternalList<T> = { [id: string]: T }
 
+// TODO All the radii should be relative to the screen area. That way when
+// the game is fine tuned it'll work across all sizes.
 export default abstract class Game {
   FPS = 30
   DIFFICULTY_INCREASE_RATE = 1.5

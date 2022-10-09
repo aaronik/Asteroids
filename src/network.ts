@@ -36,3 +36,7 @@ window.db = db
 export const APP_ID = (game: { gameId: string }) => {
   return 'asteroids-' + game.gameId
 }
+
+window.addEventListener('beforeunload', () => {
+  db.clear() // These are meant to be ephemeral, this helps keep it clean
+})
