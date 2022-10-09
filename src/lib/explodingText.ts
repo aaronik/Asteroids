@@ -18,57 +18,60 @@ type ExplodingTextOptions = {
 export default class ExplodingText {
   id: string
   game: Game
-  independentTimer: boolean
   txt: string
   size: number
   growRate: number
   alpha: number
   alphaChangeRate: number
+  independentTimer: boolean
   onComplete?: () => void
 
-	constructor(options: ExplodingTextOptions) {
+  constructor(options: ExplodingTextOptions) {
     this.id = Store.uid()
-		this.game = options.game
-		this.independentTimer = options.independentTimer
-		this.txt = options.txt || 'default text'
-		this.size = options.size || 10
-		this.growRate = options.growRate || 10
-		this.alpha = options.alpha || 1
-		this.alphaChangeRate = options.alphaChangeRate || 0.02
+    this.game = options.game
+    this.txt = options.txt || 'default text'
+    this.size = options.size || 10
+    this.growRate = options.growRate || 10
+    this.alpha = options.alpha || 1
+    this.alphaChangeRate = options.alphaChangeRate || 0.015
     this.onComplete = options.onComplete
+    this.independentTimer = options.independentTimer || false
 
-		this.initialize()
-	}
+    this.initialize()
+  }
 
-	initialize() {
+  initialize() {
     const game = this.game
 
-		if (this.independentTimer) {
-			const timer = setInterval(() => {
-				if (this.alpha <= 0) {
+    if (true) {
+      const timer = setInterval(() => {
+        if (this.alpha <= 0) {
           clearInterval(timer)
           game.handleExplodedText(this)
           game.draw()
         }
         else {
+          this.step()
           game.draw()
         }
-			}, this.game.FPS)
-		}
-	}
+      }, 1000 / this.game.FPS)
+    }
+  }
 
-	draw(ctx: CanvasRenderingContext2D) {
-		ctx.fillStyle = 'rgba(255, 255, 255, ' + this.alpha + ')'
-		ctx.textAlign = 'center'
-		ctx.font = this.size + 'pt "Exo 2", sans-serif'
-		var x = this.game.WIDTH / 2
-		var y = (this.game.HEIGHT / 2) + (this.game.HEIGHT / 15)
+  step() {
+    this.size += this.growRate
+    this.alpha -= this.alphaChangeRate / this.alpha
+  }
 
-		ctx.fillText(this.txt, x, y)
-		ctx.textAlign = 'left'
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = 'rgba(255, 255, 255, ' + this.alpha + ')'
+    ctx.textAlign = 'center'
+    ctx.font = this.size + 'pt "Exo 2", sans-serif'
+    var x = this.game.WIDTH / 2
+    var y = (this.game.HEIGHT / 2) + (this.game.HEIGHT / 15)
 
-		this.size += this.growRate
-		this.alpha -= this.alphaChangeRate / this.alpha
-	}
+    ctx.fillText(this.txt, x, y)
+    ctx.textAlign = 'left'
+  }
 
 }
