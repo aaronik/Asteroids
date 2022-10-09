@@ -1,10 +1,10 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import HostMultiPlayerGame from "./routes/host";
-import Menu from "./routes/menu";
-import MultiPlayerGameGuest from "./routes/guest";
-import SinglePlayerGame from "./routes/single";
-import NoHost from "./routes/noHost";
-import Lost from "./routes/lost";
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import HostMultiPlayerGame from "./routes/host"
+import Menu from "./routes/menu"
+import MultiPlayerGameGuest from "./routes/guest"
+import SinglePlayerGame from "./routes/single"
+import NoHost from "./routes/noHost"
+import Lost from "./routes/lost"
 
 export const router = createBrowserRouter([
   {
