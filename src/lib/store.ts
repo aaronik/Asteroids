@@ -27,7 +27,13 @@ export default class Store {
   * cuts these up a lot and wants to see characters.
   */
 	static uid(length: number = 32) {
-    const uid = crypto.randomUUID().split('').filter(c => c !== '-').join('').slice(0, length)
+    const chars = [0,1,2,3,4,5,6,7,8,9,'A','B','C','D','E','F']
+
+    let uid: string = ''
+
+    for (let i = 0; i < length; i++) {
+      uid += chars[Math.floor(Math.random() * chars.length)]
+    }
 		return uid
 	}
 
