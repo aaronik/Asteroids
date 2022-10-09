@@ -1,5 +1,4 @@
 import MovingObject from "./lib/movingObject"
-import { db } from './network'
 
 type Pair = [MovingObject, MovingObject]
 
@@ -14,15 +13,6 @@ export const isAnyCombinationOf = (pair: Pair, ClassA: any, ClassB: any): boolea
   const isFirstWay = pair[0] instanceof ClassA && pair[1] instanceof ClassB
   const isSecondWay = pair[1] instanceof ClassA && pair[0] instanceof ClassB
   return isFirstWay || isSecondWay
-}
-
-/**
-* @description Statically referencing db, returns all gameIds that
-* are "active", aka their state has a game in it, not null.
-*/
-export const getActiveGameIds = (): string[] => {
-  const wrappedStates = db.getAll().filter(d => !!d.state)
-  return wrappedStates.map(d => (d.state as { gameId: string }).gameId)
 }
 
 /**

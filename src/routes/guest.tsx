@@ -1,50 +1,70 @@
 import { useEffect, useState } from 'react'
 import Canvas from '../components/canvas'
 import GetMultiPlayerGameId from '../components/getMultiId'
+import NoGames from '../components/no-games'
 import { HEIGHT, WIDTH } from '../constants'
 import MultiPlayerGameGuest from '../game/multiPlayerGameGuest'
-import { APP_ID, network } from '../network'
+import { APP_ID, db, network } from '../network'
+import { MultiPlayerGameData } from '../types'
 
 // TODO Get the HEIGHT/WIDTH from the game host and use those dimensions
 /**
 * @description This is kind of a weird one, it presents two different screens
 * based on its state. if a game hasn't been selected, a selection screen,
-* otherwise, the game itself, as a guest. The reason for this was because I
-* wanted a refresh of the browser to not drop the person back into the same
-* game. TBH I think this was mostly for testing sake, now that I think about it.
-* If refreshing could land someone in the same game, then we could get rid of
-* GetMultiPlayerGameId entirely and just have a dedicated selection screen
-* at its own URL.
+* otherwise, the game itself, as a guest.
+*
 */
 export default function JoinMultiPlayerGame() {
 
-  const [gameId, setGameId] = useState('')
+  const [gameId, setGameId] = useState<string>('')
+  const [dbGames, setDbGames] = useState<MultiPlayerGameData[]>([])
   const [game, setGame] = useState<MultiPlayerGameGuest>()
 
-  const onCanvas = (canvas: HTMLCanvasElement) => {
-    const g = new MultiPlayerGameGuest(gameId, canvas)
-    setGame(g)
+  // Change handler abstracted for cleanup
+  const onDbChange = () => {
+    setDbGames(
+      db.getAll().map(w => w.state).filter(Boolean) as MultiPlayerGameData[]
+    )
   }
 
-  const onGameId = (gameId: string) => {
-    setGameId(gameId)
-  }
+  // Subscribe to database updates
+  useEffect(() => {
+    db.onChange(onDbChange)
+  }, [])
 
+  // Unsubscribe / Cleanup by Notifying network of our leaving
   useEffect(() => {
     return () => {
-      if (!gameId || !game) return
-      game.teardown()
 
+      // Clean DB
+      db.removeChangeHandler(onDbChange)
+
+      // Without these, we haven't joined a game yet
+      if (!gameId || !game) return
+
+      // Tell folks we're leaving before we kill the game
       network.broadcast({
         type: 'guestLeaving',
         data: game?.shipId,
         appId: APP_ID(game)
       })
+
+      game.teardown()
     }
   }, [gameId, game])
 
+  // Guaranteed to happen only when we have a valid game
+  const onCanvas = (canvas: HTMLCanvasElement) => {
+    const g = new MultiPlayerGameGuest(gameId, canvas)
+    setGame(g)
+  }
+
+  if (!dbGames.length) return (
+    <NoGames />
+  )
+
   if (!gameId) return (
-    <GetMultiPlayerGameId onGameId={onGameId} />
+    <GetMultiPlayerGameId gameData={dbGames} onGameId={setGameId} />
   )
 
   return (

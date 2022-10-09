@@ -1,6 +1,9 @@
 import { useRef, useEffect } from 'react'
 
 type CanvasProps = {
+  // This is the only way to pass back a reference to
+  // the actual dom object, which we need to manipulate
+  // directly.
   onCanvas: (canvas: HTMLCanvasElement) => void
   height: number
   width: number

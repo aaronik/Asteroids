@@ -1,36 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { db } from '../network'
-import { getActiveGameIds } from '../util'
+import React from 'react'
+import { MultiPlayerGameData } from '../types'
 
 type GetMultiplayerGameIdProps = {
+  gameData: MultiPlayerGameData[]
   onGameId: (gameId: string) => void
 }
 
 export default function GetMultiPlayerGameId(props: GetMultiplayerGameIdProps) {
 
-  const [activeGameIds, setActiveGameIds] = useState<string[]>(getActiveGameIds())
-
-  const getAndSetActiveGameIds = () => {
-    setActiveGameIds(getActiveGameIds())
-  }
-
-  useEffect(() => {
-    db.onChange(getAndSetActiveGameIds)
-
-    return () => {
-      db.removeChangeHandler(getAndSetActiveGameIds)
-    }
-  }, [])
-
-  if (activeGameIds.length === 0) {
-    return (
-      <div id='session-request'>
-        <label>Sorry, there don't seem to be any active games at the moment. </label>
-        <p>Try hosting one yourself!</p>
-        <code>Or, wait until the network establishes a connection or somebody else hosts one.</code>
-      </div>
-    )
-  }
+  const activeGameIds = props.gameData.map(game => game?.gameId).filter(Boolean)
 
   return (
     <React.Fragment>
