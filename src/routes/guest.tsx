@@ -2,12 +2,10 @@ import { useEffect, useState } from 'react'
 import Canvas from '../components/canvas'
 import GetMultiPlayerGameId from '../components/getMultiId'
 import NoGames from '../components/no-games'
-import { HEIGHT, WIDTH } from '../constants'
 import MultiPlayerGameGuest from '../game/multiPlayerGameGuest'
 import { APP_ID, db, network } from '../network'
 import { MultiPlayerGameData } from '../types'
 
-// TODO Get the HEIGHT/WIDTH from the game host and use those dimensions
 /**
 * @description This is kind of a weird one, it presents two different screens
 * based on its state. if a game hasn't been selected, a selection screen,
@@ -53,7 +51,7 @@ export default function JoinMultiPlayerGame() {
     }
   }, [gameId, game])
 
-  // Guaranteed to happen only when we have a valid game
+  // Guaranteed to happen only when we have a valid gameId
   const onCanvas = (canvas: HTMLCanvasElement) => {
     const g = new MultiPlayerGameGuest(gameId, canvas)
     setGame(g)
@@ -67,11 +65,13 @@ export default function JoinMultiPlayerGame() {
     <GetMultiPlayerGameId gameData={dbGames} onGameId={setGameId} />
   )
 
+  const { height, width } = dbGames.find(dbGame => dbGame.gameId === gameId) as MultiPlayerGameData
+
   return (
     <div id='main-wrapper'>
       <Canvas
-        height={HEIGHT}
-        width={WIDTH}
+        height={height}
+        width={width}
         onCanvas={onCanvas}
       />
     </div>

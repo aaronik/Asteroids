@@ -16,6 +16,7 @@ const generateStatusString = () => {
 
 // TODO:
 // * When host dies, guest gets repeated +40
+// * When guest joins paused game, they don't see asteroids until it's unpaused
 export default class MultiPlayerGame extends Game {
   gameId: string
   status: string = generateStatusString()

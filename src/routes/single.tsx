@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Canvas from '../components/canvas'
-import { HEIGHT, WIDTH } from '../constants'
 import SinglePlayerGame from '../game/singlePlayerGame'
+import { getWindowHeight, getWindowWidth } from '../util'
 
 export default function SinglePlayerGameRoute() {
 
@@ -18,8 +18,8 @@ export default function SinglePlayerGameRoute() {
   return (
     <div id='main-wrapper'>
       <Canvas
-        height={HEIGHT}
-        width={WIDTH}
+        height={getWindowHeight()}
+        width={getWindowWidth()}
         onCanvas={onCanvas}
       />
     </div>

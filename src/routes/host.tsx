@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import Canvas from '../components/canvas'
-import { HEIGHT, WIDTH } from '../constants'
 import MultiPlayerGameHost from '../game/multiPlayerGameHost'
 import { db } from '../network'
+import { getWindowHeight, getWindowWidth } from '../util'
 
 export default function HostMultiPlayerGame() {
 
@@ -25,8 +25,8 @@ export default function HostMultiPlayerGame() {
   return (
     <div id='main-wrapper'>
       <Canvas
-        height={HEIGHT}
-        width={WIDTH}
+        height={getWindowHeight()}
+        width={getWindowWidth()}
         onCanvas={onCanvas}
       />
     </div>
