@@ -17,7 +17,7 @@ const useFade = (direction?: 'in' | 'out') => {
 
   useEffect(() => {
     if (direction === 'in') setOpacity(1)
-  }, [])
+  }, [direction])
 
   const buildFade = (ms: number) => {
     return {

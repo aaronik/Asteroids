@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function () {
+export default function NoGames() {
   return (
     <React.Fragment>
       <div id='session-request'>
