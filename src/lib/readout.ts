@@ -1,11 +1,9 @@
-import { network } from "../network"
 import Ship from "./ship"
 import Vector from "./vector"
 
 type ReadoutOptions = {
   game: {
     level: number
-    status?: string
     gameId?: string
     ships: { [shipId: string]: Ship }
   }
@@ -19,9 +17,7 @@ export default class Readout {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    const { status, gameId, level, ships } = this.game
-
-    const isMultiPlayer = !!this.game.status
+    const { gameId, level, ships } = this.game
 
     ctx.font = '15pt "Exo 2", sans-serif'
     ctx.fillStyle = 'white'
@@ -40,12 +36,8 @@ export default class Readout {
 
     const nextHeight = getNextHeight()
 
-    const addy = network.address.slice(0, 5) + '...'
-
     ctx.fillText('Level:  ' + level, 20, nextHeight.next().value)
-    if (isMultiPlayer) ctx.fillText('Address:  ' + addy, 20, nextHeight.next().value)
-    if (isMultiPlayer) ctx.fillText('Status:  ' + status, 20, nextHeight.next().value)
-    if (isMultiPlayer) ctx.fillText('Game:  ' + gameId, 20, nextHeight.next().value)
+    if (gameId) ctx.fillText('Game:  ' + gameId, 20, nextHeight.next().value)
 
     Object.values(ships).forEach((ship) => {
       const y = nextHeight.next().value

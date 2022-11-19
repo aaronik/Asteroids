@@ -24,15 +24,11 @@ export default class MultiPlayerListener {
   startListening() {
     db.onChange(this.onChange)
     network.on('message', this.onMessage)
-    network.on('add-connection', () => this.updateGameStatus(this.game))
-    network.on('destroy-connection', () => this.updateGameStatus(this.game))
   }
 
   stopListening() {
     db.removeChangeHandler(this.onChange)
-    network.on('message', this.onMessage)
-    network.removeListener('add-connection', this.updateGameStatus)
-    network.removeListener('destroy-connection', this.updateGameStatus)
+    network.removeListener('message', this.onMessage)
   }
 
   private onChange = () => {
@@ -49,10 +45,6 @@ export default class MultiPlayerListener {
     }
 
     if (ourGame?.state) (this.game as MultiPlayerGameGuest).handleFullStateUpdate(ourGame.state)
-  }
-
-  private updateGameStatus(game: MultiPlayerGame) {
-    game.recalculateStatus()
   }
 
   private onMessage = (mes: Message & AsteroidsMessage) => {

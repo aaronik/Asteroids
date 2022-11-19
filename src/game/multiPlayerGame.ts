@@ -10,16 +10,12 @@ import ExhaustParticle from "../lib/exhaustParticle"
 import MultiPlayerListener from "../lib/multiplayerListener"
 
 const SHIP_STATE_SEND_RATE = 30
-const generateStatusString = () => {
-  return `connected to ${network.activeConnections().length} peers`
-}
 
 // TODO:
 // * When host dies, guest gets repeated +40
 // * When guest joins paused game, they don't see asteroids until it's unpaused
 export default class MultiPlayerGame extends Game {
   gameId: string
-  status: string = generateStatusString()
   multiPlayerListener: MultiPlayerListener
   type: 'host' | 'guest'
   handleDestroyedShip: (ship: Ship) => void
@@ -66,10 +62,6 @@ export default class MultiPlayerGame extends Game {
   teardown() {
     super.teardown()
     this.multiPlayerListener.stopListening()
-  }
-
-  recalculateStatus() {
-    this.status = generateStatusString()
   }
 
   // This game will never request asteroids, just get them from the host.

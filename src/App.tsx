@@ -5,6 +5,8 @@ import MultiPlayerGameGuest from "./routes/guest"
 import SinglePlayerGame from "./routes/single"
 import NoHost from "./routes/noHost"
 import Lost from "./routes/lost"
+import NetworkInfoDropdown from "./components/network-info-dropdown"
+import { network } from "./network"
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +38,9 @@ export const router = createBrowserRouter([
 export default function App() {
 
   return (
-    <RouterProvider router={router} />
+    <div>
+      <NetworkInfoDropdown network={network} />
+      <RouterProvider router={router} />
+    </div>
   )
 }
