@@ -29,9 +29,9 @@ export default class MultiPlayerGame extends Game {
     // TODO remove
     network.on('message', (mes) => {
       if (mes.appId !== APP_ID(this)) {
-        console.count('received other app message: ' + mes.appId)
-        console.groupCollapsed(mes)
-        console.groupEnd()
+        // console.count('received other app message: ' + mes.appId)
+        // console.groupCollapsed(mes)
+        // console.groupEnd()
         return
       }
 

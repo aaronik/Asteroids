@@ -10,12 +10,14 @@ const Database = require('@browser-network/database/umd/db').default as typeof D
 export const network = new Net<AsteroidsMessage>({
   address: generateSecret(),
   networkId: 'asteroids-net-fahi374ry2i3uhddh',
-  switchAddress: 'http://switchboard.aaronik.com'
+  switchAddress: 'https://switchboard.aaronik.com'
   // switchAddress: 'http://localhost:5678'
 })
 
 // @ts-ignore
 window.network = network
+
+// network.on('connection-process', console.log)
 
 export const db = new Database<MultiPlayerGameData | null>({
   // @ts-ignore TODO it'd be nice if Db didn't complain every time it had a different version of network

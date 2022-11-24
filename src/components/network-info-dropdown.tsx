@@ -13,10 +13,10 @@ const IconSvg = ({ style }: { style: React.CSSProperties }) => {
   const pathStyle = {
     fill: 'none',
     stroke: '#FFF',
-    'stroke-width': 1,
-    'stroke-linecap': 'round',
-    'stroke-linejoin': 'round',
-    'stroke-miterlimit': 1
+    strokeWidth: 1,
+    strokeLineCap: 'round',
+    strokeLineJoin: 'round',
+    strokeMiterLimit: 1
   }
 
   return (
@@ -41,16 +41,42 @@ type NetworkInfoDropdownProps = {
   styleOverrides?: React.CSSProperties
 }
 
+const startTime = Date.now()
+
 export default function NetworkInfoDropdown(props: NetworkInfoDropdownProps) {
   const { network, styleOverrides } = props
 
   const [numConnections, setNumConnections] = useState(0)
+  const [numOutgoingMessages, setNumOutgoingMessages] = useState(0)
+  const [numIncomingMessages, setNumIncomingMessages] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
+  const [upTime, setUpTime] = useState(0)
 
+  // Start uptime ticker
   useEffect(() => {
-    network.on('add-connection', () => setNumConnections(network.activeConnections().length))
-    network.on('destroy-connection', () => setNumConnections(network.activeConnections().length))
+    setInterval(() => {
+      setUpTime(Math.round((Date.now() - startTime) / 1000))
+    }, 1000)
   }, [])
+
+  // This allows for easy(ish) network event handlers. In this one case, React does not
+  // IMO make it easy.
+  type OnParams = Parameters<typeof network.on>
+  const useNetworkEvent = (name: OnParams[0], handler: OnParams[1]) => {
+    useEffect(() => {
+      network.on(name, handler)
+      return () => network.removeListener(name, handler)
+    })
+  }
+
+  // @ts-expect-error
+  useNetworkEvent('add-connection', () => setNumConnections(network.activeConnections.length))
+  // @ts-expect-error
+  useNetworkEvent('destroy-connection', () => setNumConnections(network.activeConnections.length))
+  // @ts-expect-error
+  useNetworkEvent('message', () => setNumIncomingMessages(numIncomingMessages + 1))
+  // @ts-expect-error
+  useNetworkEvent('broadcast-message', () => setNumOutgoingMessages(numOutgoingMessages + 1))
 
   const dropdownStyle = Object.assign({
     position: 'absolute',
@@ -59,7 +85,6 @@ export default function NetworkInfoDropdown(props: NetworkInfoDropdownProps) {
     borderRadius: '20px',
     backgroundColor: 'dimgrey',
     opacity: '0.5',
-    // cursor: 'pointer',
     padding: '10px 20px',
     display: 'flex',
     alignItems: 'center',
@@ -68,20 +93,27 @@ export default function NetworkInfoDropdown(props: NetworkInfoDropdownProps) {
 
   return (
     <div style={dropdownStyle} onClick={() => setIsOpen(!isOpen)}>
-      <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-        <IconSvg style={{ marginRight: '3px' }} />
-        <code> | {numConnections}</code>
+      <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
+        <IconSvg style={{ marginRight: '3px', marginLeft: 'auto' }} />
+        <code style={{ marginRight: 'auto' }}> | {numConnections}</code>
       </div>
       <div style={{ display: isOpen ? 'block' : 'none' }}>
-        <hr/>
+        <hr />
         <code><a target='_blank' href='https://github.com/browser-network/network#readme'>Browser Network</a></code>
-        <hr/>
+        <hr />
+        <code>uptime: {upTime}s</code>
+        <hr />
         <code>us: {network.address.slice(0, 7) + '...'}</code>
-        <hr/>
+        <hr />
         <code>connections:</code>
-        {network.activeConnections().map((con) => {
+        {network.activeConnections.map((con) => {
           return <code style={{ display: 'block' }} key={con.id}>{con.address?.slice(0, 11) + '...'}</code>
         })}
+        <hr />
+        <code>messages:</code>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <code>⟵  {numIncomingMessages}</code><code>⟶  {numOutgoingMessages}</code>
+        </div>
       </div>
     </div>
   )
