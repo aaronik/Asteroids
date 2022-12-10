@@ -8,7 +8,7 @@ const { generateSecret } = require('@browser-network/crypto/umd/crypto') as { ge
 const Database = require('@browser-network/database/umd/db').default as typeof Db
 
 export const network = new Net<AsteroidsMessage>({
-  address: generateSecret(),
+  secret: generateSecret(),
   networkId: 'asteroids-net-fahi374ry2i3uhddh',
   switchAddress: 'https://switchboard.aaronik.com'
   // switchAddress: 'http://localhost:5678'
@@ -17,7 +17,7 @@ export const network = new Net<AsteroidsMessage>({
 // @ts-ignore
 window.network = network
 
-// network.on('connection-process', console.log)
+network.on('connection-process', message => console.log(`${(new Date()).toLocaleTimeString()}: ${message}`))
 
 export const db = new Database<MultiPlayerGameData | null>({
   // @ts-ignore TODO it'd be nice if Db didn't complain every time it had a different version of network

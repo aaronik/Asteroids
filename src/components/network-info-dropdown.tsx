@@ -1,13 +1,10 @@
 import type Network from '@browser-network/network'
 import { useEffect, useState } from 'react'
 
-// Some nice arrows I might want to use in the future:
-// ⟵   ⟶
-
 const IconSvg = ({ style }: { style: React.CSSProperties }) => {
   const containerStyle = Object.assign({
-    width: '30px',
-    heigh: '30px'
+    width: '1.5rem',
+    heigh: '1.5rem'
   }, style)
 
   const pathStyle = {
@@ -82,19 +79,20 @@ export default function NetworkInfoDropdown(props: NetworkInfoDropdownProps) {
     position: 'absolute',
     right: '1vw',
     top: '1vw',
-    borderRadius: '20px',
+    borderRadius: '1.5rem',
     backgroundColor: 'dimgrey',
     opacity: '0.5',
-    padding: '10px 20px',
+    padding: '1rem 2rem',
     display: 'flex',
     alignItems: 'center',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    fontSize: '1rem'
   } as const, styleOverrides)
 
   return (
     <div style={dropdownStyle} onClick={() => setIsOpen(!isOpen)}>
-      <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%' }}>
-        <IconSvg style={{ marginRight: '3px', marginLeft: 'auto' }} />
+      <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%', userSelect: 'none' }}>
+        <IconSvg style={{ marginRight: '0.2rem', marginLeft: 'auto' }} />
         <code style={{ marginRight: 'auto' }}> | {numConnections}</code>
       </div>
       <div style={{ display: isOpen ? 'block' : 'none' }}>
@@ -111,8 +109,10 @@ export default function NetworkInfoDropdown(props: NetworkInfoDropdownProps) {
         })}
         <hr />
         <code>messages:</code>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <code>⟵  {numIncomingMessages}</code><code>⟶  {numOutgoingMessages}</code>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <code>{numIncomingMessages}</code>
+          <code style={{ fontSize: '1.5rem' }}>&#8651;</code>
+          <code>{numOutgoingMessages}</code>
         </div>
       </div>
     </div>
